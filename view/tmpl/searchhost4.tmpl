@@ -1,0 +1,252 @@
+{$title = "{t}Search IP reservation{/t}"}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{$title}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+
+   {include file='./functions/br.tmpl' scope="root"}
+   {include file='./configs/menu.tmpl' scope="root"}
+   {include file='./configs/breadcrumb.tmpl' scope="root"}
+   {include file='./functions/menumaker.tmpl' scope="root"}
+   {include file='./functions/breadmaker.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv4" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- 左グリッド  -->
+  <div class="row">
+    <!-- 左ナビゲーションバー -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand4 id="searchsubnet" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+      {if isset($subnet_val)}
+        <div class="panel panel-default">
+          {call menumaker list=$side_searchhost4 id="searchhost4" mode="ul" class="nav nav-pills nav-stacked abc"}
+        </div>
+      {/if}
+    </nav>
+
+    <!-- 右グリッド  -->
+    <div class="col-sm-10">
+      <nav class="">
+        {call breadmaker list=$bread_search_host4 id="searchhost4"}
+      </nav>
+      <!-- subnet -->
+      <div class="Subnet">
+        {t}Subnet{/t}: {$subnet}
+        </br>
+        {t}Pool{/t}:
+        {foreach from=$pools item=info}
+          {$info}
+          </br>
+        {/foreach}
+      </div>
+
+      <div class="panel panel-default">
+        <!-- メインコンテンツ -->
+        <div class="container-fluid panel-body">
+          <div class="row">
+            <!-- エラーメッセージ -->
+            <div class="ErrorMessage">
+
+              {$e_page}{call br var=$e_page}
+              {$e_all}{call br var=$e_all}
+              {$e_subnet_id}{call br var=$e_subnet_id}
+              {$e_subnet}{call br var=$e_subnet}
+              {$e_pool}{call br var=$e_pool}
+              {$disp_msg}{call br var=$disp_msg}
+
+              {if isset($no_result)}
+                {$no_result}
+              {/if}
+            </div>
+
+            <!-- 説明文 -->
+            <div class="col-sm-6 col-md-push-6">
+              <div class="table-bordered"> 
+                <ul>
+                  <li>{t}IP address is searched forward match.{/t}</li>
+                  <li>{t}Identifier is searched with exact match.{/t}</li>
+                </ul>
+              </div>
+            </div>
+
+
+            <!-- 検索フォーム -->
+            <div class="col-sm-6 col-md-pull-6">
+              <form class="form-horizontal" action="searchhost4.php" method="get">
+                <input type="hidden" name="subnet_id" value="{$subnet_id}">
+                <input type="hidden" name="subnet" value="{$subnet}">
+                <div class="form-group">
+                  <label class="col-sm-2 control-label text-nowrap" for="IPaddr">{t}IP address{/t}</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" id="IPaddr" name="ipaddr" placeholder="IP address" value="{$pre.ipaddr}">
+                  </div>
+                </div>
+              
+                <div class="form-group">
+                  <label class="col-sm-2 control-label text-nowrap" for="Identifier">{t}Identifier{/t}</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" id="Identifier" name="identifier" placeholder="08:00:27:c1:02:08" value="{$pre.identifier}">
+                  </div>
+                </div>
+              
+                <!-- 検索ボタン -->
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <button type="submit" name="search">{t}Search{/t}</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <hr style="margin:0px;">
+
+          <!-- 検索件数 -->
+          {if $result != NULL}
+            <div class="row">
+              <div class="col-sm-12">
+                <p>{t}Result{/t}: {$result}</p>
+              </div>
+            </div>
+
+            <!-- 検索結果 -->
+            {if $result gt 0}
+              <div class="row">
+                <div class="col-sm-12">
+                  <table class="table table-striped table-bordered responsive">
+                    <thead class="thead-default thead-default-extend">
+                      <tr>
+                        <th>
+                          {t}delete{/t}
+                        </th>
+                        <th>
+                          {t}hostname{/t}
+                        </th>
+                        <th>
+                          {t}type{/t}
+                        </th>
+                        <th>
+                          {t}Identifier{/t}
+                        </th>
+                        <th>
+                          {t}IP address{/t}
+                        </th>
+                        <th>
+                        </th>
+                        <th>
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {foreach from=$item item=info}
+                        <tr>
+                          <td data-title="delete">
+                            <p><a href="searchhost4.php?page={$paging->totalpage}&subnet_id={$subnet_id}&subnet={$subnet}&ipaddr={$pre.ipaddr}&identifier={$pre.identifier}&host_id={$info.host_id}&search=Search&del=" onClick="javascript:return confirm('{t}Are you sure you want to delete this host?{/t}')"><span class="glyphicon glyphicon-trash"></span></i></a></p>
+                          </td>
+                          <td data-title="hostname">
+                            {$info.hostname} 
+                          </td>
+                          <td data-title="type">
+                            {$info.type} 
+                          </td>
+                          <td data-title="Identifier">
+                            {$info.id} 
+                          </td>
+                          <td data-title="IP address">
+                            {$info.ip} 
+                          </td>
+                          <td data-title="Edit">
+                            <form action="edithost4.php" method="get">
+                              <input type="hidden" name="subnet_id" value="{$subnet_id}">
+                              <input type="hidden" name="subnet" value="{$subnet}">
+                              <input type="hidden" name="host_id" value="{$info.host_id}">
+                              <button type="submit" name="edit" value="edit">{t}Edit{/t}</button>
+                            </form>
+                          </td>
+                          <td data-title="Copy">
+                            <form action="addhost4.php" method="get">
+                              <input type="hidden" name="subnet_id" value="{$subnet_id}">
+                              <input type="hidden" name="subnet" value="{$subnet}">
+                              <input type="hidden" name="host_id" value="{$info.host_id}">
+                              <button type="submit" name="copy" value="copy">{t}Copy{/t}</button>
+                            </form>
+                          </td>
+                        </tr>
+                      {/foreach}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- データの表示が2ページ以上にわたるときにページリンクを表示 -->
+              {if $paging->totaldata gt $paging->dataperpage}
+                <div class="Pagenator">
+                  <!-- 1ページ前と最初のページ戻る矢印を表示させるか制御するif文。現在ページ
+(currentpage)が1ページ目でない場合に表示させる -->
+                  {if $paging->currentpage ne 1}
+                    <a href="searchhost4.php?page=1&subnet_id={$subnet_id}&subnet={$subnet}&ipaddr={$pre.ipaddr}&identifier={$pre.identifier}&search=Search">&laquo;</a>
+                    <a href="searchhost4.php?page={$paging->currentpage - 1}&subnet_id={$subnet_id}&subnet={$subnet}&ipaddr={$pre.ipaddr}&identifier={$pre.identifier}&search=Search">&lt;</a>
+                  {/if}
+
+                  <!-- publicのコードでページネーションクラスの変数に表示させるページ番号の配列を割り当てておき、それを表示させる。-->
+                  {section name=i loop=$paging->disppage}
+                    <!-- 現在ページをリンクにさせない -->
+                    {if $paging->currentpage eq $paging->disppage[i]}
+                      {$paging->disppage[i]}
+                    <!-- 現在ページ以外はリンクにさせる -->
+                    {else}
+                      <a href="searchhost4.php?page={$paging->disppage[i]}&subnet_id={$subnet_id}&subnet={$subnet}&ipaddr={$pre.ipaddr}&identifier={$pre.identifier}&search=Search">{$paging->disppage[i]}</a>
+                    {/if}
+                  {/section}
+
+                  <!-- 1ページ後と最後のページ戻る矢印を表示させるか制御するif文。現在ページ(currentpage)が最後のページでない場合に表示させる -->
+                  {if $paging->totalpage ne $paging->currentpage}
+                    <a href="searchhost4.php?page={$paging->currentpage + 1}&subnet_id={$subnet_id}&subnet={$subnet}&ipaddr={$pre.ipaddr}&identifier={$pre.identifier}&search=Search">&gt;</a>
+                    <a href="searchhost4.php?page={$paging->totalpage}&subnet_id={$subnet_id}&subnet={$subnet}&ipaddr={$pre.ipaddr}&identifier={$pre.identifier}&search=Search">&raquo;</a>
+                  {/if}
+
+                </div>
+              {/if}
+            {/if}
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+
+</html>

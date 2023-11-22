@@ -1,0 +1,137 @@
+{$title = "{t}List range{/t}"}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{$title}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+
+   {include file='./functions/br.tmpl' scope="root"}
+   {include file='./configs/menu.tmpl' scope="root"}
+   {include file='./configs/breadcrumb.tmpl' scope="root"}
+   {include file='./functions/menumaker.tmpl' scope="root"}
+   {include file='./functions/breadmaker.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv6" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- 左グリッド  -->
+  <div class="row">
+    <!-- 左ナビゲーションバー -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand6 id="searchsubnet" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+    </nav>
+
+    <!-- 右グリッド  -->
+    <div class="col-sm-10">
+      <nav class="">
+        {call breadmaker list=$list_range6 id="listrange"}
+      </nav>
+      <!-- subnet -->
+      <div class="Subnet">
+        {t}Subnet{/t}: {$subnet}
+      </div>
+
+      <div class="panel panel-default">
+        <!-- メインコンテンツ -->
+        <div class="container-fluid panel-body">
+          <div class="row">
+            <!-- エラーメッセージ -->
+            <div class="ErrorMessage">
+              {if isset($e_subnet)}
+                {$e_subnet}{call br var=$e_subnet}
+              {/if}
+              {if isset($e_pool)}
+                {$e_pool}{call br var=$e_pool}
+              {/if}
+              {if isset($disp_msg)}
+                {$disp_msg}{call br var=$disp_msg}
+              {/if}
+              {if isset($e_msg)}
+                {$e_msg}{call br var=$e_msg}
+              {/if}
+            </div>
+
+              <div class="row">
+                <div class="col-sm-12">
+                  <button onclick='location.href = "addrange6.php?subnet={$subnet}";' type="button" name="search">{t}Add{/t}</button>
+                  <button onclick='location.href = "searchsubnet6.php";' type="button" name="search">{t}Back{/t}</button>
+                  <hr>
+                </div>
+                <br>
+                <div class="col-sm-12">
+                  <table class="table table-striped table-bordered responsive">
+                    <thead class="thead-default thead-default-extend">
+                      <tr>
+                        <th>
+                          {t}delete{/t}
+                        </th>
+                        <th>
+                          {t}Pool IP addresses{/t}
+                        </th>
+                        <th>
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {foreach from=$pools item=info}
+                        <tr>
+                          <td data-title="delete">
+                            <p><a href="listrange6.php?subnet={$subnet}&pool={$info}&del=DeletePool" onClick="javascript:return confirm('{t}Are you sure you want to delete this range?{/t}')"><span class="glyphicon glyphicon-trash"></span></i></a></p>
+                          </td>
+                          <td data-title="hostname">
+                            {$info} 
+                          </td>
+                          <td data-title="Edit">
+                            <form action="editrange6.php" method="get">
+                              <input type="hidden" name="subnet" value="{$subnet}">
+                              <input type="hidden" name="range" value="{$info}">
+                              <button type="submit" name="edit" value="edit">{t}Edit{/t}</button>
+                            </form>
+                          </td>
+                        </tr>
+                      {/foreach}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+
+</html>

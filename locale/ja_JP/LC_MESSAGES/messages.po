@@ -1,0 +1,816 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-04-04 14:14+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: /home/nisimura/DGN_keaweb/class/keaconf.php:50
+#, php-format
+msgid "No subnet4 setting(%s)."
+msgstr "サブネットがありません(%s)。"
+
+#: /home/nisimura/DGN_keaweb/class/keaconf.php:95
+msgid "No search result for subnet4."
+msgstr "subnet4の設定を取得できませんでした。"
+
+#: /home/nisimura/DGN_keaweb/class/keaconf.php:114
+#, php-format
+msgid "No subnet6 setting(%s)."
+msgstr "サブネットがありません(%s)。"
+
+#: /home/nisimura/DGN_keaweb/class/keaconf.php:123
+#, php-format
+msgid "No such subnet(%s)"
+msgstr "サブネットが存在しません(%s)。"
+
+#: /home/nisimura/DGN_keaweb/class/keaconf.php:132
+#, php-format
+msgid "No such subnet id(%s)"
+msgstr "サブネットIDが存在しません(%s)。"
+
+#: /home/nisimura/DGN_keaweb/class/keaconf.php:178
+#, php-format
+msgid "No such file(%s)."
+msgstr "ファイルが存在しません(%s)。"
+
+#: /home/nisimura/DGN_keaweb/class/keaconf.php:187
+#, php-format
+msgid "Cannot read file(%s)."
+msgstr "ファイルが読み込めません(%s)。"
+
+#: /home/nisimura/DGN_keaweb/class/keaconf.php:235
+#, php-format
+msgid "Cannot read file. Syntax error?(%s)"
+msgstr "ファイルが読み込めません。シンタックスに問題がある可能性があります(%s)。"
+
+#: /home/nisimura/DGN_keaweb/public/password.php:52
+msgid "Password changed."
+msgstr "パスワードを変更しました。"
+
+#: /home/nisimura/DGN_keaweb/public/password.php:66
+msgid "Please enter Password."
+msgstr "パスワードを入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/password.php:67
+msgid "Password too short."
+msgstr "パスワードが短すぎます。"
+
+#: /home/nisimura/DGN_keaweb/public/password.php:68
+msgid "Password too long."
+msgstr "パスワードが長すぎます。"
+
+#: /home/nisimura/DGN_keaweb/public/password.php:69
+msgid "Invalid password."
+msgstr "パスワードに利用できない文字が含まれています。"
+
+#: /home/nisimura/DGN_keaweb/public/password.php:82
+msgid "Please enter confirm password."
+msgstr "確認用パスワードを入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/password.php:83
+msgid "Password does not match."
+msgstr "確認用パスワードが一致しません。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:84
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:129
+#: /home/nisimura/DGN_keaweb/public/searchhost4.php:147
+msgid "Can not find a subnet id."
+msgstr "サブネットIDが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:88
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:133
+#: /home/nisimura/DGN_keaweb/public/searchhost4.php:151
+msgid "Can not find a subnet."
+msgstr "サブネットが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:116
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:165
+msgid "Invalid hostname."
+msgstr "ホスト名に利用できない文字が含まれています。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:117
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:166
+msgid "Hostname already exists."
+msgstr "ホスト名が既に使われています。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:127
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:175
+msgid "Please enter type."
+msgstr "識別子のタイプを入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:128
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:176
+msgid "Invalid type of identifier."
+msgstr "識別子のタイプに利用できない文字が含まれています。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:150
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:198
+msgid "Please enter Identifier."
+msgstr "識別子を入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:151
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:152
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:199
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:200
+msgid "Invalid identifier."
+msgstr "識別子が利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:153
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:201
+msgid "Identifier already exists."
+msgstr "識別子が既に使われています。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:168
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:216
+msgid "Please enter IP address."
+msgstr "IPアドレスを入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost6.php:173
+msgid "Please enter prefix."
+msgstr "プレフィックスを入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost6.php:379
+msgid "Cannot find address."
+msgstr "addressが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost6.php:379
+msgid "Cannot find prefix_len."
+msgstr "prefix_lenが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost6.php:379
+msgid "Cannot find type."
+msgstr "typeが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost6.php:86
+msgid "Invalid subnet."
+msgstr "サブネットが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:86
+msgid "Invalid pool."
+msgstr "プールが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost6.php:172
+msgid "Please enter prefix delegation."
+msgstr "prefix delegationを入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost6.php:173
+msgid "Invalid prefix delegation."
+msgstr "prefix delegationが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:169
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:170
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:217
+msgid "Invalid IP address."
+msgstr "IPアドレスが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost6.php:173
+msgid "Invalid prefix."
+msgstr "プレフィックスが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost6.php:381
+msgid "There is no data concerning the host ID(%s)."
+msgstr "ホストIDに関するデータがありません(%s)。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:171
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:218
+msgid "IP address out of subnet range."
+msgstr "IPアドレスがサブネットの範囲外です。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:172
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:219
+msgid "IP address is within subnet pool range."
+msgstr "IPアドレスがサブネットプールの範囲内です。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:173
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:220
+msgid "IP address already exists."
+msgstr "IPアドレスが既に使われています。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:185
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:231
+msgid "Invalid domain-name-server."
+msgstr "domain-name-serversが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:194
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:240
+msgid "Invalid routers."
+msgstr "routersが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:202
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:248
+msgid "Invalid dhcp:next-server."
+msgstr "dhcp:next-serverが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:211
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:257
+msgid "Invalid dhcp:boot-file."
+msgstr "dhcp:boot-fileが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:220
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:266
+msgid "Invalid tftp-server-name."
+msgstr "tftp-server-nameが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:229
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:275
+msgid "Invalid boot-file-name."
+msgstr "boot-file-nameが利用できないフォーマットです。"
+
+#: /home/nisimura/DGN_keaweb/public/addhost4.php:508
+msgid "Add successful!"
+msgstr "追加に成功しました。"
+
+#: /home/nisimura/DGN_keaweb/public/index.php:61
+msgid "logged out."
+msgstr "ログアウトしました。"
+
+#: /home/nisimura/DGN_keaweb/public/index.php:66
+msgid "Session timed out."
+msgstr "セッションがタイムアウトしました。"
+
+#: /home/nisimura/DGN_keaweb/public/index.php:70
+msgid "Invalid session."
+msgstr "セッションが不正です。"
+
+#: /home/nisimura/DGN_keaweb/public/index.php:90
+msgid "Please enter your ID."
+msgstr "ユーザIDを入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/index.php:95
+msgid "Please enter your password."
+msgstr "パスワードを入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/index.php:100
+msgid "Authentication failed."
+msgstr "認証に失敗しました。"
+
+msgid "Double login."
+msgstr "別のユーザがログインしています。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:137
+#: /home/nisimura/DGN_keaweb/public/searchhost4.php:85
+msgid "Can not find a host id."
+msgstr "ホストIDが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:379
+msgid "Cannot find dhcp_identifier."
+msgstr "dhcp_identifierが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:385
+msgid "Cannot find dhcp_identifier_type."
+msgstr "dhcp_identifier_typeが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:392
+msgid "Cannot find dhcp4_subnet_id."
+msgstr "dhcp4_subnet_idが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:399
+msgid "Cannot find ipv4_address."
+msgstr "ipv4_addressが見つかりません。"
+
+#: /home/nisimura/DGN_keaweb/public/edithost4.php:788
+msgid "Edit successful!"
+msgstr "編集に成功しました。"
+
+#: /home/nisimura/DGN_keaweb/public/searchlease4.php:86
+msgid "Please check the format of start lease date."
+msgstr "リース開始日(開始)のフォーマットを確認してください。"
+
+#: /home/nisimura/DGN_keaweb/public/searchlease4.php:87
+msgid "Please check the lease date range."
+msgstr "リース開始日の範囲を確認してください。"
+
+#: /home/nisimura/DGN_keaweb/public/searchlease4.php:100
+msgid "Please check the format of end lease date."
+msgstr "リース開始日(終了)のフォーマットを確認してください。"
+
+#: /home/nisimura/DGN_keaweb/public/searchlease4.php:110
+msgid "Please check the format of start expire date."
+msgstr "リース期限日(開始)のフォーマットを確認してください。"
+
+#: /home/nisimura/DGN_keaweb/public/searchlease4.php:111
+msgid "Please check the expire date range."
+msgstr "リース期限日の範囲を確認してください。"
+
+#: /home/nisimura/DGN_keaweb/public/searchlease4.php:124
+msgid "Please check the format of end expire date."
+msgstr "リース期限日(終了)のフォーマットを確認してください。"
+
+#: /home/nisimura/DGN_keaweb/public/searchlease4.php:133
+#: /home/nisimura/DGN_keaweb/public/searchhost4.php:259
+msgid "Please enter search conditions."
+msgstr "検索条件を入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/searchlease4.php:202
+#: /home/nisimura/DGN_keaweb/public/searchhost4.php:405
+msgid "No result."
+msgstr "検索結果がありません。"
+
+#: /home/nisimura/DGN_keaweb/public/searchsubnet4.php:51
+msgid "Please enter subnet."
+msgstr "サブネットを入力してください。"
+
+#: /home/nisimura/DGN_keaweb/public/searchhost4.php:106
+msgid "Reservation IP has already been deleted."
+msgstr "ホストは既に削除されています。"
+
+#: /home/nisimura/DGN_keaweb/public/searchhost4.php:134
+msgid "Reservation IP deleted."
+msgstr "ホストを削除しました。"
+
+#: /home/nisimura/DGN_keaweb/public/searchhost4.php:253
+msgid "Invalid page number."
+msgstr "不正なページ番号が指定されています。"
+
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:253
+msgid "Subnet id or Subnet does not exist in keaconf."
+msgstr "サブネットIDまたはサブネットがkeaconfの中に存在しません。"
+
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:253
+msgid "Subnet does not exist in keaconf."
+msgstr "サブネットがkeaconfの中に存在しません。"
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:503
+msgid "Invalid number of columns."
+msgstr "列数が正しくありません。"
+
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:530
+msgid "hostname is duplicated in registration data."
+msgstr "CSVファイルの中でホスト名が重複しています。"
+
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:536
+msgid "identifier is duplicated in registration data."
+msgstr "CSVファイルの中で識別子が重複しています。"
+
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:551
+msgid "IP address is duplicated in registration data."
+msgstr "CSVファイルの中でIPアドレスが重複しています。"
+
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:592
+msgid "The file content is empty."
+msgstr "CSVファイルが空です。"
+
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:624
+msgid "Please select csv file."
+msgstr "CSVファイルを選択してください。"
+
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:633
+msgid "Failed to open csvfile."
+msgstr "CSVファイルを開けません。"
+
+#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:633
+msgid "Prefix is not 128."
+msgstr "単一のホスト予約をするときは、プレフィックスは128である必要があります。"
+
+msgid "(line: %s)"
+msgstr "(%s行目)"
+
+msgid "Login ID"
+msgstr "ログインID"
+
+msgid "Password"
+msgstr "パスワード"
+
+msgid "Login"
+msgstr "ログイン"
+
+msgid "IP address is searched forward match."
+msgstr "IPアドレスは前方一致検索されます。"
+
+msgid "Identifier is searched with exact match."
+msgstr "識別子は完全一致で検索されます。"
+
+msgid "Date format is YYYY-MM-DD"
+msgstr "日付のフォーマットはYYYY-MM-DDです。"
+
+msgid "Form on the left is the start date of the search."
+msgstr "左のフォームは検索の開始日です。"
+
+msgid "Form on the right is the end date of the search."
+msgstr "右側のフォームは検索の終了日です。"
+
+msgid "When more than one condition is specified, search is done by AND condition."
+msgstr "複数の条件が指定されている場合、AND条件で検索します。"
+
+msgid "IPv4 address"
+msgstr "IPv4アドレス"
+
+msgid "IPv6 address"
+msgstr "IPv6アドレス"
+
+msgid "prefix delegation"
+msgstr "prefix delegation"
+
+msgid "prefix"
+msgstr "プレフィックス"
+
+msgid "IP address"
+msgstr "IPアドレス"
+
+msgid "Identifier"
+msgstr "識別子"
+
+msgid "Lease date"
+msgstr "リース開始日"
+
+msgid "Expire date"
+msgstr "リース期限日"
+
+msgid "Search subnet with forward match."
+msgstr "サブネットを前方一致で検索します。"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Subnet"
+msgstr "サブネット"
+
+msgid "Update Config"
+msgstr "設定適用"
+
+msgid "History"
+msgstr "変更履歴"
+
+msgid "Check history"
+msgstr "変更履歴の確認"
+
+msgid "Shared subnets"
+msgstr "所属するサブネット"
+
+msgid "Other subnets"
+msgstr "未所属のサブネット"
+
+msgid "Pool"
+msgstr "プール"
+
+msgid "Pool IP addresses"
+msgstr "貸出IPアドレスの範囲"
+
+msgid "Edit"
+msgstr "編集"
+
+msgid "Update"
+msgstr "更新"
+
+msgid "Search"
+msgstr "検索"
+
+msgid "Result"
+msgstr "結果"
+
+msgid "delete"
+msgstr "削除"
+
+msgid "Delete"
+msgstr "削除"
+
+msgid "hostname"
+msgstr "ホスト名"
+
+msgid "type"
+msgstr "タイプ"
+
+msgid "Copy"
+msgstr "コピー"
+
+msgid "Reserve IP"
+msgstr "IP予約"
+
+msgid "Please specify the host name with FQDN."
+msgstr "FQDNでホスト名を指定してください。"
+
+msgid "The host name can be empty."
+msgstr "ホスト名は空欄でもOKです。"
+
+msgid "Please enter the identifier in the form of type."
+msgstr "識別子のタイプをセレクトボックスから選択してください。"
+
+msgid "Option"
+msgstr "オプション"
+
+msgid "For \"domain-name-servers\", specify the IP address of the DNS server to be distributed to the host."
+msgstr "\"domain-name-servers\"には、ホストに割り当てるDNSサーバのIPアドレスを指定します。"
+
+msgid "For \"routers\", specify the IP address of the default gateway to be distributed to the host."
+msgstr "\"routers\"には、ホストに配布するデフォルトゲートウェイのIPアドレスを指定します。"
+
+msgid "For \"dhcp:next-server\", specify the server IP address from which to obtain the boot image using the BOOTP protocol."
+msgstr "\"dhcp:next-server\"には、BOOTPプロトコルを使用してブートイメージを取得するサーバのIPアドレスを指定します。"
+
+msgid "For \"dhcp:boot-file\", specify the path of the boot file to be used with the BOOTP protocol."
+msgstr "\"dhcp:boot-file\"には、BOOTPプロトコルで使用するブートファイルのパスを指定します。"
+
+msgid "For \"tftp-server-name\", specify the server IP address from which to obtain the boot image using the DHCP protocol."
+msgstr "\"tftp-server-name\"には、DHCPプロトコルを使用してブートイメージを取得するサーバのIPアドレスを指定します。"
+
+msgid "For \"boot-file-name\", specify the path of the boot file to be used with the DHCP protocol."
+msgstr "\"boot-file-name\"には、DHCPプロトコルで使用するブートファイルのパスを指定します。"
+
+msgid "domain-name-servers"
+msgstr "domain-name-servers"
+
+msgid "routers"
+msgstr "routers"
+
+msgid "dhcp:next-server"
+msgstr "dhcp:next-server"
+
+msgid "dhcp:boot-file"
+msgstr "dhcp:boot-file"
+
+msgid "tftp-server-name"
+msgstr "tftp-server-name"
+
+msgid "boot-file-name"
+msgstr "boot-file-name"
+
+msgid "add"
+msgstr "追加"
+
+msgid "Add"
+msgstr "追加"
+
+msgid "Add IP reservation"
+msgstr "ホスト追加"
+
+msgid "apply"
+msgstr "適用"
+
+msgid "Edit IP reservation"
+msgstr "ホスト編集"
+
+msgid "Search IP reservation"
+msgstr "ホスト検索"
+
+msgid "Search lease"
+msgstr "リース情報検索"
+
+msgid "MAC"
+msgstr "MAC"
+
+msgid "DUID"
+msgstr "DUID"
+
+msgid "Circuit-ID"
+msgstr "Circuit-ID"
+
+msgid "Confirm"
+msgstr "確認"
+
+msgid "change"
+msgstr "変更"
+
+msgid "Logout"
+msgstr "ログアウト"
+
+msgid "DHCPv4"
+msgstr "DHCPv4"
+
+msgid "DHCPv6"
+msgstr "DHCPv6"
+
+msgid "Are you sure you want to delete this host?"
+msgstr "本当にホストを削除してもよろしいですか？"
+
+msgid "Are you sure you want to delete this shared-network?"
+msgstr "本当に共有ネットワークを削除してもよろしいですか？"
+
+msgid "mode"
+msgstr "モード"
+
+msgid "CSV file"
+msgstr "CSVファイル"
+
+msgid "Bulk reservation"
+msgstr "一括管理"
+
+msgid "Shared network name"
+msgstr "共有ネットワーク名"
+
+msgid "Shared network"
+msgstr "共有ネットワーク"
+
+msgid "Edit Shared network"
+msgstr "共有ネットワーク編集"
+
+msgid "Subnet add"
+msgstr "サブネット追加"
+
+msgid "Add range"
+msgstr "範囲追加"
+
+msgid "List range"
+msgstr "範囲一覧"
+
+msgid "Please enter subnet with format ipaddress/nestmask."
+msgstr "IPアドレス/ネットマスク形式でサブネットを入力してください。"
+
+msgid "Edit host"
+msgstr "ホスト設定"
+
+msgid "Edit range"
+msgstr "範囲設定"
+
+msgid "Edit option"
+msgstr "オプション設定"
+
+msgid "Back"
+msgstr "戻る"
+
+msgid "Subnet edit"
+msgstr "オプション更新"
+
+msgid "Range edit"
+msgstr "範囲更新"
+
+msgid "Option name"
+msgstr "オプション名"
+
+msgid "Option value"
+msgstr "オプション値"
+
+msgid "Reset"
+msgstr "リセット"
+
+msgid "Add option"
+msgstr "追加オプション"
+
+msgid "Invalid subnet validate."
+msgstr "サブネットの形式が不正です。"
+
+msgid "Subnet do not exit in config."
+msgstr "サブネットが存在していません。"
+
+msgid "Subnet overlapping."
+msgstr "サブネットが重なっています。"
+
+msgid "Subnet added."
+msgstr "サブネットの追加に成功しました。"
+
+msgid "Are you sure you want to delete this subnet?"
+msgstr "本当にサブネットを削除してもよろしいですか?"
+
+msgid "Subnet deleted successfullly.(%s)"
+msgstr "サブネットの削除に成功しました。(%s)"
+
+msgid "Subnet has already been deleted(%s)."
+msgstr "サブネットは既に削除されています。(%s)"
+
+msgid "Subnet delete do not exist."
+msgstr "サブネットの削除対象が存在しています。"
+
+msgid "Subnet delete target do not exist in config(%s)."
+msgstr "サブネットが存在していません。(%s)"
+
+msgid "Since the host remains in the subnet, can not delete(%s)."
+msgstr "サブネットの中にクライアントが残っているので、削除出来ません。(%s)"
+
+msgid "Deleting pool do not exist."
+msgstr "削除対象範囲が存在していません。"
+
+msgid "Please enter Start IP address."
+msgstr "範囲(開始)を入力してください。"
+
+msgid "Invalid Start IP address."
+msgstr "範囲(開始)の形式が不正です。"
+
+msgid "Please enter End IP address."
+msgstr "範囲(終了)を入力してください。"
+
+msgid "Invalid End IP address."
+msgstr "範囲(終了)の形式が不正です。"
+
+msgid "Start IP address greater then End IP address."
+msgstr "範囲(開始)が範囲(終了)よりも大きくなっています。"
+
+msgid "Start IP address out of subnet range."
+msgstr "範囲(開始)がサブネットの範囲外です。"
+
+msgid "End IP address out of subnet range."
+msgstr "範囲(終了)がサブネットの範囲外です。"
+
+msgid "Start IP address overlaps."
+msgstr "範囲(開始)が他の範囲と重なっています。"
+
+msgid "End IP address overlaps."
+msgstr "範囲(終了)が他の範囲と重なっています。"
+
+msgid "Range added."
+msgstr "範囲の追加に成功しました。"
+
+msgid "Range edited."
+msgstr "範囲の更新に成功しました。"
+
+msgid "Range deleted(%s)."
+msgstr "範囲の削除に成功しました。(%s)"
+
+msgid "Are you sure you want to delete this range?"
+msgstr "本当に範囲を削除してもよろしいですか?"
+
+msgid "Option added."
+msgstr "オプションの更新に成功しました。"
+
+msgid "Extra Option added."
+msgstr "Extraオプションの追加に成功しました。"
+
+msgid "Option do not exist."
+msgstr "オプションが存在していません。"
+
+msgid "Extra Option deleted.(%s)"
+msgstr "Extraオプションの削除に成功しました。(%s)"
+
+msgid "Option deleted."
+msgstr "オプションの削除に成功しました。"
+
+msgid "Please enter routers."
+msgstr "ルータを入力してください。"
+
+msgid "Invalid format of routers."
+msgstr "ルータの形式が不正です。"
+
+msgid "Router out of subnet range."
+msgstr "ルータがサブネットの範囲外です。"
+
+msgid "Please enter DNS Server Address."
+msgstr "DNSサーバアドレスを入力してください。"
+
+msgid "DNS Server Address out of subnet range."
+msgstr "DNSサーバアドレスがサブネットの範囲外です。"
+
+msgid "Invalid DNS Server Address."
+msgstr "DNSサーバの形式が不正です。"
+
+msgid "Please enter option value."
+msgstr "オプション値を入力してください。"
+
+msgid "Please enter option name."
+msgstr "オプション名を入力してください。"
+
+msgid "Are you sure you want to delete this option?"
+msgstr "本当にオプションを削除してもよろしいですか?"
+
+msgid "Range has already been deleted.(%s)"
+msgstr "範囲は既に削除されています。(%s)"
+
+msgid "Delete target of range does not exist."
+msgstr "範囲の削除対象が存在していません。"
+
+msgid "Editing range do not exist.(%s)"
+msgstr "範囲の編集対象が存在していません。(%s)"
+
+msgid "Shared-network added successfully."
+msgstr "共有ネットワークの追加に成功しました。"
+
+msgid "Shared-network is empty."
+msgstr "共有ネットワークがありません。"
+
+msgid "Please enter shared-network name."
+msgstr "共有ネットワーク名を入力してください。"
+
+msgid "Invalid shared-network validate."
+msgstr "共有ネットワーク名の形式が不正です。"
+
+msgid "Shared-network already exists."
+msgstr "共有ネットワーク名がすでに使われています。"
+
+msgid "Shared-network does not exists."
+msgstr "共有ネットワークが存在しません。"
+
+msgid "Subnet exists in shared-network."
+msgstr "所属するサブネットが存在します。"
+
+msgid "Shared-network edited successfully.(%s)"
+msgstr "共有ネットワークの編集に成功しました。"
+
+msgid "Shared-network deleted successfully.(%s)"
+msgstr "共有ネットワークの削除に成功しました。"
+
+msgid "Cannot read configuration.(%s)"
+msgstr "コンフィグレーションの取得ができませんでした。(%s)"
+
+msgid "Cannot write config.(%s)"
+msgstr "設定ファイルに書き込みできません。(%s)"
+
+msgid "Unapplied settings remain.Will you continue the process?"
+msgstr "適用されていない設定が残っています。処理を続けますか？"
+
+msgid "Config file update successfully."
+msgstr "設定ファイルへの設定適用に成功しました。"
+
+msgid "Cannot update config file. Dhcp start-up error?(%s)"
+msgstr "設定ファイルの反映に失敗しました。DHCPが起動していない可能性があります。(%s)"
+
+msgid "Are you sure you want to update config file?"
+msgstr "設定ファイルに設定を適用してもよろしいですか?"

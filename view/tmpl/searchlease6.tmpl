@@ -1,0 +1,259 @@
+{$title = "{t}Search lease{/t}"}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{$title}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+  <script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+        $("#lease_date1").datepicker();
+        $("#lease_date1").datepicker("option", "dateFormat", "yy-mm-dd");
+        $("#lease_date1").datepicker("setDate", "{$pre.ldate1}");
+        $("#lease_date2").datepicker();
+        $("#lease_date2").datepicker("option", "dateFormat", "yy-mm-dd");
+        $("#lease_date2").datepicker("setDate", "{$pre.ldate2}");
+        $("#expire_date1").datepicker();
+        $("#expire_date1").datepicker("option", "dateFormat", "yy-mm-dd");
+        $("#expire_date1").datepicker("setDate", "{$pre.edate1}");
+        $("#expire_date2").datepicker();
+        $("#expire_date2").datepicker("option", "dateFormat", "yy-mm-dd");
+        $("#expire_date2").datepicker("setDate", "{$pre.edate2}");
+    });
+   </script>
+   {include file='./functions/br.tmpl' scope="root"}
+   {include file='./configs/menu.tmpl' scope="root"}
+   {include file='./configs/breadcrumb.tmpl' scope="root"}
+   {include file='./functions/menumaker.tmpl' scope="root"}
+   {include file='./functions/breadmaker.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv6" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- 左グリッド  -->
+  <div class="row">
+    <!-- 左ナビゲーションバー -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand6 id="searchlease" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+    </nav>
+
+    <!-- 右グリッド  -->
+    <div class="col-sm-10">
+      <nav class="">
+        {call breadmaker list=$search_lease6 id="searchlease"}
+      </nav>
+
+      <div class="panel panel-default">
+        <!-- メインコンテンツ -->
+        <div class="container-fluid panel-body">
+          <div class="row">
+            <!-- エラーメッセージ -->
+            <div class="ErrorMessage">
+              {$e_ldate1}{call br var=$e_ldate1}
+              {$e_ldate2}{call br var=$e_ldate2}
+              {$e_edate1}{call br var=$e_edate1}
+              {$e_edate2}{call br var=$e_edate2}
+              {$e_all}
+
+              {if isset($no_result)}
+                {$no_result}
+              {/if}
+            </div>
+
+            <!-- 説明文 -->
+            <div class="col-sm-6 col-md-push-6">
+              <div class="table-bordered"> 
+                <ul>
+                  <li>{t}IP address is searched forward match.{/t}</li>
+                  <li>{t}Identifier is searched with exact match.{/t}</li>
+                  <li>{t}Date format is YYYY-MM-DD{/t}</li>
+                  <li>{t}Form on the left is the start date of the search.{/t}</li>
+                  <li>{t}Form on the right is the end date of the search.{/t}</li>
+                  <li>{t}When more than one condition is specified, search is done by AND condition.{/t}</li>
+                </ul>
+              </div>
+            </div>
+
+
+            <!-- 検索フォーム -->
+              <div class="col-sm-6 col-md-pull-6">
+                <form class="form-horizontal" action="searchlease6.php" method="get">
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label text-nowrap" for="IPaddr">{t}IPv6 address{/t}</label>
+                    <div class="col-sm-9">
+                      {if isset($pre.ipaddr)}
+                        <input type="text" class="form-control" id="IPaddr" name="ip" placeholder="IPv6 address" value="{$pre.ipaddr}">
+                      {else}
+                        <input type="text" class="form-control" id="IPaddr" name="ip" placeholder="IPv6 address">
+                      {/if}
+                    </div>
+                  </div>
+                
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label text-nowrap" for="Identifier">{t}Identifier{/t}</label>
+                    <div class="col-sm-9">
+                      {if isset($pre.identifier)}
+                        <input type="text" class="form-control" id="Identifier" name="id" placeholder="08:00:27:c1:02:08" value="{$pre.identifier}">
+                      {else}
+                        <input type="text" class="form-control" id="Identifier" name="id" placeholder="08:00:27:c1:02:08">
+                      {/if}
+                    </div>
+                  </div>
+                
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label text-nowrap" for="lease_date">{t}Lease date{/t}</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" id="lease_date1" name="ldate1" placeholder="start date:2017-01-01">
+                    </div>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" id="lease_date2" name="ldate2" placeholder="end date:2017-01-31">
+                    </div>
+                  </div>
+                
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label text-nowrap" for="expire_date">{t}Expire date{/t}</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" id="expire_date1" name="edate1" placeholder="start date:2017-01-01">
+                    </div>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" id="expire_date2" name="edate2" placeholder="end date:2017-01-31">
+                    </div>
+                  </div>
+  
+                  <!-- 検索ボタン -->
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <button type="submit" name="search">{t}Search{/t}</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+          </div>
+
+          <hr style="margin:0px;">
+
+          <!-- 検索件数 -->
+          {if $result != NULL}
+            <div class="row">
+              <div class="col-sm-12">
+                <p>{t}Result{/t}: {$result}</p>
+              </div>
+            </div>
+
+            <!-- 検索結果 -->
+            {if $result gt 0}
+              <div class="row">
+                <div class="col-sm-12">
+                  <table class="table table-striped table-bordered responsive">
+                    <thead class="thead-default thead-default-extend">
+                      <tr>
+                        <th>
+                          {t}Identifier{/t}
+                        </th>
+                        <th>
+                          {t}IP address{/t}
+                        </th>
+                        <th>
+                          {t}Lease date{/t}
+                        </th>
+                        <th>
+                          {t}Expire date{/t}
+                        </th>
+                      </tr>
+                    </thead>
+                       
+                    <tbody>
+                     {foreach from=$item item=info}
+                       <tr>
+                         <td data-title="Identifier">
+                           hwaddr:{$info.id}
+                           <br>
+                           duid:{$info.duid}
+                         </td>
+                         <td data-title="IP address">
+                           {$info.ip}
+                         </td>
+                         <td data-title="Lease date">
+                           {$info.lease}
+                         </td>
+                         <td data-title="Expire date">
+                           {$info.expire}
+                         </td>
+                       </tr>
+                     {/foreach}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- データの表示が2ページ以上にわたるときにページリンクを表示 -->
+              {if $paging->totaldata gt $paging->dataperpage}
+                <div class="Pagenator">
+                  <!-- 1ページ前と最初のページ戻る矢印を表示させるか制御するif文。現在ページ(currentpage)が1ページ目でない場合に表示させる -->
+                  {if $paging->currentpage ne 1}
+                    <a href="searchlease6.php?page=1&ip={$pre.ipaddr}&id={$pre.identifier}&ldate1={$pre.ldate1}&ldate2={$pre.ldate2}&edate1={$pre.edate1}&edate2={$pre.edate2}&search=Search">&laquo;</a>
+                    <a href="searchlease6.php?page={$paging->currentpage - 1}&ip={$pre.ipaddr}&id={$pre.identifier}&ldate1={$pre.ldate1}&ldate2={$pre.ldate2}&edate1={$pre.edate1}&edate2={$pre.edate2}&search=Search">&lt;</a>
+                  {/if}
+
+                  <!-- publicのコードでページネーションクラスの変数に表示させるページ番号の配列を割り当てておき、それを表示させる。-->
+                  {section name=i loop=$paging->disppage}
+                    <!-- 現在ページをリンクにさせない -->
+                    {if $paging->currentpage eq $paging->disppage[i]}
+                      {$paging->disppage[i]}
+                    <!-- 現在ページ以外はリンクにさせる -->
+                    {else}
+                      <a href="searchlease6.php?page={$paging->disppage[i]}&ip={$pre.ipaddr}&id={$pre.identifier}&ldate1={$pre.ldate1}&ldate2={$pre.ldate2}&edate1={$pre.edate1}&edate2={$pre.edate2}&search=Search">{$paging->disppage[i]}</a>
+                    {/if}
+                  {/section}
+
+                  <!-- 1ページ後と最後のページ戻る矢印を表示させるか制御するif文。現在ページ(currentpage)が最後のページでない場合に表示させる -->
+                  {if $paging->totalpage ne $paging->currentpage}
+                    <a href="searchlease6.php?page={$paging->currentpage + 1}&ip={$pre.ipaddr}&id={$pre.identifier}&ldate1={$pre.ldate1}&ldate2={$pre.ldate2}&edate1={$pre.edate1}&edate2={$pre.edate2}&search=Search">&gt;</a>
+                    <a href="searchlease6.php?page={$paging->totalpage}&ip={$pre.ipaddr}&id={$pre.identifier}&ldate1={$pre.ldate1}&ldate2={$pre.ldate2}&edate1={$pre.edate1}&edate2={$pre.edate2}&search=Search">&raquo;</a>
+                  {/if}
+
+                </div>
+              {/if}
+            {/if}
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+
+</html>
+
+

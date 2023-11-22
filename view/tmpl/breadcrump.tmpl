@@ -1,0 +1,11 @@
+{include file='./configs/breadcrump.tmpl' scope="root"}
+{include file='./functions/breadmaker.tmpl' scope="root"}
+{include file='./functions/br.tmpl' scope="root"}
+
+{call breadmaker list=$list id="id1" mode="ol"}
+
+{$hoge = ""}
+
+a
+{$hoge}{all br var=$hoge}
+b

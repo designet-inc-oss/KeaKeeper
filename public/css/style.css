@@ -1,0 +1,71 @@
+header, body, div {
+}
+
+.breadcrumb > li + li:before {
+  content: ">";
+}
+
+.navbar-default-extend {
+  background-image: linear-gradient(to bottom,#fff 0,#bbb 100%);
+}
+
+.thead-default-extend {
+  background-color: #ddd; 
+}
+
+.no-border-radius {
+  border-radius: 0px !important;
+  border-bottom: 1px solid #ccc;
+}
+
+.Pagenator {
+  text-align: center;
+}
+
+.ErrorMessage {
+  text-align: center;
+  color: red;
+  padding: 15px;
+}
+
+.Subnet {
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .responsive {
+    border-collapse: separate;
+    border-spacing: 0  20px;
+  }
+  .responsive thead {
+    display: none;
+  }
+  .responsive tr {
+  }
+  .responsive td {
+    border: none;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border-bottom: 1px solid #dddddd;
+  }
+  .responsive td.col-6 {
+    float: left;
+    width: 50%;
+  }
+  .responsive td.txt-right {
+    text-align: right;
+  }
+  .responsive td:before {
+    content: attr(data-title) ":";
+  }
+  .responsive .clear {
+    clear: both;
+  }
+}
+
+table.csverr {
+    text-align: left;
+    color: red;
+    margin: auto;
+}

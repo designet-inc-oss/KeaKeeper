@@ -1,0 +1,185 @@
+{* 0番目の要素がcall breadmakerの引数idと一致したらactiveに *}
+{* 1番目の要素が表示名 *}
+{* 2番目の要素がリンク先 *}
+
+{* search lease4 *}
+{$search_lease4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['searchlease', 'Search lease', 'searchlease4.php']
+]}
+
+{* search subnet4 *}
+{$search_subnet4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet4.php']
+]}
+
+{* add subnet4 *}
+{$add_subnet4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
+    ['addsubnet', 'Subnet add', 'addsubnet4.php']
+]}
+{* add subnet6 *}
+{$add_subnet6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['addsubnet', 'Subnet add', 'addsubnet6.php']
+]}
+
+{* edit subnet4 *}
+{$edit_subnet4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
+    ['editsubnet', 'Subnet edit', 'editsubnet4.php']
+]}
+{* edit subnet6 *}
+{$edit_subnet6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease4.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['editsubnet', 'Subnet edit', 'editsubnet6.php']
+]}
+
+{* list range4 *}
+{$list_range4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
+    ['listrange', 'List range', 'listrange4.php']
+]}
+{* list range6 *}
+{$list_range6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['listrange', 'List range', 'listrange6.php']
+]}
+
+{* add range4 *}
+{$add_range4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
+    ['addrange', 'Add range', 'addrange4.php']
+]}
+{* add range6 *}
+{$add_range6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['addrange', 'Add range', 'addrange6.php']
+]}
+
+{* edit range4 *}
+{$edit_range4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
+    ['editrange', 'Range edit', 'editrange4.php']
+]}
+{* edit range6 *}
+{$edit_range6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['editrange', 'Range edit', 'editrange6.php']
+]}
+
+{* bulk host4 *}
+{$bulk_host4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['bulkhost4', 'Bulk reservation', 'Bulkhost4.php']
+]}
+
+{* search host4 *}
+{$bread_search_host4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['subnet', 'Subnet', 'searchsubnet4.php'],
+    ['searchhost4', 'Search IP reservation', 'searchhost4.php']
+]}
+
+{* add host4 *}
+{$bread_add_host4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['subnet', 'Subnet', 'searchsubnet4.php'],
+    ['addhost', 'Add IP reservation', 'addhost4.php']
+]}
+
+{* edit host4 *}
+{$bread_edit_host4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['subnet', 'Subnet', 'searchsubnet4.php'],
+    ['edithost', 'Edit IP reservation', 'edithost4.php']
+]}
+
+{* search lease6 *}
+{$search_lease6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchlease', 'Search lease', 'searchlease6.php']
+]}
+
+{* search subnet6 *}
+{$search_subnet6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php']
+]}
+
+{* bulk host6 *}
+{$bulk_host6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['bulkhost6', 'Bulk reservation', 'Bulkhost6.php']
+]}
+
+{* add host6 *}
+{$bread_add_host6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['subnet', 'Subnet', 'searchsubnet6.php'],
+    ['addhost', 'Add IP reservation', 'addhost6.php']
+]}
+
+{* edit host6 *}
+{$bread_edit_host6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['subnet', 'Subnet', 'searchsubnet6.php'],
+    ['edithost', 'Edit IP reservation', 'edithost6.php']
+]}
+
+{* search host4 *}
+{$bread_search_host6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['subnet', 'Subnet', 'searchsubnet6.php'],
+    ['searchhost6', 'Search IP reservation', 'searchhost6.php']
+]}
+
+{* add shared network4 *}
+{$add_shared4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['addshared', 'Shared network', 'addshared4.php']
+]}
+
+{* edit shared network4 *}
+{$edit_shared4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['addshared', 'Shared network', 'addshared4.php'],
+    ['editshared', 'Edit Shared network', 'editshared4.php']
+]}
+
+{* add shared network6 *}
+{$add_shared6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['addshared', 'Shared network', 'addshared6.php']
+]}
+
+{* edit shared network6 *}
+{$edit_shared6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['addshared', 'Shared network', 'addshared6.php'],
+    ['editshared', 'Edit Shared network', 'editshared6.php']
+]}
+
+{* update config4 *}
+{$update_config4 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['updateconfig', 'Update Config', 'updateconfig4.php']
+]}
+
+{* update config6 *}
+{$update_config6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['updateconfig', 'Update Config', 'updateconfig6.php']
+]}
+

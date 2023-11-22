@@ -1,0 +1,123 @@
+{$title = "{t}Bulk reservation{/t}"}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{$title}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+  {include file='./functions/br.tmpl' scope="root"}
+  {include file='./configs/menu.tmpl' scope="root"}
+  {include file='./configs/breadcrumb.tmpl' scope="root"}
+  {include file='./functions/menumaker.tmpl' scope="root"}
+  {include file='./functions/breadmaker.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv6" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- Left grid  -->
+  <div class="row">
+    <!-- left navi -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand6 id="bulkhost6" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+    </nav>
+
+    <!-- Right grid  -->
+    <div class="col-sm-10">
+      <nav class="">
+        {call breadmaker list=$bulk_host6 id="bulkhost6"}
+      </nav>
+      <div class="panel panel-default">
+        <!-- main -->
+        <div class="container-fluid panel-body">
+          <div class="row">
+            <!-- error msg -->
+            <div class="ErrorMessage">
+              {$disp_msg}{call br var=$disp_msg}
+              {$e_msg}{call br var=$e_msg}
+              {$success}
+            </div>
+
+            <form class="form-horizontal" action="bulkhost6.php" method="post" enctype="multipart/form-data">
+              <fieldset>
+                <!-- Reserve IP -->
+                <div class="col-sm-12">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label text-nowrap" for="type">{t}mode{/t}</label>
+                    <div class="col-sm-4">
+                      <select class="form-control" id="mode" name="mode">
+                        <option value="0">{t}Add{/t}
+                        <option value="1">{t}Delete{/t}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label text-nowrap" for="csvfile">{t}CSV file{/t}</label>
+                    <div class="col-sm-10">
+                      <input type="file" name="csvfile">
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="col-sm-7">
+                {if $is_show_warn_msg == 1}
+                <button type="submit" name="apply" onClick="javascript:return confirm('{t}Unapplied settings remain.Will you continue the process?{/t}');">{t}apply{/t}</button>
+                {else }
+                <button type="submit" name="apply">{t}apply{/t}</button>
+                {/if}
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <table class="csverr">
+          {foreach from=$csverr item=msg}
+            <tr>
+              <td>{$msg}</td>
+            </tr>
+          {/foreach}
+        </table>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+
+</html>
+
+

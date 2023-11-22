@@ -1,0 +1,240 @@
+{$title = "{t}Edit IP reservation{/t}"}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{$title}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+  <script src="js/jquery-3.1.1.min.js"></script>
+  {include file='./functions/br.tmpl' scope="root"}
+  {include file='./configs/menu.tmpl' scope="root"}
+  {include file='./configs/breadcrumb.tmpl' scope="root"}
+  {include file='./functions/menumaker.tmpl' scope="root"}
+  {include file='./functions/breadmaker.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv6" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- Left grid  -->
+  <div class="row">
+    <!-- left navi -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand6 id="searchsubnet" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+      <div class="panel panel-default">
+        {call menumaker list=$side_searchhost6 id="searchhost6" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+    </nav>
+
+    <!-- Right grid  -->
+    <div class="col-sm-10">
+      <nav class="">
+        {call breadmaker list=$bread_edit_host6 id="edithost"}
+      </nav>
+      <!-- subnet -->
+      <div class="Subnet">
+        {t}Subnet{/t}: {$subnet_val.subnet}
+        </br>
+        {t}Pool{/t}:
+        {foreach from=$pools item=info}
+          {$info}
+          </br>
+        {/foreach}
+      </div>
+
+      <div class="panel panel-default">
+        <!-- main -->
+        <div class="container-fluid panel-body">
+          <div class="row">
+            <!-- error msg -->
+            <div class="ErrorMessage">
+              {$e_subnet}{call br var=$e_subnet}
+              {$e_subnet_id}{call br var=$e_subnet_id}
+              {$e_host_id}{call br var=$e_host_id}
+              {$e_pool}{call br var=$e_pool}
+              {$e_hostname}{call br var=$e_hostname}
+              {$e_dhcp_identifier}{call br var=$e_dhcp_identifier}
+              {$e_address}{call br var=$e_address}
+              {$e_domain_name_servers}{call br var=$e_domain_name_servers}
+              {$e_routers}{call br var=$e_routers}
+              {$e_prefix}{call br var=$e_prefix}
+              {$e_type}{call br var=$e_type}
+              {$e_msg}{call br var=$e_msg}
+              {$disp_msg}{call br var=$disp_msg}
+              {$success}
+            </div>
+
+            <form class="form-horizontal" action="edithost6.php?subnet_id={$subnet_val.subnet_id|default}&subnet={$subnet_val.subnet|default}&host_id={$subnet_val.host_id|default}" method="post">
+              <input type="hidden" name="code_6" value="{$code_6}">
+              <input type="hidden" name="code_3" value="{$code_3}">
+              <input type="hidden" name="code_66" value="{$code_66}">
+              <input type="hidden" name="code_67" value="{$code_67}">
+              <fieldset>
+                <legend>{t}Reserve IP{/t}</legend>
+
+                <!-- description -->
+                <div class="col-sm-6 col-md-push-6">
+                  <div class="table-bordered"> 
+                    <ul>
+                      <li>{t}Please specify the host name with FQDN.{/t}</li>
+                      <li>{t}The host name can be empty.{/t}</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Reserve IP -->
+                <div class="col-sm-6 col-md-pull-6">
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label text-nowrap" for="IPaddr">{t}hostname{/t}</label>
+                    <div class="col-sm-8">
+                      {if isset($exist.hostname)}
+                        <input type="text" class="form-control" id="hostname" name="hostname" placeholder="example.com" value="{$exist.hostname}">
+                      {else}
+                        <input type="text" class="form-control" id="hostname" name="hostname" placeholder="example.com" value="{$pre.hostname|default}">
+                      {/if}
+                    </div>
+                  </div>
+                
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label text-nowrap" for="type">{t}type{/t}</label>
+                    <div class="col-sm-8">
+                    {t}DUID{/t}
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label text-nowrap" for="identifier">{t}Identifier{/t}</label>
+                    <div class="col-sm-8">
+                      {if isset($exist.dhcp_identifier)}
+                        <input type="text" class="form-control" id="Identifier" name="identifier" placeholder="08:00:27:c1:02:08" value="{$exist.dhcp_identifier}">
+                      {else}
+                        <input type="text" class="form-control" id="Identifier" name="identifier" placeholder="08:00:27:c1:02:08" value="{$pre.dhcp_identifier|default}">
+                      {/if}
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label text-nowrap" for="ip">{t}IPv6 address{/t}/{t}prefix{/t}</label>
+                    <div class="col-sm-6">
+                      {if isset($exist.address)}
+                        <input type="text" class="form-control" id="ip" name="ip" placeholder="2001:0db8:1234:5678::1" value="{$exist.address}">
+                      {else}
+                        <input type="text" class="form-control" id="ip" name="ip" placeholder="2001:0db8:1234:5678::1" value="{$pre.address|default}">
+                      {/if}
+                    </div>
+                    <div class="col-sm-2">
+                      {if isset($exist.prefix_len)}
+                        <input type="text" class="form-control" id="prefix" name="prefix" placeholder="128" value="{$exist.prefix_len}">
+                      {else}
+                        <input type="text" class="form-control" id="prefix" name="prefix" placeholder="128" value="{$pre.prefix|default}">
+                      {/if}
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label text-nowrap" for="delegation">{t}prefix delegation{/t}</label>
+                    <div class="col-sm-8">
+                      {if isset($checked)}
+                        <input type="checkbox" name="delegation" value="2" checked="checked">
+                      {else}
+                        <input type="checkbox" name="delegation" value="2">
+                      {/if}
+                    </div>
+                  </div>
+
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend>{t}Option{/t}</legend>
+
+                <!-- description -->
+                <div class="col-sm-6 col-md-push-6">
+                  <div class="table-bordered"> 
+                    <ul>
+                      <li>{t}For "domain-name-servers", specify the IP address of the DNS server to be distributed to the host.{/t}</li>
+                      <li>{t}For "routers", specify the IP address of the default gateway to be distributed to the host.{/t}</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- option -->
+                <div class="col-sm-6 col-md-pull-6">
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label text-nowrap" for="domain-name-servers">{t}domain-name-servers{/t}</label>
+                    <div class="col-sm-8">
+                      {if isset($exist.domain_name_servers)}
+                        <input type="text" class="form-control" id="domain-name-servers" name="domain-name-servers" placeholder="2001:0db8:1234::1,2001:0db8:1234::2" value="{$exist.domain_name_servers}">
+                      {else}
+                        <input type="text" class="form-control" id="domain-name-servers" name="domain-name-servers" placeholder="2001:0db8:1234::1,2001:0db8:1234::2" value="{$pre.domain_name_servers|default}">
+                      {/if}
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label text-nowrap" for="routers">{t}routers{/t}</label>
+                    <div class="col-sm-8">
+                      {if isset($exist.routers)}
+                        <input type="text" class="form-control" id="routers" name="routers" placeholder="2001:0db8:1234:5678::3" value="{$exist.routers}">
+                      {else}
+                        <input type="text" class="form-control" id="routers" name="routers" placeholder="2001:0db8:1234:5678::3" value="{$pre.routers|default}">
+                      {/if}
+                    </div>
+                  </div>
+
+                </div>
+                <!-- 検索ボタン -->
+                <div class="form-group">
+                  
+                  <div class="col-sm-5">
+                  </div>
+                  <div class="col-sm-7">
+                    {if $is_show_warn_msg == 1}
+                    <button type="submit" name="apply" onClick="javascript:return confirm('{t}Unapplied settings remain.Will you continue the process?{/t}');">{t}apply{/t}</button>
+                    {else}
+                    <button type="submit" name="apply">{t}apply{/t}</button>
+                    {/if}
+                  </div>
+                </div>
+              </fieldset>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+
+</html>
+
+

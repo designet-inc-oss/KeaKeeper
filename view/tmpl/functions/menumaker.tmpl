@@ -1,0 +1,15 @@
+{function menumaker indent=4 class="nav navbar-nav navbar-right" mode="ul"}
+  {$space=""}
+  {$indent=$indent}
+
+  {$space|indent: $indent}<{$mode} class="{$class}">
+{foreach $list as $entry}
+{if $id eq $entry[0]}
+{$space|indent: $indent}<li class="active"><a href="{$entry[2]}">{t}{$entry[1]}{/t}</a></li>
+{else}
+{$space|indent: $indent}<li class=""><a href="{$entry[2]}">{t}{$entry[1]}{/t}</a></li>
+{/if}
+{/foreach}
+{$space|indent: $indent}</{$mode}>
+
+{/function}

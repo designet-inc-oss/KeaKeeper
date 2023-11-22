@@ -1,0 +1,62 @@
+{* 0番目の要素がcall breadmakerの引数idと一致したらactiveに *}
+{* 1番目の要素が表示名 *}
+{* 2番目の要素がリンク先 *}
+
+{* Global menu *}
+{$global = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['password', 'Password', 'password.php'],
+    ['logout', 'Logout', 'index.php?ctrl=logout']
+]}
+
+{* Left side menu without expands (e.g. Search IP reservation on host search screen) *}
+{$side_noexpand4 = [
+    ['searchlease', 'Search lease', 'searchlease4.php'],
+    ['sharednetwork', 'Shared network', 'addshared4.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
+    ['bulkhost4', 'Bulk reservation', 'bulkhost4.php'],
+    ['updateconfig', 'Update Config', 'updateconfig4.php']
+]}
+
+{$side_noexpand6 = [
+    ['searchlease', 'Search lease', 'searchlease6.php'],
+    ['sharednetwork', 'Shared network', 'addshared6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['bulkhost6', 'Bulk reservation', 'bulkhost6.php'],
+    ['updateconfig', 'Update Config', 'updateconfig6.php']
+]}
+
+{if isset($subnet_val)}
+  {$sub=$subnet_val.subnet}
+  {$subid=$subnet_val.subnet_id}
+  {$side_searchhost4 = [
+      ['searchhost4', 'Search IP reservation', "searchhost4.php?subnet_id=$subid&subnet=$sub"],
+      ['addhost4', 'Add IP reservation', "addhost4.php?subnet_id=$subid&subnet=$sub"]
+  ]}
+  {$side_listrange4 = [
+      ['listrange4', 'List range', "listrange4.php?subnet=$subnet"],
+      ['addrange4', 'Add range', "addrange4.php?subnet=$subnet"]
+  ]}
+  {$side_searchhost6 = [
+      ['searchhost6', 'Search IP reservation', "searchhost6.php?subnet_id=$subid&subnet=$sub"],
+      ['addhost6', 'Add IP reservation', "addhost6.php?subnet_id=$subid&subnet=$sub"]
+  ]}
+{/if}
+
+{$user = [
+    ['Password', 'Password', '']
+]}
+
+{* Breadcrumbs for searchlease4 *}
+{$bread_searchlease4 = [
+    ['dhcpv4', 'DHCPv4', ''],
+    ['searchlease', 'Search lease', '']
+]}
+
+{* Breadcrumbs for searchlease4 *}
+{$bread_user = [
+    ['Password', 'Password', '']
+]}
+
+

@@ -1,0 +1,72 @@
+{$title = "{t}Login{/t}"}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{$title}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+   {include file='./functions/br.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a href="#" class="navbar-brand">KeaKeeper</a>
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+
+  <!-- エラーメッセージ -->
+  <div class="ErrorMessage">
+    {$e_auth}{call br var=$e_auth}
+    {$e_login_id}{call br var=$e_login_id}
+    {$e_password}{call br var=$e_password}
+  </div>
+
+  <form class="form-horizontal" name="login_form" method="post" action="index.php">
+    <!-- Login ID フォーム -->
+    <div class="form-group">
+      <label class="col-sm-4 control-label text-nowrap" for="Loginid">{t}Login ID{/t}</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" name="login_id" id="login_id">
+      </div>
+    </div>
+
+    <!-- Password フォーム -->
+    <div class="form-group">
+      <label class="col-sm-4 control-label text-nowrap" for="Password">{t}Password{/t}</label>
+      <div class="col-sm-4">
+        <input type="password" class="form-control" name="password" id="password">
+      </div>
+    </div>
+
+    <!-- ログインボタン -->
+    <div class="form-group">
+      <div class="col-sm-offset-4 col-sm-4">
+        <button type="submit" name="login">{t}Login{/t}</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+
+</html>

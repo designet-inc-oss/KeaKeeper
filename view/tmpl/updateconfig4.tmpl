@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{t}Update Config{/t}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <script src="css/bootstrap/js/bootstrap.min.js_2"></script>
+  <link rel="stylesheet" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+  <script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+   {include file='./functions/br.tmpl' scope="root"}
+   {include file='./configs/menu.tmpl' scope="root"}
+   {include file='./configs/breadcrumb.tmpl' scope="root"}
+   {include file='./functions/menumaker.tmpl' scope="root"}
+   {include file='./functions/breadmaker.tmpl' scope="root"}
+
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv4" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- 左グリッド  -->
+  <div class="row">
+    <!-- 左ナビゲーションバー -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand4 id="updateconfig" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+    </nav>
+
+  <!-- 右グリッド  -->
+  <div class="col-sm-10">
+    <nav class="">
+      {call breadmaker list=$update_config4 id="updateconfig"}
+    </nav>
+
+    <div class="panel panel-default">
+      <!-- メインコンテンツ -->
+      <div class="container-fluid panel-body">
+	<div class="row">
+	  <!-- エラーメッセージ -->
+	  <div class="ErrorMessage">
+	    {$e_msg}{call br var=$e_msg}
+	    {$success}
+	  </div>
+
+  <!-- 追加ボタン -->
+  <div class="col-sm-12">
+    <form class="form-horizontal" action="updateconfig4.php" method="post">
+      <div class="form-group">
+        <div class="col-sm-12">
+          <button type="submit" name="update" onClick="javascript:return confirm('{t}Are you sure you want to update config file?{/t}');">{t}Update Config{/t}</button>
+
+	  <!-- Trigger the modal with a button -->
+	  <button type="button" data-toggle="modal" data-target="#myModal">{t}Check history{/t}</button>
+
+	  <!-- Modal -->
+	  <div class="modal fade" id="myModal" role="dialog">
+	    <div class="modal-dialog">
+	    
+	      <!-- Modal content-->
+	      <div class="modal-content">
+		<div class="modal-header">
+		  <button type="button" class="close" data-dismiss="modal">&times;</button>
+		  <h4 class="modal-title">{t}History{/t}</h4>
+		</div>
+		<div class="modal-body">
+		{foreach from=$item item=history_msg}
+		  <p>{$history_msg}</p>
+		{/foreach}
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+		</div>
+	      </div>
+	      
+	    </div>
+	    </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      </div>
+
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+</html>

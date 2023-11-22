@@ -1,0 +1,75 @@
+# How to make translate file using xgettext (from php file)
+
+1. cd APP_ROOT//var/www/keaweb/locale/{LOCALEDIR}
+
+2. Look for _("message") from the source code and create message.po.
+
+$ find APP_ROOT -name "*.php" | xgettext -f -
+
+3. edit file
+
+$ vi messages.po
+-------------------------------------------------------------------------------
+#SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-02 20:44+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: index.php:1
+msgid "hello"
+msgstr ""
+-------------------------------------------------------------------------------
+
+
+4. compile
+$ msgfmt messages.po
+$ ls -1
+messages.po
+messages.mo <- New
+
+# How to make translate file using tsmarty2c.php (from template file)
+
+1. Use tsmarty2c.php
+
+$ cd developers/bin/
+$ ./tsmarty2c.php -o APP_ROOT/locale/{LOCALEDIR}/<pot filename> <template filename or directory> <file2> <...>
+
+notice1: If you passed template directory, don't contain last "/".
+notice2: If <pot filename> already exists, it will be overritten. Edited transration will be empty.
+    note: ./tsmarty2c.php <template filename or directory> <file2> <...> >> <pot filename> (overlap pot file header)
+          
+2. edit file
+
+3. compile
+$ cd APP_ROOT/locale/{LOCALEDIR}
+$ msgfmt <pot filename>
+$ ls -1
+<pot filename>
+messages.mo <- New
+
+If you want to scan also .php files, combine xgettext and tsmarty2c.php...
+1. Use tsmarty2c.php
+$ ./tsmarty2c.php -o output1.po template.tmpl
+
+2. Use xgettext with specifying onother .po file
+$ find APP_ROOT -name "*.php" | xgettext -f - -o output2.po
+
+3. Combine both output files
+$ msgcat -o message.po output2.po output1.po
+
+4. Delete the used output files
+$ rm -f output1.po output2.po

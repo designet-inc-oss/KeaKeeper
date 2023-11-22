@@ -1,0 +1,117 @@
+{$title = "{t}List range{/t}"}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{$title}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+
+   {include file='./functions/br.tmpl' scope="root"}
+   {include file='./configs/menu.tmpl' scope="root"}
+   {include file='./configs/breadcrumb.tmpl' scope="root"}
+   {include file='./functions/menumaker.tmpl' scope="root"}
+   {include file='./functions/breadmaker.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv4" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- 左グリッド  -->
+  <div class="row">
+    <!-- 左ナビゲーションバー -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand4 id="searchsubnet" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+    </nav>
+
+    <!-- 右グリッド  -->
+    <div class="col-sm-10">
+      <nav class="">
+        {call breadmaker list=$edit_range4 id="editrange"}
+      </nav>
+      <!-- subnet -->
+      <div class="Subnet">
+        {t}Subnet{/t}: {$subnet}
+      </div>
+
+      <div class="panel panel-default">
+        <!-- メインコンテンツ -->
+        <div class="container-fluid panel-body">
+          <div class="row">
+            <!-- エラーメッセージ -->
+            <div class="ErrorMessage">
+              {$e_poolstart}{call br var=$e_poolstart}
+              {$e_poolend}{call br var=$e_poolend}
+              {$disp_msg}{call br var=$disp_msg}
+              {$e_msg}{call br var=$e_msg}
+            </div>
+
+
+            <!-- 追加フォーム -->
+            <div class="col-sm-12">
+                <form class="form-horizontal" action="editrange4.php?subnet={$subnet}&range={$pools.poolstart}-{$pools.poolend}&edit=edit" method="post">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label text-nowrap" for="Subnet">{t}Pool IP addresses{/t}</label>
+                    <div class="col-sm-4">
+                      {if isset($pre.poolstart)}
+                        <input type="text" class="form-control" id="poolstart" name="poolstart" placeholder="Pool start" value="{$pre.poolstart}">
+                      {else}
+                        <input type="text" class="form-control" id="poolstart" name="poolstart" placeholder="Pool start" value="{$pools.poolstart}">
+                      {/if}
+                    </div>
+                    <div class="col-sm-4">
+                      {if isset($pre.poolend)}
+                        <input type="text" class="form-control" id="poolend" name="poolend" placeholder="Pool end" value="{$pre.poolend}">
+                      {else}
+                        <input type="text" class="form-control" id="poolend" name="poolend" placeholder="Pool end" value="{$pools.poolend}">
+                      {/if}
+                    </div>
+                  </div>
+
+                <div class="form-group">
+                  <label class="col-sm-2 control-label text-nowrap" for="Rang pool"></label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="subnet" value="{$subnet}">
+                    <button type="submit" name="edit">{t}Edit{/t}</button>
+                    <button onclick='location.href = "listrange4.php?subnet={$subnet}";' type="button" name="back">{t}Back{/t}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+
+</html>

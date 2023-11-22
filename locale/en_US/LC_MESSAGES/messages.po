@@ -1,0 +1,18 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+#: view/tmpl/test_locale.tmpl:8
+msgid "apple"
+msgstr "ringo"
+
+#: view/tmpl/test_locale.tmpl:9
+msgid "orange"
+msgstr "mikan"
+
+#: view/tmpl/test_locale.tmpl:10
+msgid "peach"
+msgstr "momo"
+
+#: view/tmpl/test_locale.tmpl:11
+msgid "grape"
+msgstr "budo"
