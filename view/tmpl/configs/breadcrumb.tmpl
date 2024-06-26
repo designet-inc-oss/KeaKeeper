@@ -27,6 +27,13 @@
     ['addsubnet', 'Subnet add', 'addsubnet6.php']
 ]}
 
+{* edit subnet config6 *}
+{$edit_subnet_config6 = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['editsubnetconfig', 'Subnet config edit', 'editsubnetconfig6.php']
+]}
+
 {* edit subnet4 *}
 {$edit_subnet4 = [
     ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
@@ -44,39 +51,39 @@
 {$list_range4 = [
     ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
     ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
-    ['listrange', 'List range', 'listrange4.php']
+    ['listrange', 'List Pool IP address range', 'listrange4.php']
 ]}
 {* list range6 *}
 {$list_range6 = [
     ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
     ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
-    ['listrange', 'List range', 'listrange6.php']
+    ['listrange', 'List Pool IP address range', 'listrange6.php']
 ]}
 
 {* add range4 *}
 {$add_range4 = [
     ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
     ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
-    ['addrange', 'Add range', 'addrange4.php']
+    ['addrange', 'Add Pool IP address range', 'addrange4.php']
 ]}
 {* add range6 *}
 {$add_range6 = [
     ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
     ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
-    ['addrange', 'Add range', 'addrange6.php']
+    ['addrange', 'Add Pool IP address range', 'addrange6.php']
 ]}
 
 {* edit range4 *}
 {$edit_range4 = [
     ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
     ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
-    ['editrange', 'Range edit', 'editrange4.php']
+    ['editrange', 'Update Pool IP address range', 'editrange4.php']
 ]}
 {* edit range6 *}
 {$edit_range6 = [
     ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
     ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
-    ['editrange', 'Range edit', 'editrange6.php']
+    ['editrange', 'Update Pool IP address range', 'editrange6.php']
 ]}
 
 {* bulk host4 *}
@@ -183,3 +190,40 @@
     ['updateconfig', 'Update Config', 'updateconfig6.php']
 ]}
 
+{* list pd *}
+{$list_pd = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['listpd', 'List PD', 'listpd.php']
+]}
+
+{* add pd *}
+{$add_pd = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['addpd', 'Add PD', 'addpd.php']
+]}
+
+{* edit pd *}
+{$edit_pd = [
+    ['dhcpv6', 'DHCPv6', 'searchlease6.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet6.php'],
+    ['editpd', 'Edit PD', 'editpd.php']
+]}
+
+{* list option82 *}
+{$list_option82 = [
+    ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+    ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
+    ['listoption82', 'List Option82 setting', 'listoption82.php']
+]}
+
+{* add option82 *}
+{if isset($subnet)}
+  {$add_option82 = [
+      ['dhcpv4', 'DHCPv4', 'searchlease4.php'],
+      ['searchsubnet', 'Subnet', 'searchsubnet4.php'],
+      ['listoption82', 'List Option82 setting', "listoption82.php?subnet=$subnet"],
+      ['addoption82', 'Add Option82 setting', 'addoption82.php']
+  ]}
+{/if}

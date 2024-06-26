@@ -61,6 +61,15 @@
               {if isset($e_subnet)}
                 {$e_subnet}{call br var=$e_subnet}
               {/if}
+              {if isset($e_interface)}
+                {$e_interface}{call br var=$e_interface}
+              {/if}
+              {if isset($e_interfaceid)}
+                {$e_interfaceid}{call br var=$e_interfaceid}
+              {/if}
+              {if isset($e_relayagent)}
+                {$e_relayagent}{call br var=$e_relayagent}
+              {/if}
               {if isset($e_msg)}
                 {$e_msg}{call br var=$e_msg}
               {/if}
@@ -74,6 +83,10 @@
               <div class="table-bordered"> 
                 <ul>
                   <li>{t}Please enter subnet with format ipaddress/nestmask.{/t}</li>
+                  <li>{t}For "Interface", specify the name of the interface to be used in the subnet.{/t}</li>
+                  <li>{t}For "Interface-ID", specify the interface name of the relay agent.{/t}</li>
+                  <li>{t}For "RelayAgent", specify the the IP address of the relay agent.{/t}</li>
+                  <li>{t}When making a request directly without going through a relay agent, the Interface must be specified.{/t}</li>
                 </ul>
               </div>
             </div>
@@ -91,6 +104,38 @@
                       {/if}
                     </div>
                   </div>
+                  <div class="form-group">
+                     <label class="col-sm-3 control-label text-nowrap" for="Interface">{t}Interface{/t}</label>
+                     <div class="col-sm-9">
+                       <select class="form-control" id="Interface" name="interface">
+                         {if isset($pre.interface)}
+                         {html_options values=$pre.interfacelist output=$pre.interfacelist selected=$pre.interface}
+                         {else}
+                         {html_options values=$pre.interfacelist output=$pre.interfacelist}
+                         {/if}
+                       </select>
+                     </div>
+                   </div>
+                   <div class="form-group">
+                     <label class="col-sm-3 control-label text-nowrap" for="InterfaceID">{t}InterfaceID{/t}</label>
+                     <div class="col-sm-9">
+                       {if isset($pre.interfaceid)}
+                       <input type="text" class="form-control" id="InterfaceID" name ="interfaceid" placeholder="InterfaceID" value="{$pre.interfaceid}">
+                       {else}
+                       <input type="text" class="form-control" id="InterfaceID" name ="interfaceid" placeholder="InterfaceID">
+                       {/if}
+                     </div>
+                   </div>
+                   <div class="form-group">
+                     <label class="col-sm-3 control-label text-nowrap" for="RelayAgent">{t}RelayAgent{/t}</label>
+                     <div class="col-sm-9">
+                       {if isset($pre.relayagent)}
+                       <input type="text" class="form-control" id="RelayAgent" name ="relayagent" placeholder="RelayAgent" value="{$pre.relayagent}">
+                       {else}
+                       <input type="text" class="form-control" id="RelayAgent" name ="relayagent" placeholder="RelayAgent">
+                       {/if}
+                     </div>
+                   </div>
                 
   
                   <div class="form-group">

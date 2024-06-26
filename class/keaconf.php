@@ -30,21 +30,34 @@ define('STR_DHCP4',   'Dhcp4');
 define('STR_DHCP6',   'Dhcp6');
 define('STR_SHARED',  'shared-networks');
 define('STR_NAME',    'name');
+define('STR_INTERFACE',    'interface');
+define('STR_INTERFACEID',    'interface-id');
+define('STR_RELAY',    'relay');
+define('STR_AGENT',    'ip-addresses');
 define('STR_SUBNET',  'subnet');
 define('STR_SUBNET4', 'subnet4');
 define('STR_SUBNET6', 'subnet6');
 define('STR_POOL',    'pool');
 define('STR_POOLS',   'pools');
+define('STR_PD_POOLS',   'pd-pools');
 define('STR_ARG',     'arguments');
 define('STR_ID',      'id');
 define('STR_OPT_DATA', 'option-data');
 define('STR_OPT_NAME',  'name');
 define('STR_OPT_VALUE', 'data');
+define('STR_CLIENT_CLASSES', 'client-classes');
+define('STR_CLIENT_CLASS', 'client-class');
+define('STR_TEST', 'test');
+define('STR_NO_MEMBER', 'no-member');
 
 define('K_SESS_DHCP4', 'kea_conf_4');
 define('K_SESS_DHCP6', 'kea_conf_6');
 define('K_SESS_HISTORY4', 'history_4');
 define('K_SESS_HISTORY6', 'history_6');
+
+define('MAC_TYPE', '0');
+define('DUID_TYPE', '1');
+define('CIRCUITID_TYPE', '2');
 
 /*****************************************************************************
 * Class:  KeaConf
@@ -54,13 +67,11 @@ define('K_SESS_HISTORY6', 'history_6');
 *****************************************************************************/
 class KeaConf {
 
-    public $result = false;
+    public $result;
     public $all;
     public $dhcp4;
     public $dhcp6;
     public $err = ['e_msg' => '', 'e_log' => ''];
-    private $pathdhcp4;
-    private $pathdhcp6;
     private $_dhcpver;
    
 
@@ -89,13 +100,6 @@ class KeaConf {
             $this->k_shared = STR_SHARED;
             $this->k_sess_conf = K_SESS_DHCP4;
             $this->k_sess_hist = K_SESS_HISTORY4;
-        }
-
-        /* check */
-        $ret = $this->_check_file($appini);
-
-        if ($ret === false) {
-            return;
         }
 
         /* read */
@@ -135,7 +139,7 @@ class KeaConf {
     * Description    : Check subnet4 and forward search
     * args           : $cond
     *                  $mode   foward|exact|all
-    * return         : $result
+    * return         : true or false
     ************************************************************************/
     public function search_subnet4($cond = null, $mode = 'all')
     {
@@ -148,12 +152,10 @@ class KeaConf {
 
         /* check presence dhcp4 configuration */
         if (empty($all_subnet_data)) {
-            $form = _("No subnet4 setting(%s).");
-            $this->err['e_msg'] = sprintf($form, $this->pathdhcp4);
-            $log_msg = "No subnet4 setting(%s).";
-            $this->err['e_log'] = sprintf($log_msg, $this->pathdhcp4);
+            $this->err['e_msg'] = _("No subnet4 setting.");
+            $this->err['e_log'] = "No subnet4 setting.";
 
-            return false;
+            return [false,[]];
         }
 
         foreach ($all_subnet_data as $shnet_name => $data_subnet) {
@@ -193,17 +195,17 @@ class KeaConf {
             $this->err['e_msg'] = _('No result.');
             $this->err['e_log'] = 'No search result for subnet4.';
 
-            return false;
+            return [false, []];
         }
 
-        return $result;
+        return [true, $result];
     }
 
     /************************************************************************
     * Method         : search_subnet6
     * Description    : Check subnet6 and forward search
     * args           : $subnet
-    * return         : $result
+    * return         : true or false
     ************************************************************************/
     public function search_subnet6($cond = null, $mode = 'all')
     {
@@ -214,11 +216,10 @@ class KeaConf {
 
         /* check presence dhcp4 configuration */
         if (empty($all_subnet_data)) {
-            $form = _("No subnet6 setting(%s).");
-            $this->err['e_msg'] = sprintf($form, $this->pathdhcp6);
-            $log_msg = "No subnet6 setting(%s).";
-            $this->err['e_log'] = sprintf($log_msg, $this->pathdhcp6);
-            return false;
+            $this->err['e_msg'] = _("No subnet6 setting.");
+            $this->err['e_log'] = "No subnet6 setting."; 
+
+            return [false, []];
         }
 
         foreach ($all_subnet_data as $shnet_name => $data_subnet) {
@@ -261,10 +262,10 @@ class KeaConf {
             $this->err['e_msg'] = _('No result.');
             $this->err['e_log'] = 'No search result for subnet6.';
 
-            return false;
+            return [false, []];
         }
 
-        return $result;
+        return [true, $result];
     }
 
     /************************************************************************
@@ -435,6 +436,7 @@ class KeaConf {
     public function get_subnet_id($subnet)
     {
         /* When reading of keaconf succeeded */
+        /* search global subnet */
         foreach ($this->dhcp4['subnet4'] as $one) {
 
             /* When matching subnet_id is in keaconf */
@@ -446,6 +448,21 @@ class KeaConf {
                 }
             }
         }
+
+        /* search shared-networks subnet */
+        foreach ($this->dhcp4['shared-networks'] as $shared ) {
+            foreach ($shared['subnet4'] as $one) {
+                /* When matching subnet_id is in keaconf */
+                if (array_key_exists('subnet', $one) && $one['subnet'] == $subnet) {
+
+                    if (array_key_exists('id', $one)) {
+                        $subnet_id = $one['id'];
+                        return $subnet_id;
+                    }
+                }
+            }
+        }
+
         return NULL;
     }
 
@@ -475,6 +492,25 @@ class KeaConf {
 
             }
         }
+
+        /* search shared-networks subnet */
+        foreach ($this->dhcp6['shared-networks'] as $shared) {
+            foreach($shared['subnet6'] as $one) {
+                /* When matching subnet_id is in keaconf */
+                if (array_key_exists('subnet', $one)) {
+                    list($addr, $mask) = explode("/", $one['subnet']);
+                    $addr = inet_ntop(inet_pton($addr));
+                    $converted_subnet = $addr . "/" . $mask;
+
+                    if ($converted_subnet == $subnet) {
+                        if (array_key_exists('id', $one)) {
+                            $subnet_id = $one['id'];
+                            return $subnet_id;
+                        }
+                    }
+                }
+            }
+        }
         return NULL;
     }
 
@@ -482,52 +518,63 @@ class KeaConf {
     * Method         : get_pools
     * Description    : Check subnet4 and get subnet4's pools
     * args           : $subnet
-    * return         : $result
+                       $mode - include or exclude(default)
+    * return         : [true, result] or [false, []]
     ************************************************************************/
-    public function get_pools($subnet)
+    public function get_pools($subnet, $mode = 'exclude')
     {
         $count_pool = 0;
-        $sub4section = $this->search_subnet4($subnet, 'exact');
+        $result = [];
+        [$ret, $sub4section] = $this->search_subnet4($subnet, 'exact');
+
+        if ($ret === false)
+        {
+            return [false, []]; 
+        }
 
         $pools = $sub4section[0]['pools'];
         if ($pools === "") {
-            return true;
+            return [true, []];
+        }
+        /* Get only pools other than for option82 */
+        if ($mode !== 'all') {
+            [$ret, $pools] = $this->survey_option82_pools($pools, $mode);
         }
 
         /* check format pool  */
         if (is_array($sub4section)) {
             foreach ($pools as $pool_k => $pool_val) {
- 
                 /* get pool */
                 list($min_pool, $max_pool) = get_kea_pool_v4($pool_val['pool']);
 
                 /* check ipv4 format(min) */
-                $ret = ipv4Validate::run($min_pool);
-                if ($ret === false) {
-                     $this->err['e_msg'] = _('Invalid pool.');
-                    $this->err['e_log'] = 'The pool format is invalid.';
-                    return false;
-                }
-
-                /* check ipv4 format(max) */
-                $ret = ipv4Validate::run($max_pool);
+                $ipv4_validater = new ipv4Validate();
+                $ret = $ipv4_validater->run($min_pool);
                 if ($ret === false) {
                     $this->err['e_msg'] = _('Invalid pool.');
                     $this->err['e_log'] = 'The pool format is invalid.';
-                    return false;
+                    return [false, []];
+                }
+
+                /* check ipv4 format(max) */
+                $ret = $ipv4_validater->run($max_pool);
+                if ($ret === false) {
+                    $this->err['e_msg'] = _('Invalid pool.');
+                    $this->err['e_log'] = 'The pool format is invalid.';
+                    return [false, []];
                 }
 
                 /* adjust format of pool  
                  * eg: 192.168.2.9/29 → 192.168.2.9-192.168.2.14
                  * eg: 192.168.2.9-192.168.2.13 → 192.168.2.9-192.168.2.13
                  */
-                $pools[$count_pool] = ['pool' => $min_pool. '-'. $max_pool];
+                $result[$count_pool] = ['pool' => $min_pool. '-'. $max_pool];
 
                 $count_pool++;
             }
         }
 
-        return $pools;
+        return [true, $result];
     }
 
     /************************************************************************
@@ -539,11 +586,16 @@ class KeaConf {
     public function get_pools6($subnet)
     {
         $new_pools = [];
-        $sub6section = $this->search_subnet6($subnet, 'exact');
+        [$ret, $sub6section] = $this->search_subnet6($subnet, 'exact');
+
+	    if ($ret === false)
+	    {
+	        return [false, []];
+	    }
 
         $pools = $sub6section[0][STR_POOLS];
         if ($pools === "") {
-            return true;
+            return [true, ""];
         }
 
         /* check format */
@@ -555,42 +607,9 @@ class KeaConf {
                 /* Fit the address format of the pool in kea.conf */
                 $new_pools[$pool_k][STR_POOL] = $pool_min. '-'. $pool_max;
             }
-        }
-        return $new_pools;
-    }
+	    }
 
-    /************************************************************************
-    * Method         : _check_file
-    * Description    : Check kea.conf's readability
-    * args           : $appini
-    * return         : true or false
-    ************************************************************************/
-    private function _check_file ($appini)
-    {
-        /* check config key */
-        if (!array_key_exists('conf', $appini)) {
-            $this->pathdhcp4 = CONF4;
-            $this->pathdhcp6 = CONF6;
-        }
-        if (!array_key_exists('pathdhcp4', $appini['conf'])) {
-            $this->pathdhcp4 = CONF4;
-        }
-        if (!array_key_exists('pathdhcp6', $appini['conf'])) {
-            $this->pathdhcp6 = CONF6;
-        }
-
-        /* replace variable (v4) */
-        if (empty($this->pathdhcp4)) {
-            $this->pathdhcp4 = $appini['conf']['pathdhcp4'];
-        }
-
-        /* replace variable (v6) */
-        if (empty($this->pathdhcp6)) {
-            $this->pathdhcp6 = $appini['conf']['pathdhcp6'];
-        }
-
-        $this->result = true;
-        return true;
+        return [true, $new_pools];
     }
 
     /************************************************************************
@@ -616,9 +635,8 @@ class KeaConf {
                 /* occur error when get config */
                 if ($ins_kea->errmsg !== NULL) {
                     $this->result = false;
-                    $form = _("Cannot read configuration.(%s)");
-                    $this->err['e_msg'] = sprintf($form, $this->pathdhcp6);
-                    $log_msg = "Cannot read configuration.(%s)";
+                    $this->err['e_msg'] = _("API execution failed.");
+                    $log_msg = "API execution failed.(%s)";
                     $this->err['e_log'] = sprintf($log_msg, $ins_kea->errmsg);
                     return false;
                 }
@@ -652,9 +670,8 @@ class KeaConf {
                 /* occur error when get config */
                 if ($ins_kea->errmsg !== NULL) {
                     $this->result = false;
-                    $form = _("Cannot read configuration.(%s)");
-                    $this->err['e_msg'] = sprintf($form, $this->pathdhcp4);
-                    $log_msg = "Cannot read configuration.(%s)";
+                    $this->err['e_msg'] = _("API execution failed.");
+                    $log_msg = "API execution failed.(%s)";
                     $this->err['e_log'] = sprintf($log_msg, $ins_kea->errmsg);
                     return false;
                 }
@@ -759,7 +776,7 @@ class KeaConf {
     * Method         : add_subnet
     * Description    : add new subnet to config
     * args           : None
-    * return         : false or new_config
+    * return         : true or false
     ************************************************************************/
     public function add_subnet($new_subnet)
     {
@@ -767,16 +784,16 @@ class KeaConf {
         $new_conf = $this->all;
 
         if (!isset($new_conf[$this->k_dhcp][$this->k_subnet])) {
-            return false;
+            return [false, []];
         }
 
         /* count number of subnet */
-        $count_subnet =  count($new_conf[$this->k_dhcp][$this->k_subnet]);
+        $count_subnet =  count_array($new_conf[$this->k_dhcp][$this->k_subnet]);
 
         /* add new subnet */
         $new_conf[$this->k_dhcp][$this->k_subnet][$count_subnet] = $new_subnet;
 
-        return $new_conf;
+        return [true, $new_conf];
     }
 
     /************************************************************************
@@ -801,7 +818,7 @@ class KeaConf {
     * Method         : del_subnet
     * Description    : del subnet in config
     * args           : None
-    * return         : false or config deleted subnet
+    * return         : true or false
     ************************************************************************/
     public function del_subnet($subnet)
     {
@@ -814,18 +831,18 @@ class KeaConf {
         /* if subnet do not exist in config */
         if ($ret === RET_NOTFOUND) {
             $this->result = false;
-            $form = _("Subnet do not exist(%s).");
+            $form = _("Subnet does not exist(%s).");
             $this->err['e_msg'] = sprintf($form, $subnet);
-            $log_msg = "Subnet do not exist(%s).";
+            $log_msg = "Subnet does not exist(%s).";
             $this->err['e_log'] = sprintf($log_msg, $subnet);
-            return false;
+            return [false, []];
         }
 
         
         /* if subnet exist in subnet part */
         if ($ret === RET_SUBNET) {
             unset($new_conf[$this->k_dhcp][$this->k_subnet][$pos_subnet]);
-            $new_subnet = reindex_numeric($new_conf[$this->k_dhcp]
+            $new_subnet = array_values($new_conf[$this->k_dhcp]
                                                    [$this->k_subnet]);
             $new_conf[$this->k_dhcp][$this->k_subnet] = $new_subnet;
         /* if subnet exist in shared-network part */
@@ -835,7 +852,7 @@ class KeaConf {
                            [$pos_shnet]
                            [$this->k_subnet]
                            [$pos_subnet]);
-            $new_subnet = reindex_numeric($new_conf[$this->k_dhcp]
+            $new_subnet = array_values($new_conf[$this->k_dhcp]
                                                    [$this->k_shared]
                                                    [$pos_shnet]
                                                    [$this->k_subnet]);
@@ -846,14 +863,14 @@ class KeaConf {
 
         }
 
-        return $new_conf;
+        return [true, $new_conf];
     }
 
     /************************************************************************
      * Method         : del_range
      * Description    : delele range of subnet in config
      * args           : None
-     * return         : false or config deleted subnet
+     * return         : true or false 
      ************************************************************************/
     public function del_range($subnet, $pool_del)
     {
@@ -872,11 +889,11 @@ class KeaConf {
         /* if subnet do not exist in config */
         if ($ret === RET_NOTFOUND) {
             $this->result = false;
-            $form = _("Subnet do not exist(%s).");
+            $form = _("Subnet does not exist(%s).");
             $this->err['e_msg'] = sprintf($form, $subnet);
-            $log_msg = "Subnet do not exist(%s).";
+            $log_msg = "Subnet does not exist(%s).";
             $this->err['e_log'] = sprintf($log_msg, $subnet);
-            return false;
+            return [false, []];
         }
 
         /* if subnet exist in subnet part */
@@ -931,11 +948,11 @@ class KeaConf {
         /* deleting range do not exist in this subnet */
         if (!$range_found) {
             $this->result = false;
-            $form = _("Range has already been deleted.(%s)");
+            $form = _("Pool IP address range has already been deleted.(%s)");
             $this->err['e_msg'] = sprintf($form, $pool_del);
-            $log_msg = "Range has already been deleted.(%s)(%s)";
+            $log_msg = "Pool IP address range has already been deleted.(%s)(%s)";
             $this->err['e_log'] = sprintf($log_msg, $subnet, $pool_del);
-            return false;
+            return [false, []];
         }
 
         /* if subnet do not exist in shared-network part */
@@ -957,7 +974,7 @@ class KeaConf {
                      [STR_POOLS] = $new_pool;
         }
 
-        return $new_conf;
+        return [true, $new_conf];
     }
 
     /************************************************************************
@@ -1014,7 +1031,7 @@ class KeaConf {
      * Method         : add_range
      * Description    : add new pool to subnet in config
      * args           : None
-     * return         : false or config
+     * return         : true or false
      ************************************************************************/
     public function add_range($subnet, $new_pool)
     {
@@ -1026,11 +1043,11 @@ class KeaConf {
         /* subnet do not exist in config */
         if ($ret === RET_NOTFOUND) {
             $this->result = false;
-            $form = _("Subnet do not exist(%s).");
+            $form = _("Subnet does not exist(%s).");
             $this->err['e_msg'] = sprintf($form, $subnet);
-            $log_msg = "Subnet do not exist(%s).";
+            $log_msg = "Subnet does not exist(%s).";
             $this->err['e_log'] = sprintf($log_msg, $subnet);
-            return false;
+            return [false, []];
         }
 
         /* subnet found in subnet data */
@@ -1040,7 +1057,7 @@ class KeaConf {
                                   [$this->k_subnet]
                                   [$pos_subnet][STR_POOLS])) {
                 /* count number of pools */
-                $count_pool = count($new_conf[$this->k_dhcp]
+                $count_pool = count_array($new_conf[$this->k_dhcp]
                                              [$this->k_subnet]
                                              [$pos_subnet][STR_POOLS]);
             }
@@ -1060,7 +1077,7 @@ class KeaConf {
                                   [STR_POOLS])) {
 
                 /* count number of pools */
-                $count_pool = count($new_conf[$this->k_dhcp]
+                $count_pool = count_array($new_conf[$this->k_dhcp]
                                              [$this->k_shared]
                                              [$pos_shnet]
                                              [$this->k_subnet]
@@ -1079,7 +1096,7 @@ class KeaConf {
 
         }
 
-        return $new_conf;
+        return [true, $new_conf];
     }
 
     /************************************************************************
@@ -1147,7 +1164,7 @@ class KeaConf {
      * Description    : add new option to subnet
      * args           : $subnet
      *                : $postdata
-     * return         : false or config
+     * return         : true or false 
      ************************************************************************/
     public function add_option($subnet, $new_opt_data)
     {
@@ -1160,11 +1177,11 @@ class KeaConf {
         /* subnet do not exist in config */
         if ($ret === RET_NOTFOUND) {
             $this->result = false;
-            $form = _("Subnet do not exist(%s).");
+            $form = _("Subnet does not exist(%s).");
             $this->err['e_msg'] = sprintf($form, $subnet);
-            $log_msg = "Subnet do not exist(%s).";
+            $log_msg = "Subnet does not exist(%s).";
             $this->err['e_log'] = sprintf($log_msg, $subnet);
-            return false;
+            return [false, []];
         }
 
         /* subnet found in subnet data */
@@ -1225,7 +1242,7 @@ class KeaConf {
 
         }
 
-        return $new_conf;
+        return [true, $new_conf];
     }
 
     /************************************************************************
@@ -1233,7 +1250,7 @@ class KeaConf {
      * Description    : delete option in subnet
      * args           : $subnet
      *                : $postdata
-     * return         : false or config
+     * return         : true or false 
      ************************************************************************/
     public function del_option($subnet, $optionname)
     {
@@ -1245,11 +1262,11 @@ class KeaConf {
         /* subnet do not exist in config */
         if ($ret === RET_NOTFOUND) {
             $this->result = false;
-            $form = _("Subnet do not exist(%s).");
+            $form = _("Subnet does not exist(%s).");
             $this->err['e_msg'] = sprintf($form, $subnet);
-            $log_msg = "Subnet do not exist(%s).";
+            $log_msg = "Subnet does not exist(%s).";
             $this->err['e_log'] = sprintf($log_msg, $subnet);
-            return false;
+            return [false, []];
         }
 
         /* subnet found in subnet data */
@@ -1268,7 +1285,7 @@ class KeaConf {
                 $this->err['e_msg'] = $form;
                 $log_msg = "Option do not exist(%s)(%s).";
                 $this->err['e_log'] = sprintf($log_msg, $subnet, implode(',', $optionname));
-                return false;
+                return [false, []];
             }
 
             /* add new option to subnet */
@@ -1294,7 +1311,7 @@ class KeaConf {
                 $this->err['e_msg'] = $form;
                 $log_msg = "Option do not exist(%s)(%s).";
                 $this->err['e_log'] = sprintf($log_msg, $subnet, implode(',', $optionname));
-                return false;
+                return [false, []];
             }
 
             /* add new option to subnet */
@@ -1307,14 +1324,14 @@ class KeaConf {
 
         }
 
-        return $new_conf;
+        return [true, $new_conf];
     }
 
     /************************************************************************
      * Method         : get_options
      * Description    : get options from subnet
      * args           : $subnet
-     * return         : $org_optdata
+     * return         : true or false
      ************************************************************************/
     public function get_options($subnet)
     {
@@ -1327,11 +1344,11 @@ class KeaConf {
         /* subnet do not exist in config */
         if ($ret === RET_NOTFOUND) {
             $this->result = false;
-            $form = _("Subnet do not exist(%s).");
+            $form = _("Subnet does not exist(%s).");
             $this->err['e_msg'] = sprintf($form, $subnet);
-            $log_msg = "Subnet do not exist(%s).";
+            $log_msg = "Subnet does not exist(%s).";
             $this->err['e_log'] = sprintf($log_msg, $subnet);
-            return false;
+            return [false, []];
         }
 
         /* subnet found in subnet data */
@@ -1362,14 +1379,14 @@ class KeaConf {
             }
         }
 
-        return $org_optdata;
+        return [true, $org_optdata];
     }
 
     /************************************************************************
      * Method         : edit_range
      * Description    : edit range of subnet in config
      * args           : None
-     * return         : false or config
+     * return         : true or false 
      ************************************************************************/
     public function edit_range($subnet, $editing_pool, $pool_edit)
     {
@@ -1383,11 +1400,11 @@ class KeaConf {
         /* subnet do not exist */
         if ($ret === RET_NOTFOUND) {
             $this->result = false;
-            $form = _("Subnet do not exist(%s).");
+            $form = _("Subnet does not exist(%s).");
             $this->err['e_msg'] = sprintf($form, $subnet);
-            $log_msg = "Subnet do not exist(%s).";
+            $log_msg = "Subnet does not exist(%s).";
             $this->err['e_log'] = sprintf($log_msg, $subnet);
-            return false;
+            return [false, []];
         }
 
         /* if subnet exist in subnet part */
@@ -1451,14 +1468,14 @@ class KeaConf {
         /* editing range do not exist in this subnet */
         if (!$range_found) {
             $this->result = false;
-            $form = _("Editing range do not exist.(%s)");
+            $form = _("Editing Pool IP address range do not exist.(%s)");
             $this->err['e_msg'] = sprintf($form, $editing_pool);
-            $log_msg = "Editing range do not exist.(%s)(%s)";
+            $log_msg = "Editing Pool IP address range do not exist.(%s)(%s)";
             $this->err['e_log'] = sprintf($log_msg, $subnet, $editing_pool);
-            return false;
+            return [false, []];
         }
 
-        return $new_conf;
+        return [true, $new_conf];
     }
 
     /************************************************************************
@@ -1530,8 +1547,7 @@ class KeaConf {
         /* occur error when update config */
         if ($ins_kea->errmsg !== NULL) {
             $this->result = false;
-            $form = _("Cannot update config file. Dhcp start-up error?(%s)");
-            $this->err['e_msg'] = sprintf($form, $this->pathdhcp4);
+            $this->err['e_msg'] = _("Cannot update config file. Dhcp start-up error?");
             $log_msg = "Cannot update config file. Dhcp start-up error?(%s)";
             $this->err['e_log'] = sprintf($log_msg, $ins_kea->errmsg);
             return false;
@@ -1573,6 +1589,8 @@ class KeaConf {
             return true;
         }
 
+        /* delete hash value */
+        unset($dhcp_conf_sess['hash']);
         /* reflect config from session */
         $ret = $this->config_write($dhcp_conf_sess);
 
@@ -1652,18 +1670,16 @@ class KeaConf {
     * Method         : search_shared4
     * Description    : Check shared4 and forward search
     * args           : $shared
-    * return         : $result
+    * return         : true or false
     ************************************************************************/
     public function search_shared4($cond = null, $mode = 'all')
     {
         /* check presence dhcp4 configuration */
         if (empty($this->dhcp4)) {
-            $form = _("Cannot read configuration.(%s)");
-            $this->err['e_msg'] = sprintf($form, $this->pathdhcp4);
-            $log_msg = "Cannot read configuration.(%s)";
-            $this->err['e_log'] = sprintf($log_msg, $this->pathdhcp4);
+            $this->err['e_msg'] = _("Cannot read configuration.");
+            $this->err['e_log'] = "Cannot read configuration.";
 
-            return false;
+            return [false, []];
         }
 
         /* check presence shared-networks configuration */
@@ -1671,7 +1687,7 @@ class KeaConf {
             $form = _("Shared-network is empty.");
             $this->err['e_msg'] = sprintf($form, null);
 
-            return false;
+            return [false, []];
         }
 
         $result = [];
@@ -1689,10 +1705,10 @@ class KeaConf {
         if (empty($result)) {
             $this->err['e_msg'] = _('Shared-network is empty.');
 
-            return false;
+            return [false, []];
         }
 
-        return $result;
+        return [true, $result];
     }
 
     /************************************************************************
@@ -1705,18 +1721,17 @@ class KeaConf {
     {
         /* check presence dhcp6 configuration */
         if (empty($this->dhcp6)) {
-            $form = _("Cannot read configuration.(%s)");
-            $this->err['e_msg'] = sprintf($form, $this->pathdhcp6);
-            $log_msg = "Cannot read configuration.(%s)";
-            $this->err['e_log'] = sprintf($log_msg, $this->pathdhcp6);
-            return false;
+            $this->err['e_msg'] = _("Cannot read configuration.");
+            $this->err['e_log'] = "Cannot read configuration.";
+
+            return [false, []];
         }
 
         /* check presence shared-networks configuration */
         if (empty($this->dhcp6[STR_SHARED][0])) {
-            $form = _("Shared-network is empty.");
-            $this->err['e_msg'] = sprintf($form, $this->pathdhcp6);
-            return false;
+            $this->err['e_msg'] = _("Shared-network is empty.");
+
+            return [false, []];
         }
 
         $result = [];
@@ -1733,10 +1748,10 @@ class KeaConf {
         /* check result */
         if (empty($result)) {
             $this->err['e_msg'] = _('Shared-network is empty.');
-            return false;
+            return [false, []];
         }
 
-        return $result;
+        return [true, $result];
     }
 
     /************************************************************************
@@ -1772,7 +1787,7 @@ class KeaConf {
         }
 
         /* count number of shared */
-        $count_shared =  count($this->all[$this->k_dhcp][$this->k_shared]);
+        $count_shared =  count_array($this->all[$this->k_dhcp][$this->k_shared]);
 
         $new_config = $this->all;
         $new_config[$this->k_dhcp][$this->k_shared][$count_shared] = 
@@ -1830,6 +1845,27 @@ class KeaConf {
     }
 
     /************************************************************************
+    * Method         : get_shared_params
+    * Description    : get shared params(interface, interface-id, relay)
+    * args           : $name            name of shared-network
+    * return         : $shared_params
+    ************************************************************************/
+     public function get_shared_params($name)
+    {
+        $shared_subnet = [];
+        $config = $this->all;
+
+        /* get shared subnet */
+        foreach ($config[$this->k_dhcp][$this->k_shared] as $shared) {
+            if ($shared[STR_NAME] == $name) {
+                $shared_params = $shared;
+                break;
+            }
+        }
+        return $shared_params;
+    }
+
+    /************************************************************************
     * Method         : delete_shared_network
     * Description    : delete shared_network to config
     * args           : $delete_data
@@ -1852,7 +1888,7 @@ class KeaConf {
         }
 
         /* shared_network 並び替え */
-        $new_shared = reindex_numeric($new_conf[$this->k_dhcp]
+        $new_shared = array_values($new_conf[$this->k_dhcp]
                                                [$this->k_shared]);
         $new_conf[$this->k_dhcp][$this->k_shared] = $new_shared;
 
@@ -1868,6 +1904,8 @@ class KeaConf {
     public function edit_shared_network($edit_data)
     {
 
+        $pos_shnet = "";
+        $pos_subnet = "";
         $new_conf = $this->all;
 
         /* edit new name */
@@ -1875,12 +1913,15 @@ class KeaConf {
 
             /* edit new name */
             if ($shared[STR_NAME] === $edit_data["old_shared_name"]) {
-                $new_conf[$this->k_dhcp][$this->k_shared][$key][STR_NAME] =
-                                                     $edit_data["shared_name"];
+                $new_conf[$this->k_dhcp][$this->k_shared][$key][STR_NAME] = $edit_data["shared_name"];
+
+                /* Processing for dhcpv6 */
+                isset($edit_data["interface"]) && $new_conf[$this->k_dhcp][$this->k_shared][$key][STR_INTERFACE] = $edit_data["interface"];
+                isset($edit_data["interface-id"]) && $new_conf[$this->k_dhcp][$this->k_shared][$key][STR_INTERFACEID] = $edit_data["interface-id"];
+                isset($edit_data["relay"]) && $new_conf[$this->k_dhcp][$this->k_shared][$key][STR_RELAY] = $edit_data["relay"];
                 break;
             }
         }
-
         /* get all shared-network subnet */
         $shared_subnet = 
                 $this->get_shared_subnet($edit_data["old_shared_name"]);
@@ -1888,41 +1929,39 @@ class KeaConf {
 
         /* add shared_subnet */
         if (!empty($edit_data["shared_subnet"])) {
-	    foreach ($edit_data["shared_subnet"] as $add_subnet) {
-
+	        foreach ($edit_data["shared_subnet"] as $add_subnet) {
                 $count_shared = 0;
                 if (isset($new_conf[$this->k_dhcp]
-                                               [$this->k_shared]
-                                               [$key]
-                                               [$this->k_subnet])) {
-		    /* count number of shared */
-		    $count_shared = count($new_conf[$this->k_dhcp]
-		        			   [$this->k_shared]
-					           [$key]
-					           [$this->k_subnet]);
+                                   [$this->k_shared]
+                                   [$key]
+                                   [$this->k_subnet])) {
+                    /* count number of shared */
+                    $count_shared = count_array($new_conf[$this->k_dhcp]
+                                                         [$this->k_shared]
+                                                         [$key]
+                                                         [$this->k_subnet]);
                 }
 
-		/* add shared_subnet */
-		$ret = array_search($add_subnet, $shared_subnet);
-		if ($ret === false) {
-		    $ret = $this->check_subnet_belongto
-		       ($add_subnet, $pos_subnet, $pos_shnet);
+                /* add shared_subnet */
+                $ret = array_search($add_subnet, $shared_subnet);
+                if ($ret === false) {
+                    $ret = $this->check_subnet_belongto($add_subnet, $pos_subnet, $pos_shnet);
 
-		    /* if subnet exist in global part */
-		    if ($ret === RET_SUBNET) {
-
-			$new_conf[$this->k_dhcp]
-				 [$this->k_shared]
-				 [$key]
-				 [$this->k_subnet]
-				 [$count_shared] = 
-				    $new_conf[$this->k_dhcp]
-					     [$this->k_subnet]
-					     [$pos_subnet];
-
-                        unset($new_conf[$this->k_dhcp]
-                                       [$this->k_subnet]
-                                       [$pos_subnet]);
+                    /* if subnet exist in global part */
+                    if ($ret === RET_SUBNET) {
+              
+                    $new_conf[$this->k_dhcp]
+                	         [$this->k_shared]
+                	         [$key]
+                	         [$this->k_subnet]
+                	         [$count_shared] = 
+                	$new_conf[$this->k_dhcp]
+                		     [$this->k_subnet]
+                		     [$pos_subnet];
+              
+                    unset($new_conf[$this->k_dhcp]
+                                   [$this->k_subnet]
+                                   [$pos_subnet]);
                     }
                 }
             }
@@ -1931,7 +1970,7 @@ class KeaConf {
         if (!empty($new_conf[$this->k_dhcp][$this->k_subnet])) {
 
             /* subnet 並び替え */
-            $new_subnet = reindex_numeric($new_conf[$this->k_dhcp]
+            $new_subnet = array_values($new_conf[$this->k_dhcp]
                                                    [$this->k_subnet]);
 
             $new_conf[$this->k_dhcp][$this->k_subnet] = $new_subnet;
@@ -1941,7 +1980,7 @@ class KeaConf {
         foreach ($shared_subnet as $del_subnet) {
 
             /* count number of shared */
-            $count_subnet = count($new_conf[$this->k_dhcp]
+            $count_subnet = count_array($new_conf[$this->k_dhcp]
                                            [$this->k_subnet]);
 
             /* delete shared_subnet */
@@ -1950,7 +1989,7 @@ class KeaConf {
                 $ret = array_search($del_subnet, $edit_data["shared_subnet"]);
             }
 
-            if ($ret === false || !isset($edit_data["shared_subnet"])) {
+	    if ($ret === false || !isset($edit_data["shared_subnet"])) {
                 $ret = $this->check_subnet_belongto
                                    ($del_subnet, $pos_subnet, $pos_shnet);
 
@@ -1971,26 +2010,686 @@ class KeaConf {
                                    [$pos_shnet]
                                    [$this->k_subnet]
                                    [$pos_subnet]);
+
                 }
             }
         }
 
-        if (!empty($pos_shnet)){
-            if (!empty($new_conf[$this->k_dhcp]
-                                [$this->k_shared]
-                                [$pos_shnet]
-                                [$this->k_subnet])) {
+        if (!empty($new_conf[$this->k_dhcp]
+                            [$this->k_shared]
+                            [$pos_shnet]
+                            [$this->k_subnet])) {
 
-                /* shared_part 並び替え */
-                $new_shared = reindex_numeric($new_conf[$this->k_dhcp]
+            /* shared_part 並び替え */
+            $new_shared = array_values($new_conf[$this->k_dhcp]
+                                               [$this->k_shared]
+                                               [$pos_shnet]
+                                               [$this->k_subnet]);
+            $new_conf[$this->k_dhcp]
+                     [$this->k_shared]
+                     [$pos_shnet]
+                     [$this->k_subnet] = $new_shared;
+
+        }
+  
+        return $new_conf;
+    }
+
+    /*************************************************************************
+    * Method        : get_interfaces
+    * Description   : Method for get network-interfaces
+    * args          : None
+    * return        : [true, $interfaces] or [false, []]
+    *************************************************************************/
+    public function get_interfaces()
+    {
+        $interfaces = [''];
+        if (empty($this->dhcp6['interfaces-config']['interfaces']) || in_array('*', $this->dhcp6['interfaces-config']['interfaces']))
+        {
+            $server_if = net_get_interfaces();
+            if ($server_if === false)
+            {
+                $this->err['e_msg'] = _('Failed to get network-interfaces.');
+                $this->err['e_log'] = 'Failed to get network-interfaces.';
+                return [false, []];
+            }
+            /* delete lo */
+            unset($server_if['lo']);
+            $if_names = array_keys($server_if);
+            $interfaces = array_merge($interfaces, $if_names);
+            return [true, $interfaces];
+        }
+        foreach($this->dhcp6['interfaces-config']['interfaces'] as $sess_if)
+        {
+            $interfaces[] = explode('/', $sess_if)[0];
+        }
+
+        return [true, $interfaces];
+    }
+
+    /*************************************************************************
+    * Method        : get_one_subnet
+    * Description   : Method for get one subnet data
+    * args          : None
+    * return        : [true, $subnetdata] or [false, []]
+    *************************************************************************/
+    public function get_one_subnet($subnet)
+    {
+        $subnetdata = [];
+        $is_exist = false;
+    
+        /* check subnet part */
+        $subnet_part = $this->get_subnet_part();
+        foreach($subnet_part as $subnet_data) {
+            if ($subnet_data[STR_SUBNET] === $subnet) {
+                $subnetdata = $subnet_data;
+                $is_exist = true;
+                break;
+            }
+        }
+
+        if ($is_exist === true) {
+            return [true, $subnetdata];
+        }
+
+        /* check shared part */
+        $shared_part = $this->get_shared_part();
+
+        foreach ($shared_part as $shared_data) {
+            foreach ($shared_data[$this->k_subnet] as $shared_subnet) {
+                if ($shared_subnet[STR_SUBNET] === $subnet) {
+                    $subnetdata = $shared_subnet;
+                    $is_exist = true;
+                }
+            }
+        }
+
+        if ($is_exist === true) {
+            return [true, $subnetdata];
+        }
+
+        $this->err['e_msg'] = _('Subnet does not exist in config.');
+        $this->err['e_log'] = 'Subnet does not exist in config.';
+        return [false, []];
+    }
+
+    /*************************************************************************
+    * Method        : edit_subnet_config
+    * Description   : Method for edit subnet config
+    * args          : $subnet
+    * return        : [true, $subnetdata] or [false, []]
+    *************************************************************************/
+    public function edit_subnet_config($subnet, $position, $subnetdata) {
+        $new_conf = $this->all;
+
+        foreach ($subnetdata as $key => $data) {
+            /* uodate subnetdata */
+            $new_conf[$this->k_dhcp]
+                     [$this->k_subnet]
+                     [$position][$key] = $data;
+        }
+
+        return $new_conf;
+    }
+
+    /************************************************************************
+    * Method         : del_pd_pools
+    * Description    : del pd-pools in config
+    * args           : None
+    * return         : true or false
+    ************************************************************************/
+    public function del_pd_pools($subnet, $prefix, $pos_subnet, $pos_shnet = null)
+    {
+        $delete_pos = null;
+        /* get pd-pools position */
+        [$ret, $subnetdata] = $this->get_one_subnet($subnet);
+        foreach ($subnetdata[STR_PD_POOLS] as $key => $value) {
+            if ($value['prefix'] === $prefix) {
+                $delete_pos = $key;
+                break;
+            }
+        }
+
+        /* current config */
+        $new_conf = $this->all;
+
+        /* if subnet exist in subnet part */
+        if ($pos_shnet === null) {
+            unset($new_conf[$this->k_dhcp][$this->k_subnet][$pos_subnet][STR_PD_POOLS][$delete_pos]);
+            /* rearrangement of sequence numbers  */
+            $new_pd_pools = array_values($new_conf[$this->k_dhcp]
+                                                   [$this->k_subnet]
+                                                   [$pos_subnet]
+                                                   [STR_PD_POOLS]);
+            /* set new pd-pools  */
+            $new_conf[$this->k_dhcp][$this->k_subnet][$pos_subnet][STR_PD_POOLS] = $new_pd_pools;
+        /* if subnet exist in shared-network part */
+        } else {
+            unset($new_conf[$this->k_dhcp]
+                           [$this->k_shared]
+                           [$pos_shnet]
+                           [$this->k_subnet]
+                           [$pos_subnet]
+                           [STR_PD_POOLS]
+                           [$delete_pos]);
+            /* rearrangement of sequence numbers */
+            $new_pd_pools = array_values($new_conf[$this->k_dhcp]
                                                    [$this->k_shared]
                                                    [$pos_shnet]
-                                                   [$this->k_subnet]);
-                $new_conf[$this->k_dhcp]
-                         [$this->k_shared]
-                         [$pos_shnet]
-                         [$this->k_subnet] = $new_shared;
+                                                   [$this->k_subnet]
+                                                   [$pos_subnet]
+                                                   [STR_PD_POOLS]);
+            /* set new pd-pools  */
+            $new_conf[$this->k_dhcp]
+                     [$this->k_shared]
+                     [$pos_shnet]
+                     [$this->k_subnet]
+                     [$pos_subnet]
+                     [STR_PD_POOLS] = $new_pd_pools;
 
+        }
+
+        return [true, $new_conf];
+    }
+
+    /************************************************************************
+    * Method         : add_pd_pools
+    * Description    : add pd-pools in config
+    * args           : None
+    * return         : true or false
+    ************************************************************************/
+    public function add_pd_pools($subnet, $pd_pools, $pos_subnet, $pos_shnet = null)
+    {
+        /* current config */
+        $new_conf = $this->all;
+
+        if ($pos_shnet === null) {
+            $new_conf[$this->k_dhcp][$this->k_subnet][$pos_subnet][STR_PD_POOLS][] = $pd_pools;
+        } else {
+            $new_conf[$this->k_dhcp][$this->k_shared][$pos_shnet][$this->k_subnet][$pos_subnet][STR_PD_POOLS][] = $pd_pools;
+        }
+
+        return [true, $new_conf];
+    }
+
+    /************************************************************************
+    * Method         : edit_pd_pools
+    * Description    : edit pd-pools in config
+    * args           : None
+    * return         : true or false
+    ************************************************************************/
+    public function edit_pd_pools($subnet, $pd_pools, $pos_pd_pools, $pos_subnet, $pos_shnet = null)
+    {
+        /* current config */
+        $new_conf = $this->all;
+
+        if ($pos_shnet === null) {
+            $new_conf[$this->k_dhcp][$this->k_subnet][$pos_subnet][STR_PD_POOLS][$pos_pd_pools] = 
+                array_merge($new_conf[$this->k_dhcp][$this->k_subnet][$pos_subnet][STR_PD_POOLS][$pos_pd_pools], $pd_pools);
+        } else {
+            $new_conf[$this->k_dhcp][$this->k_shared][$pos_shnet][$this->k_subnet][$pos_subnet][STR_PD_POOLS][$pos_pd_pools] =
+                array_merge($new_conf[$this->k_dhcp][$this->k_shared][$pos_shnet][$this->k_subnet][$pos_subnet][STR_PD_POOLS][$pos_pd_pools], $pd_pools);
+        }
+        return [true, $new_conf];
+    }
+
+    /************************************************************************
+    * Method         : survey_option82_pools
+    * Description    : Survey option82 pools from the pools array
+    * args           : arr - pools
+                       mode
+                         - exclude: Returns an array of pools other than optin82
+                         - include: Returns an array of optin82 pools
+                         - search: Returns true/false if a pool of option82 exists
+    * return         : [true, result] or [false, []]
+    ************************************************************************/
+    public function survey_option82_pools($pools, $mode = 'exclude') {
+        /* return array */
+        $result_pools = [];
+        $opt82_found = false;
+
+        foreach ($pools as $index => $one_pool) {
+            if (isset($one_pool[STR_CLIENT_CLASS])) {
+                if (preg_match('/^opt82_/', $one_pool[STR_CLIENT_CLASS]) === 1) {
+                    switch ($mode) {
+                        case 'include':
+                            $result_pools[$one_pool[STR_CLIENT_CLASS]] = $one_pool;
+                        case 'search':
+                            $opt82_found = true;
+                            break;
+                    }
+                } else {
+                    if ($mode === 'exclude') {
+                        $result_pools[$index] = $one_pool;
+                    }
+                }
+            } else {
+                if ($mode === 'exclude') {
+                    $result_pools[$index] = $one_pool;
+                }
+            }
+        }
+
+        /* search mode processing */
+        if ($mode === 'search') {
+            if ($opt82_found === true) {
+                return [true, []];
+            } else {
+                return [false, []];
+            }
+        }
+
+        /* In include or exclude mode, if the result is empty */
+        if (empty($result_pools)) {
+            return [false, []];
+        } 
+
+        return [true, $result_pools];
+    }
+
+    /************************************************************************
+    * Method         : get_client_class
+    * Description    : Obtain client class settings
+    * args           : mode
+                         - all: Get settings for all client classes
+                         - option82: Get only the client class setting for option82
+    * return         : [true, result] or [false, []]
+    ************************************************************************/
+    public function get_client_class($mode = 'all') {
+        /* Get settings for all client classes */
+        $new_conf = $this->all;
+        if (empty($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES])) {
+            return [false, []];
+        }
+
+        /* If mode is all, returns all client classes */
+        if ($mode === 'all') {
+            return [true, $new_conf[$this->k_dhcp][STR_CLIENT_CLASSES]];
+        }
+
+        /* If mode is option82, returns a client class starting with opt82_. */
+        $option82_classes = [];
+        foreach ($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES] as $client_classes) {
+            if (isset($client_classes[STR_NAME]) && preg_match('/^opt82_/', $client_classes[STR_NAME]) === 1) {
+                $option82_classes[] = $client_classes;
+            }
+        }
+
+        return [true, $option82_classes];
+
+    }
+
+    /************************************************************************
+    * Method         : format_test_value
+    * Description    : Format the value of test
+    * args           : string
+                       identifier
+                         - circuit_id
+                         - remote_id
+                         - mac_address
+    * return         : [true, result, flg_hexed] or [false, "", flg_hexed]
+    ************************************************************************/
+    public function format_test_value($test_val, $identifier) {
+        $flg_hexed = 'false';
+        switch ($identifier) {
+            case 'circuit_id':
+                $circuit_id = '';
+                /* get circuit-id */
+                /* Match hexadecimal notation value */
+                /*
+                   hexadecimal notation circuit-id is in the following format
+                   relay[1].hex == 0x****
+                */
+                if (preg_match('/relay4\[1\]\.hex == 0x\S+/', $test_val, $matches) === 1) {
+                    $hexed_circuit = explode(' ', $matches[0])[2];
+                    if (empty($hexed_circuit)) {
+                        return [false, "", $flg_hexed];
+                    }
+
+                    $circuit_id = hex2bin(str_replace('0x', '', $hexed_circuit));
+                    if ($circuit_id === false) {
+                        return [false, "", $flg_hexed];
+                    }
+
+                }
+
+                /* Matches values other than hexadecimal notation */
+                /*
+                   non-hexadecimal notation circuit-id is in the following format
+                   relay[1].hex == '****'
+                */
+                else if (preg_match('/relay4\[1\]\.hex == \'.*?\'/', $test_val, $matches) === 1) {
+                    $flg_hexed = 'true';
+                    $circuit_id = explode('\'', $matches[0])[1];
+                    if (empty($circuit_id)) {
+                        return [false, "", $flg_hexed];
+                    }
+                }
+                return [true, $circuit_id, $flg_hexed];
+
+            case 'remote_id':
+                $remote_id = '';
+                /* get remote-id */
+                /* Match hexadecimal notation value */
+                /*
+                   hexadecimal notation remote-id is in the following format
+                   relay[2].hex == 0x****
+                */
+                if (preg_match('/relay4\[2\]\.hex == 0x\S+/', $test_val, $matches) === 1) {
+                    $hexed_remote = explode(' ', $matches[0])[2];
+                    if (empty($hexed_remote)) {
+                        return [false, "", $flg_hexed];
+                    }
+                    $remote_id = hex2bin(str_replace('0x', '', $hexed_remote));
+                    if ($remote_id === false) {
+                        return [false, "", $flg_hexed];
+                    }
+                }
+
+                /* Matches values other than hexadecimal notation */
+                /*
+                   non-hexadecimal notation remote-id is in the following format
+                   relay[2].hex == '****'
+                */
+                else if (preg_match('/relay4\[2\]\.hex == \'.*?\'/', $test_val, $matches) === 1) {
+                    $flg_hexed = 'true';
+                    $remote_id = explode('\'', $matches[0])[1];
+                    if (empty($remote_id)) {
+                        return [false, "", $flg_hexed];
+                    }
+                }
+                return [true, $remote_id, $flg_hexed];
+
+            case 'mac_address':
+                $mac_address = '';
+                /* get mac_address */
+                /*
+                   mac_address is in the following format
+                   pkt4.mac == 0x****
+                */
+                if (preg_match('/pkt4\.mac == 0x\S+/', $test_val, $matches) === 1) {
+                    $org_mac = explode(' ', $matches[0])[2];
+                    if (empty($org_mac)) {
+                        return [false, "", $flg_hexed];
+                    }
+                    $mac_address = add_colon(str_replace('0x', '', $org_mac));
+                }
+                return [true, $mac_address, $flg_hexed];
+        }
+    }
+
+    /************************************************************************
+    * Method         : delete_option82
+    * Description    : Deletion of the client class and the settings associated with the client class
+    * args           : class_name
+                       additional (Settings tied to the client class)
+                         - pool
+                       subnet (Required if additional is specified)
+    * return         : $new_conf
+    ************************************************************************/
+    public function delete_option82($class_name, $subnet = null) {
+        $flg_del_no_member = false;
+        $new_conf = $this->all;
+    
+        /* delete client class */
+        foreach($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES] as $index => $client_classes) {
+            if ($client_classes[STR_NAME] === $class_name) {
+                unset($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES][$index]);
+            }
+            if ($client_classes[STR_NAME] === STR_NO_MEMBER) {
+                /* delete class name from no-member */
+                $no_member = $client_classes[STR_TEST];
+                /* If the client class is the last one, delete the no-member class as well */
+                /* 
+                    no-member class is subject to the following conditions
+                    not (member('opt82_bas_xxxx') or member('opt82_bas_xxxx') or member('opt82_adv_xxxx') ....)
+
+                    The pattern does not match if there is only one client class, as in the following
+                    not (member('opt82_bas_xxxx'))
+                */
+                $pattern = "/member\('$class_name'\) or | or member\('$class_name'\)/";
+                $new_no_member = preg_replace($pattern, "", $no_member);
+                if ($no_member === $new_no_member) {
+                    $flg_del_no_member = true;
+                    unset($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES][$index]);
+                } else {
+                    $new_conf[$this->k_dhcp][STR_CLIENT_CLASSES][$index][STR_TEST] = $new_no_member;
+                }
+            }
+        }
+
+        /* Organize sequence numbers */
+        $new_conf[$this->k_dhcp][STR_CLIENT_CLASSES] = array_values($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES]);
+
+        /* When the no-member client class is deleted, remove the no-member ties from all pools. */
+        if (!empty($new_conf[$this->k_dhcp][STR_SHARED])) {
+            foreach ($new_conf[$this->k_dhcp][STR_SHARED] as $sh_pos => $shared_networks) {
+                foreach ($shared_networks[$this->k_subnet] as $sh_subpos => $sh_subnet) {
+                    foreach ($sh_subnet[STR_POOLS] as $sh_poolpos => $sh_pools) {
+                        if ($flg_del_no_member === true) {
+                            if ($sh_pools[STR_CLIENT_CLASS] === STR_NO_MEMBER) {
+                                unset($new_conf[$this->k_dhcp][STR_SHARED][$sh_pos][$this->k_subnet][$sh_subpos][STR_POOLS][$sh_poolpos][STR_CLIENT_CLASS]);
+                            }
+                        }
+                        if ($sh_pools[STR_CLIENT_CLASS] === $class_name) {
+                            unset($new_conf[$this->k_dhcp][STR_SHARED][$sh_pos][$this->k_subnet][$sh_subpos][STR_POOLS][$sh_poolpos]);
+                        }
+                        $new_conf[$this->k_dhcp][STR_SHARED]
+                                                [$sh_pos]
+                                                [$this->k_subnet]
+                                                [$sh_subpos]
+                                                [STR_POOLS]
+                                                = array_values($new_conf[$this->k_dhcp][STR_SHARED][$sh_pos][$this->k_subnet][$sh_subpos][STR_POOLS]);
+                    }
+                }
+            }
+        }
+
+        if (!empty($new_conf[$this->k_dhcp][$this->k_subnet])) {
+            foreach ($new_conf[$this->k_dhcp][$this->k_subnet] as $subpos => $gl_subnet) {
+                foreach ($gl_subnet[STR_POOLS] as $poolpos => $gl_pools) {
+                    if ($flg_del_no_member === true) {
+                        if ($gl_pools[STR_CLIENT_CLASS] === STR_NO_MEMBER) {
+                            unset($new_conf[$this->k_dhcp][$this->k_subnet][$subpos][STR_POOLS][$poolpos][STR_CLIENT_CLASS]);
+                        }
+                    }
+                    if ($gl_pools[STR_CLIENT_CLASS] === $class_name) {
+                        unset($new_conf[$this->k_dhcp][$this->k_subnet][$subpos][STR_POOLS][$poolpos]);
+                    }
+                    $new_conf[$this->k_dhcp][$this->k_subnet]
+                                            [$subpos]
+                                            [STR_POOLS]
+                                            = array_values($new_conf[$this->k_dhcp][$this->k_subnet][$subpos][STR_POOLS]);
+                }
+            }
+        }
+
+        return $new_conf;
+    }
+
+    /************************************************************************
+    * Method         : create_payout_conditions
+    * Description    : Deletion of the client class and the settings associated with the client class
+    * args           : circuit_id
+                       remote_id
+                       mac_address
+    * return         : $string
+    ************************************************************************/
+    public function create_payout_condition($circuit_id = null, $remote_id = null, $mac_address = null) {
+        $identifiers = [];
+        if (!is_null($circuit_id)) {
+            $identifiers[] = "relay4[1].hex == " . $circuit_id;
+        }
+
+        if (!is_null($remote_id)) {
+            $identifiers[] = "relay4[2].hex == " . $remote_id;
+        }
+
+        if (!is_null($mac_address)) {
+            $identifiers[] = 'pkt4.mac == ' . $mac_address;
+        }
+
+        $payout_condition = implode(' and ', $identifiers);
+        return $payout_condition;
+    } 
+
+    /************************************************************************
+    * Method         : create_class_name
+    * Description    : Create class name for option82.
+    * args           : type
+                       - bas
+                       - adv
+    * return         : $string
+    ************************************************************************/
+    public function create_class_name($type = 'bas') {
+        $datetime = new DateTime();
+        $now = $datetime->format("YmdHisu");
+        $class_name = 'opt82_' . $type . '_' . $now;
+        return $class_name;
+    }
+
+    /************************************************************************
+    * Method         : add_option82
+    * Description    : Adding option82 setting 
+    * args           : params
+                       subnet
+    * return         : [true, $new_conf] or [false, $new_conf]
+    ************************************************************************/
+    public function add_option82($params, $subnet) {
+        /* make add data */
+        $class_data = [];
+        $pool_data = [];
+        $circuit_id = null;
+        $remote_id = null;
+        $mac_address = null;
+
+        $flg_make_nomember = false;
+
+        if ($params['is_advanced'] === 'true') {
+            /* class name */
+            $class_data = [
+                STR_NAME => $this->create_class_name('adv'),
+                STR_TEST => $params['advanced_setting'],
+            ];
+        } else {
+            /* Circuit-ID */
+            if ($params['circuit_id'] !== '') {
+                if ($params['no_hex_circuit'] === 'true') {
+                    $circuit_id = "'" . $params['circuit_id'] . "'";
+                } else {
+                    $circuit_id = '0x' . bin2hex($params['circuit_id']);
+                }
+            }
+
+            /* Remote-ID */
+            if ($params['remote_id'] !== '') {
+                if ($params['no_hex_remote'] === 'true') {
+                    $remote_id = "'" . $params['remote_id'] . "'";
+                } else {
+                    $remote_id = '0x' . bin2hex($params['remote_id']);
+                }
+            }
+
+            /* MAC address */
+            if ($params['mac_address'] !== '') {
+                $mac_address = '0x' . remove_colon($params['mac_address']);
+            }
+
+            $class_data = [
+                STR_NAME => $this->create_class_name('bas'),
+                STR_TEST => $this->create_payout_condition($circuit_id, $remote_id, $mac_address),
+            ];
+        }
+        /* pool data */
+        $pool_data = [
+            STR_POOL         => $params['pool_start'] . '-' . $params['pool_end'],
+            STR_CLIENT_CLASS => $class_data[STR_NAME],
+        ];
+
+        /* current config */
+        $new_conf = $this->all;
+
+        /* When the client class exists and the no-member class also exists */
+        if (!empty($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES]) 
+            && in_array(STR_NO_MEMBER, array_column($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES], STR_NAME)) === true) 
+        {
+            /* 
+                Add the name of the client class you created to the no-member condition
+                The no-member condition is described as follows
+                not (member('opt82_bas_YYYYMMDDhhmmssnnnnnn') or member('opt82_bas_YYYYMMDDhhmmssnnnnnn') or member('opt82_bas_YYYYMMDDhhmmssnnnnnn') ...)
+
+                Add the client class name after member('opt82_bas_YYYYYYMMDDhhmmssnnnnnn')
+            */
+            $pos_nomember = array_key_last($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES]);
+            if (preg_match('/not \((.*)\)/', $new_conf[$this->k_dhcp][STR_CLIENT_CLASSES][$pos_nomember][STR_TEST], $matches) === 1) {
+                /* Update no-member conditions */
+                $new_member = $matches[1] . " or member('" . $class_data[STR_NAME] . "')";
+                $new_conf[$this->k_dhcp][STR_CLIENT_CLASSES][$pos_nomember][STR_TEST]
+                    = 'not (' . $new_member . ')';
+            } else {
+                $this->err['e_msg'] = _('Failed to add option82 setting.');
+                $this->err['e_log'] = 'Failed to add option82 setting.';
+                return [false, []];
+            }
+            /* Insert the class created just before no-member because the no-member class must exist at the end of the array */
+            array_splice($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES], $pos_nomember, 0, array($class_data));
+            $new_conf[$this->k_dhcp][STR_CLIENT_CLASSES] = array_values($new_conf[$this->k_dhcp][STR_CLIENT_CLASSES]);
+        } else {
+            /* insert class-data into client-classes */
+            $new_conf[$this->k_dhcp][STR_CLIENT_CLASSES][] = $class_data;
+            /* If no-member class does not exist, create it */
+            $new_conf[$this->k_dhcp][STR_CLIENT_CLASSES][] = [
+                STR_NAME => STR_NO_MEMBER,
+                STR_TEST => "not (member('" . $class_data[STR_NAME] . "'))",
+            ];
+        }
+
+        /* Add pool-data */
+        $ret = $this->check_subnet_belongto($subnet, $pos_subnet, $pos_shnet);
+        if ($ret === RET_SHNET) {
+            $new_conf[$this->k_dhcp][STR_SHARED][$pos_shnet][$this->k_subnet][$pos_subnet][STR_POOLS][] = $pool_data;
+        } else if ($ret === RET_SUBNET) {
+            $new_conf[$this->k_dhcp][$this->k_subnet][$pos_subnet][STR_POOLS][] = $pool_data;
+        }
+
+        return [true, $new_conf];
+    }
+
+    /************************************************************************
+    * Method         : assign_nomember
+    * Description    : Assignment of no-member class
+    * args           : $conf
+    * return         : $new_conf
+    ************************************************************************/
+    public function assign_nomember($conf) {
+        $new_conf = $conf;
+        /* Surveying pools in the shared network */
+        foreach ($conf[$this->k_dhcp][STR_SHARED] as $sh_pos => $shared) {
+            foreach ($shared[$this->k_subnet] as $sub_pos => $subnet) {
+                foreach($subnet[STR_POOLS] as $pool_pos => $pools) {
+                    if (!isset($pools[STR_CLIENT_CLASS])) {
+                        $new_conf[$this->k_dhcp][STR_SHARED]
+                                                [$sh_pos]
+                                                [$this->k_subnet]
+                                                [$sub_pos]
+                                                [STR_POOLS]
+                                                [$pool_pos]
+                                                [STR_CLIENT_CLASS] = STR_NO_MEMBER;
+                    }
+                }
+            }
+        }
+
+        /* Examine a pool within a subnet */
+        foreach ($conf[$this->k_dhcp][$this->k_subnet] as $sub_pos => $subnet) {
+            foreach ($subnet[STR_POOLS] as $pool_pos => $pools) {
+                if (!isset($pools[STR_CLIENT_CLASS])) {
+                    $new_conf[$this->k_dhcp][$this->k_subnet]
+                                            [$sub_pos]
+                                            [STR_POOLS]
+                                            [$pool_pos]
+                                            [STR_CLIENT_CLASS] = STR_NO_MEMBER;
+                }
             }
         }
 

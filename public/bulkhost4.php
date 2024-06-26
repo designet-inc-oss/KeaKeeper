@@ -50,11 +50,15 @@ class BulkHost4
 
         $this->is_show_warn_msg = 0;
         $this->store = $store;
+        $this->pre = [];
+        $this->mode = '0';
+        $this->config_type = 'host';
+        $this->allowleased = 'false';
 
         $this->conf = new KeaConf(DHCPV4);
         if ($this->conf->result === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_conf = false;
             return;
         }
@@ -74,6 +78,11 @@ class BulkHost4
     **************************************************************************/
     private function validate_subnet($data, $line)
     {
+        /* Initializing Error Messages */
+        $this->msg_tag = ['success'                => null,
+                          'disp_msg'               => null,
+                          'e_msg'                  => null];
+
         /*  define rules */
         $rules['subnet'] =
           [
@@ -93,17 +102,24 @@ class BulkHost4
             return false;
         }
 
+        $this->pre['subnet'] = $data['subnet'];
+
         return true;
     }
 
     /*************************************************************************
-    * Method        : validate_post_del
+    * Method        : validate_post_del_host
     * args          : $values - POST values
     *               : $line   - Number of lines in conf
     * return        : true or false
     *************************************************************************/
-    public function validate_post_del($values, $line)
+    public function validate_post_del_host($values, $line)
     {
+        /* Initializing Error Messages */
+        $this->msg_tag = ['success'                => null,
+                          'disp_msg'               => null,
+                          'e_msg'                  => null];
+
         /*  define rules */
         $sub = $values['subnet'];
 
@@ -145,13 +161,18 @@ class BulkHost4
     }
 
     /*************************************************************************
-    * Method        : validate_post_add
+    * Method        : validate_post_add_host
     * args          : $values - POST values
     *               : $line   - Number of lines in conf
     * return        : true or false
     *************************************************************************/
-    public function validate_post_add($values, $line)
+    public function validate_post_add_host($values, $line)
     {
+        /* Initializing Error Messages */
+        $this->msg_tag = ['success'                => null,
+                          'disp_msg'               => null,
+                          'e_msg'                  => null];
+
         /*  define rules */
         $rules['hostname'] =
           [
@@ -176,43 +197,39 @@ class BulkHost4
 
         switch ($values['dhcp_identifier_type']) {
             case "MAC":
-                $values['dhcp_identifier_type'] = 0;
-                $id_format = 'macaddr';
-                $id_num = 0;
+                $id_format = 'MAC';
+                $values['dhcp_identifier_type'] = MAC_TYPE;
+                $method = "exist|macaddr|max:64|duplicate:HEX(dhcp_identifier):remove_both:0|duplicate_option82_mac";
                 break;
-            case"DUID":
-                $values['dhcp_identifier_type'] = 1;
-                $id_format = 'duid';
-                $id_num = 1;
-                break;
-            case "Circuit-ID":
-                $values['dhcp_identifier_type'] = 2;
-                $id_format = 'circuitid';
-                $id_num = 2;
-                break;
+        /* Discontinued in version 1.05 due to migration of functionality to the option82 management screen */
+        //    case "Circuit-ID":
+        //        $values['dhcp_identifier_type'] = CIRCUITID_TYPE;
+        //        $method = "exist|circuitid|max:129|duplicate:dhcp_identifier";
+        //        break;
             default:
                 $id_format = '';
-                $id_num = '';
                 break;
         }
 
-        if ($id_format !== "" || $id_num !== "") {
+        if ($id_format === 'MAC') {
 
             $rules['dhcp_identifier'] =
               [
-               'method' =>
-               "exist|$id_format|max:64|duplicate:HEX(dhcp_identifier):remove_both:$id_num",
+               'method' => $method,
                'msg'    => [_('Please enter Identifier.') . sprintf(_('(line: %s)'), $line),
                             _('Invalid identifier.') . sprintf(_('(line: %s)'), $line),
                             _('Invalid identifier.') . sprintf(_('(line: %s)'), $line),
+                            _('Identifier already exists.') . sprintf(_('(line: %s)'), $line),
                             _('Identifier already exists.') . sprintf(_('(line: %s)'), $line)],
                'log'    => ['Empty identifier.(line: ' . $line . ')',
                             'Invalid identifier('
                             . $values['dhcp_identifier'] . ').(line: ' . $line . ')',
                             'Invalid identifier('
                             . $values['dhcp_identifier'] . ').(line: ' . $line . ')',
-                        'Identifier already exists('
-                        . $values['dhcp_identifier'] . ').(line: ' . $line . ')']
+                            'Identifier already exists('
+                            . $values['dhcp_identifier'] . ').(line: ' . $line . ')',
+                            'Identifier already exists('
+                            . $values['dhcp_identifier'] . ').(line: ' . $line . ')']
               ];
         }
 
@@ -310,6 +327,312 @@ class BulkHost4
     }
 
     /*************************************************************************
+    * Method        : validate_post_add_option82
+    * args          : $params - POST values
+    *               : $line   - Number of lines in conf
+    * return        : true or false
+    *************************************************************************/
+    public function validate_post_add_option82($params, $line)
+    {
+        /* Initializing Error Messages */
+        $this->msg_tag = ['success'                => null,
+                          'disp_msg'               => null,
+                          'e_msg'                  => null];
+
+        $subnet = $params['subnet'];
+        /* When Circuit-ID, Remote-ID, and MAC address are all from */
+        if ($params['circuit_id'] === '' && $params['remote_id'] === '' && $params['mac_address'] === '') {
+            $this->tag_arr['e_identifier'] = _('One of Circuit ID, Remote ID, or MAC address must be entered.') . sprintf(_('(line: %s)'), $line);
+            $err_log = sprintf('One of Circuit ID, Remote ID, or MAC address must be entered.(line: %s)', $line);
+            $this->store->log->log($err_log);
+            return false;
+        }
+
+        /* Circuit-ID and Remote-ID, even though they have values, no_hex_circuit or no_hex_remote does not exist */
+        if ($params['circuit_id'] !== '' && $params['no_hex_circuit'] === '') {
+            $this->tag_arr['e_no_hex_circuit'] = _('Please enter circuit_id_not_hex.') . sprintf(_('(line: %s)'), $line);
+            $err_log = sprintf('Please enter circuit_id_not_hex.(line: %s)', $line);
+            $this->store->log->log($err_log);
+            return false;
+        }
+
+        /* Circuit-ID and Remote-ID, even though they have values, no_hex_circuit or no_hex_remote does not exist */
+        if ($params['remote_id'] !== '' && $params['no_hex_remote'] === '') {
+            $this->tag_arr['e_no_hex_remote'] = _('Please enter remote_id_not_hex.') . sprintf(_('(line: %s)'), $line);
+            $err_log = sprintf('Please enter remote_id_not_hex.(line: %s)', $line);
+            $this->store->log->log($err_log);
+            return false;
+        }
+
+        /*  define rules */
+        /* Parameter stand-alone inspection */
+        $rules["pool_start"] = [
+            "method"=>"exist|ipv4|insubnet4:$subnet|ipv4overlap",
+            "msg"=> [
+                _('Please enter Pool IP address range(start).') . sprintf(_('(line: %s)'), $line),
+                _('Invalid Pool IP address range(start).') . sprintf(_('(line: %s)'), $line),
+                _('Pool IP address(start) is outside the range of the subnet.') . sprintf(_('(line: %s)'), $line),
+                _('Pool IP address(start) already exists.') . sprintf(_('(line: %s)'), $line),
+             ],
+             "log"=> [
+                'Please enter Pool IP address range(start).' . sprintf('(line: %s)', $line),
+                sprintf('Invalid Pool IP address range(start).(%s)(line: %s)', $params['pool_start'], $line),
+                sprintf('Pool IP address(start) is outside the range of the subnet.(%s)(line: %s)', $params['pool_start'], $line),
+                sprintf('Pool IP address(start) already exists.(%s)(line: %s)', $params['pool_start'], $line),
+            ],
+        ];
+
+        $rules["pool_end"] = [
+            "method"=>"exist|ipv4|insubnet4:$subnet|ipv4overlap",
+            "msg"=> [
+                _('Please enter Pool IP address(end).') . sprintf(_('(line: %s)'), $line),
+                _('Invalid Pool IP address(end).') . sprintf(_('(line: %s)'), $line),
+                _('Pool IP address(end) is outside the range of the subnet.') . sprintf(_('(line: %s)'), $line),
+                _('Pool IP address(end) already exists.') . sprintf(_('(line: %s)'), $line),
+             ],
+             "log"=> [
+                sprintf('Please enter Pool IP address(end).(line: %s)', $line),
+                sprintf('Invalid Pool IP address(end).(%s)(line: %s)', $params['pool_end'], $line),
+                sprintf('Pool IP address(end) is outside the range of the subnet.(%s)(line: %s)', $params['pool_end'], $line),
+                sprintf('Pool IP address(end) already exists.(%s)(line: %s)', $params['pool_end'], $line),
+            ],
+        ];
+
+        $rules["circuit_id"] = [
+            "method"=>"exist|invalid_chars",
+            "msg"=> [
+                _(''),
+                _('Circuit-ID contains characters that cannot be used.') . sprintf(_('(line: %s)'), $line),
+             ],
+             "log"=> [
+                '',
+                sprintf('Circuit-ID contains characters that cannot be used.(%s)(line: %s)', $params['circuit_id'], $line),
+            ],
+            "option" => [ 'allowempty'],
+        ];
+
+        $rules['no_hex_circuit'] = [
+            "method" => "true_or_false",
+            "msg"=> [
+                _('circuit_id_not_hex is in bad format.') . sprintf(_('(line: %s)'), $line),
+            ],
+            "log"=> [
+                sprintf('circuit_id_not_hex is in bad format.(%s)(line: %s)', $params['no_hex_circuit'], $line),
+            ],
+        ];
+
+        $rules["remote_id"] = [
+            "method"=>"exist|invalid_chars",
+            "msg"=> [
+                _(''),
+                _('Remote-ID contains characters that cannot be used.') . sprintf(_('(line: %s)'), $line),
+             ],
+             "log"=> [
+                '',
+                sprintf('Remote-ID contains characters that cannot be used.(%s)(line: %s)', $params['remote_id'], $line),
+            ],
+            "option" => [ 'allowempty'],
+        ];
+
+        $rules['no_hex_remote'] = [
+            "method" => "true_or_false",
+            "msg"=> [
+                _('remote_id_not_hex is in bad format.') . sprintf(_('(line: %s)'), $line),
+            ],
+            "log"=> [
+                sprintf('remote_id_not_hex is in bad format.(%s)(line: %s)', $params['no_hex_remote'], $line),
+            ],
+        ];
+
+        $rules["mac_address"] = [
+            "method"=>"exist|macaddr|max:64|duplicate:HEX(dhcp_identifier):remove_both:0|duplicate_option82_mac",
+            'msg'    => [
+                _(''),
+                _('MAC address format is incorrect.') . sprintf(_('(line: %s)'), $line),
+                _('MAC address format is incorrect.') . sprintf(_('(line: %s)'), $line),
+                _('MAC address already exists.') . sprintf(_('(line: %s)'), $line),
+                _('MAC address already exists.') . sprintf(_('(line: %s)'), $line),
+            ],
+            'log'    => [
+                '',
+                sprintf('MAC address format is incorrect.(%s)(line: %s)', $params['mac_address'], $line),
+                sprintf('MAC address format is incorrect.(%s)(line: %s)', $params['mac_address'], $line),
+                sprintf('MAC address already exists.(%s)(line: %s)', $params['mac_address'], $line),
+                sprintf('MAC address already exists.(%s)(line: %s)', $params['mac_address'], $line),
+            ],
+            "option" => [ 'allowempty'],
+        ];
+
+        /* input store into values */
+        $params['store'] = $this->store;
+
+        $validater = new validater($rules, $params, true);
+
+        /* keep insert params */
+        $this->pre = $validater->err["keys"];
+
+        /* input made message into property */
+        $this->msg_tag = array_merge($this->msg_tag, $validater->tags);
+
+        /* validation error, output log and return */
+        if ($validater->err['result'] === false) {
+            $this->store->log->output_log_arr($validater->logs);
+            $this->tag_arr = $validater->tags;
+            return false;
+        }
+
+        /* Rule Initialization */
+        $rules = [];
+        $pool_start = $params['pool_start'];
+
+        /* Combined inspection of multiple parameters */
+        /*
+            The method delimiter is a backslash
+            Argument delimiter is a comma
+        */
+
+        $rules["pool_end"] = [
+            "method"=>"greateripv4,$pool_start\\includepool,$pool_start,$subnet",
+            "msg"=> [
+                _('Pool IP address(start) greater then Pool IP address(end).') . sprintf(_('(line: %s)'), $line),
+                _('Pool IP address range includes used pools.') . sprintf(_('(line: %s)'), $line),
+             ],
+             "log"=> [
+                sprintf('Pool IP address(start) greater then Pool IP address(end).(%s-%s)(line: %s)', $params['pool_start'], $params['pool_end'], $line),
+                sprintf('Pool IP address range includes used pools.(%s-%s)(line: %s)', $params['pool_start'], $params['pool_end'], $line),
+            ],
+        ];
+
+        /* Variables for creating conditions */
+        $circuit_id = null;
+        $remote_id = null;
+        $mac_address = null;
+
+        /* Check for duplicate conditions combining Circuit-ID, Remote-ID, and MAC address */
+        /* Assemble payout conditions for inspection */
+        if ($params['circuit_id'] !== '') {
+            if ($params['no_hex_circuit'] === 'true') {
+                $circuit_id = "'" . $params['circuit_id'] . "'";
+            } else {
+                $circuit_id = '0x' . bin2hex($params['circuit_id']);
+            }
+        }
+
+        if ($params['remote_id'] !== '') {
+            if ($params['no_hex_remote'] === 'true') {
+                $remote_id = "'" . $params['remote_id'] . "'";
+            } else {
+                $remote_id = '0x' . bin2hex($params['remote_id']);
+            }
+        }
+
+        if ($params['mac_address'] !== '') {
+            $mac_address = '0x' . remove_colon($params['mac_address']);
+        }
+        $basic_condition = $this->conf->create_payout_condition($circuit_id, $remote_id, $mac_address);
+
+        $rules["circuit_id"] = [
+            "method"=>"duplicate_payout_condition,dhcp4,$basic_condition",
+            "msg"=> [
+                _('Same condition is already exists.')  . sprintf(_('(line: %s)'), $line),
+             ],
+             "log"=> [
+                sprintf('Same condition is already exists.(%s)(line: %s)', $basic_condition, $line),
+            ],
+        ];
+
+        /* Separators are defined by prohibited characters */
+        $validater = new validater($rules, $params, true, "\\", ',');
+
+        /* input made message into property */
+        $this->msg_tag = array_merge($this->msg_tag, $validater->tags);
+
+        /* validation error, output log and return */
+        if ($validater->err['result'] === false) {
+            $this->store->log->output_log_arr($validater->logs);
+            $this->tag_arr = $validater->tags;
+            return false;
+        }
+
+        /* Check for the existence of leased IP addresses within the range of IP addresses on loan */
+        $rules = [];
+        $pool_end = $params['pool_end'];
+        $allow_leased = $params['allowleased'];
+        $rules["alreadyleased"] = [
+            "method"=>"alreadyleased4:$pool_start:$pool_end:$allow_leased:$subnet",
+            "msg"=> [
+                _('Leased IP addresses exist within the Pool IP address range.') . sprintf(_('(line: %s)'), $line),
+             ],
+             "log"=> [
+                sprintf('Leased IP addresses exist within the Pool IP address range.(%s-%s)(line: %s)', $pool_start, $pool_end, $line),
+            ],
+        ];
+
+        $validater = new validater($rules, $params, true);
+
+        /* input made message into property */
+        $this->msg_tag = array_merge($this->msg_tag, $validater->tags);
+
+        /* validation error, output log and return */
+        if ($validater->err['result'] === false) {
+            $this->store->log->output_log_arr($validater->logs);
+            $this->tag_arr = $validater->tags;
+            return false;
+        }
+
+        return true;
+    }
+
+    /*************************************************************************
+    * Method        : validate_post_del_option82
+    * args          : $params - POST values
+    *               : $line   - Number of lines in conf
+    * return        : true or false
+    *************************************************************************/
+    public function validate_post_del_option82($params, $line)
+    {
+        /* Initializing Error Messages */
+        $this->msg_tag = ['success'                => null,
+                          'disp_msg'               => null,
+                          'e_msg'                  => null];
+
+        /*  define rules */
+        $rules["class_name"] = [
+            "method"=>"exist|option82format|classexist:dhcp4",
+            "msg"=> [
+                 _('Please enter class name.') . sprintf(_('(line: %s)'), $line),
+                 _('Class name must begin with opt82_.') . sprintf(_('(line: %s)'), $line),
+                 _('Class name does not exist in config.') . sprintf(_('(line: %s)'), $line),
+             ],
+             "log"=> [
+                 sprintf('Please enter class name.(line: %s)', $line),
+                 sprintf('Class name must begin with opt82_.(%s)(line: %s)', $params["class_name"], $line),
+                 sprintf('Class name does not exist in config.(%s)(line: %s)', $params["class_name"], $line),
+            ],
+        ];
+
+        /* input store into values */
+        $params['store'] = $this->store;
+
+        $validater = new validater($rules, $params, true);
+
+        /* keep insert params */
+        $this->pre = $validater->err["keys"];
+
+        /* input made message into property */
+        $this->msg_tag = array_merge($this->msg_tag, $validater->tags);
+
+        /* validation error, output log and return */
+        if ($validater->err['result'] === false) {
+            $this->store->log->output_log_arr($validater->logs);
+            $this->tag_arr = $validater->tags;
+            return false;
+        }
+
+        return true;
+    }
+
+    /*************************************************************************
     * Method        : _hosts_query
     * args          : $hosts_val
     * return        : none
@@ -328,6 +651,11 @@ class BulkHost4
                     break;
                 case 'dhcp_identifier':
                     $data = $this->store->db->dbh->quote($data);
+                    if (strval($hosts_val['dhcp_identifier_type']) === CIRCUITID_TYPE )
+                    {
+                        $hosts_val[$col] = $data;
+                        break;
+                    }
                     $removed = remove_both($data);
                     $unhexed_id = $this->store->db->unhex($removed);
                     $hosts_val[$col] = $unhexed_id;
@@ -374,13 +702,15 @@ class BulkHost4
     private function _options_query($options_val)
     {
         global $options;
+        global $scope_id;
 
         $dbutil = new dbutils($this->store->db);
 
         /* define insert column */
         $lastid = $this->store->db->last_insertid();
         $insert_data = ['host_id' => $lastid,
-                        'code' => '', 'formatted_value' => ''];
+                        'code' => '', 'formatted_value' => '', 
+                        'scope_id' => $scope_id['host']];
 
         /* input value into array */
         foreach ($options_val as $col => $data) {
@@ -462,7 +792,7 @@ class BulkHost4
         $success_log = sprintf($log_format, $forhosts['ipv4_address'],
                                             $forhosts['dhcp_identifier']);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $this->msg_tag['success'] = _('Add successful!');
     }
 
@@ -528,12 +858,12 @@ class BulkHost4
     }
 
     /*************************************************************************
-    * Method        : apply_csvfile
+    * Method        : apply_csvfile_host
     * args          : $fp
     *               : $mode
     * return        : true/false
     *************************************************************************/
-    public function apply_csvfile($mode)
+    public function apply_csvfile_host($mode)
     {
         global $log_msg;
         $all_tag = [];
@@ -549,19 +879,19 @@ class BulkHost4
         if ($_FILES["csvfile"]["tmp_name"] == "") {
             $this->store->log->output_log("Csv file is not selected.");
             $this->msg_tag['disp_msg'] = _("Please select csv file.");
-            return FALSE;
+            return false;
         }
 
         /* open csvfile */
         $fp = fopen($_FILES["csvfile"]["tmp_name"], 'r');
-        if ($fp === FALSE) {
+        if ($fp === false) {
             $this->store->log->output_log("Failed to open csvfile.("
                                          . $_FILES["csvfile"]["name"] . ")");
             $this->msg_tag['disp_msg'] = _("Failed to open csvfile.");
-            return FALSE;
+            return false;
         }
 
-        while (($tmpline = fgets($fp)) !== FALSE) {
+        while (($tmpline = fgets($fp)) !== false) {
 
             /* Count of rows */
             $line++;
@@ -583,7 +913,7 @@ class BulkHost4
                               'e_msg'                  => null];
 
             /* Check number of columns */
-            if (count($csvdata) !== 11) {
+            if (count_array($csvdata) !== 11) {
                 $this->store->log->output_log("Invalid number of columns.(line: " . $line . ")");
                 $this->tag_arr['e_csv_column'] = _("Invalid number of columns.") . sprintf(_('(line: %s)'), $line);
 
@@ -617,7 +947,7 @@ class BulkHost4
 
             /* Add mode */
             if ($mode == 0) {
-                $ret = $this->validate_post_add($data, $line);
+                $ret = $this->validate_post_add_host($data, $line);
 
                 /* Duplicate check in CSV file */
                 if (in_array($data['hostname'], $duplicate_arr['hostname'])) {
@@ -642,7 +972,7 @@ class BulkHost4
 
             /* Delete mode */
             } else if ($mode == 1) {
-                $ret = $this->validate_post_del($data, $line);
+                $ret = $this->validate_post_del_host($data, $line);
             }
 
             /* Duplicate check in CSV file */
@@ -653,7 +983,7 @@ class BulkHost4
             }
 
             /* When errors occured, get log */
-            if ($ret === FALSE || $duplicate_flag === 1) {
+            if ($ret === false || $duplicate_flag === 1) {
                 $err_flag = 1;
                 $all_tag[$line] = $this->tag_arr;
             }
@@ -679,14 +1009,14 @@ class BulkHost4
         /* Validation error */
         if ($err_flag === 1) {
             $this->csv_err = $merge_tag_arr;
-            return FALSE;
+            return false;
         }
 
         /* If file is empty */
         if ($line == 0) {
             $this->store->log->output_log("The file content is empty.");
             $this->msg_tag['disp_msg'] = _("The file content is empty.");
-            return FALSE;
+            return false;
         }
 
         /* begin transaction */
@@ -707,9 +1037,335 @@ class BulkHost4
         /* commit inserted data */
         $this->store->db->commit();
 
-        return TRUE;
+        return true;
     }
 
+    /*************************************************************************
+    * Method        : apply_csvfile_option82_add
+    * args          : $mode
+    * return        : true/false
+    *************************************************************************/
+    public function apply_csvfile_option82_add($allowleased) {
+        global $log_msg;
+        $all_tag = [];
+        $all_data = [];
+
+        $line = 0;
+        $err_flag = 0;
+        $require_column = 8;
+
+        /* check csv file */
+        if ($_FILES["csvfile"]["tmp_name"] == "") {
+            $this->store->log->output_log("Csv file is not selected.");
+            $this->msg_tag['disp_msg'] = _("Please select csv file.");
+            return false;
+        }
+
+        /* open csvfile */
+        $fp = fopen($_FILES["csvfile"]["tmp_name"], 'r');
+        if ($fp === false) {
+            $this->store->log->output_log("Failed to open csvfile.("
+                                         . $_FILES["csvfile"]["name"] . ")");
+            $this->msg_tag['disp_msg'] = _("Failed to open csvfile.");
+            return false;
+        }
+
+        while (($tmpline = fgets($fp)) !== false) {
+
+            /* Count of rows */
+            $line++;
+            $all_tag[$line] = array();
+            $this->tag_arr = [];
+
+            /* Skip comments */
+            if (substr($tmpline, 0, 1) === '#') {
+                continue;
+            }
+
+            /* Skip first line */
+            if (substr($tmpline, 0, 6) === 'subnet') {
+                continue;
+            }
+
+            /* Separate by commas */
+            $tmpline = rtrim($tmpline);
+            $csvdata = str_getcsv($tmpline);
+
+            $this->msg_tag = ['success'                => null,
+                              'disp_msg'               => null,
+                              'e_msg'                  => null];
+
+            /* Check number of columns */
+            if (count_array($csvdata) !== 8) {
+                $this->store->log->output_log("Invalid number of columns.(line: " . $line . ")");
+                $this->tag_arr['e_csv_column'] = _("Invalid number of columns.") . sprintf(_('(line: %s)'), $line);
+
+                $all_tag[$line] = $this->tag_arr;
+                $err_flag = 1;
+                continue;
+            }
+
+            /* Validation check */
+            $all_data[$line] = [
+                'subnet'            => $csvdata[0],
+                'pool_start'        => $csvdata[1],
+                'pool_end'          => $csvdata[2],
+                'circuit_id'        => $csvdata[3],
+                'no_hex_circuit'    => strtolower($csvdata[4]),
+                'remote_id'         => $csvdata[5],
+                'no_hex_remote'     => strtolower($csvdata[6]),
+                'mac_address'       => $csvdata[7],
+                'allowleased'       => $allowleased,
+                'alreadyleased'     => 'false',
+                'is_advanced'       => 'false',
+            ];
+        }
+
+        /* If file is empty */
+        if ($line == 0) {
+            $this->store->log->output_log("The file content is empty.");
+            $this->msg_tag['disp_msg'] = _("The file content is empty.");
+            return false;
+        }
+
+        /* Keep pre-added settings for rollback */
+        $before_config = $this->conf->get_conf_from_sess();
+        $before_hist = $this->conf->get_hist_from_sess();
+        $total_num = count_array($all_data);
+        $merge_tag_arr = [];
+        foreach ($all_data as $line => $data) {
+            /* First check subnet */
+            $ret = $this->validate_subnet($data, $line);
+            if ($ret === false) {
+                $all_tag[$line] = $this->msg_tag;
+                $err_flag = 1;
+                continue;
+            }
+
+            $ret = $this->validate_post_add_option82($data, $line);
+
+            /* When errors occured, get log */
+            if ($ret === false) {
+                $err_flag = 1;
+                $all_tag[$line] = $this->tag_arr;
+                continue;
+            }
+
+            $this->pre['subnet'] = $data['subnet'];
+            $this->pre['is_advanced'] = 'false';
+
+            [$ret, $new_config] = $this->conf->add_option82($data, $data['subnet']); 
+            if ($ret === false) {
+                $err_flg = 1;
+                $this->msg_tag['e_msg'] = $this->conf->err['e_msg'];
+                $this->store->log->log($this->conf->err['e_log']);
+                break;
+            }
+            /* save new config to session */
+            $this->conf->save_conf_to_sess($new_config);
+
+            $success_log = sprintf("Option82 setting was successfully added.(Circuit-ID: %s, Remote-ID: %s, Mac address: %s, Range: %s-%s)"
+                ,$data['circuit_id'], $data['remote_id'], $data['mac_address'], $data['pool_start'], $data['pool_end']);
+            $this->store->log->log($success_log);
+            $this->conf->get_config(DHCPV4);
+        }
+
+        foreach ($all_tag as $value) {
+            foreach ($value as $key => $val) {
+                if (preg_match("/^e_/", $key) && $val != "") {
+                    array_push($merge_tag_arr, $val);
+                }
+            }
+        }
+
+        if ($err_flag === 1) {
+            $this->csv_err = $merge_tag_arr;
+            /* Rollback to previous settings */
+            $this->conf->save_conf_to_sess($before_config);
+
+            /* Clear the operation history */
+            $this->conf->delete_hist_from_sess(); 
+
+            /* Restore original history */
+            if (!is_null($before_hist)) {
+                foreach ($before_hist as $one_hist) {
+                    $this->conf->save_hist_to_sess($one_hist);
+                }
+            }
+            
+            $err_log = 'Rolled back due to failed add.';
+            $this->store->log->log($err_log);
+            
+            return false;
+        }
+
+        /* If a pool exists for which no client class is defined, define a no-member class */
+        $new_config = $this->conf->assign_nomember($new_config);
+
+        /* save new config to session */
+        $this->conf->save_conf_to_sess($new_config);
+
+        $success_log = sprintf('Option82 setting was successfully added.(total: %s)', $total_num);
+        /* save log to session history */
+        $this->conf->save_hist_to_sess($success_log);
+        $this->store->log->log($success_log);
+
+        $this->msg_tag['success'] = _('Add successful!');
+
+        return true;
+    }
+
+    /*************************************************************************
+    * Method        : apply_csvfile_option82_del
+    * args          : $mode
+    * return        : true/false
+    *************************************************************************/
+    public function apply_csvfile_option82_del() {
+        global $log_msg;
+        $all_tag = [];
+        $all_data = [];
+
+        $line = 0;
+        $err_flag = 0;
+        $require_column = 2;
+
+        /* check csv file */
+        if ($_FILES["csvfile"]["tmp_name"] == "") {
+            $this->store->log->output_log("Csv file is not selected.");
+            $this->msg_tag['disp_msg'] = _("Please select csv file.");
+            return false;
+        }
+
+        /* open csvfile */
+        $fp = fopen($_FILES["csvfile"]["tmp_name"], 'r');
+        if ($fp === false) {
+            $this->store->log->output_log("Failed to open csvfile.("
+                                         . $_FILES["csvfile"]["name"] . ")");
+            $this->msg_tag['disp_msg'] = _("Failed to open csvfile.");
+            return false;
+        }
+
+        while (($tmpline = fgets($fp)) !== false) {
+
+            /* Count of rows */
+            $line++;
+            $all_tag[$line] = array();
+            $this->tag_arr = [];
+
+            /* Skip comments */
+            if (substr($tmpline, 0, 1) === '#') {
+                continue;
+            }
+
+            /* Skip first line */
+            if (substr($tmpline, 0, 6) === 'subnet') {
+                continue;
+            }
+
+            /* Separate by commas */
+            $tmpline = rtrim($tmpline);
+            $csvdata = str_getcsv($tmpline);
+
+            $this->msg_tag = ['success'                => null,
+                              'disp_msg'               => null,
+                              'e_msg'                  => null];
+
+            /* Check number of columns */
+            if (count_array($csvdata) < 2) {
+                $this->store->log->output_log("Invalid number of columns.(line: " . $line . ")");
+                $this->tag_arr['e_csv_column'] = _("Invalid number of columns.") . sprintf(_('(line: %s)'), $line);
+
+                $all_tag[$line] = $this->tag_arr;
+                $err_flag = 1;
+                continue;
+            }
+
+            /* Validation check */
+            $all_data[$line] = [
+                'subnet'            => $csvdata[0],
+                'class_name'        => $csvdata[1],
+            ];
+        }
+
+        /* If file is empty */
+        if ($line == 0) {
+            $this->store->log->output_log("The file content is empty.");
+            $this->msg_tag['disp_msg'] = _("The file content is empty.");
+            return false;
+        }
+
+        /* Keep pre-added settings for rollback */
+        $before_config = $this->conf->get_conf_from_sess();
+        $before_hist = $this->conf->get_hist_from_sess();
+        $total_num = count_array($all_data);
+        $merge_tag_arr = [];
+        foreach ($all_data as $line => $data) {
+            /* First check subnet */
+            $ret = $this->validate_subnet($data, $line);
+            if ($ret === false) {
+                $all_tag[$line] = $this->msg_tag;
+                $err_flag = 1;
+                continue;
+            }
+
+            $ret = $this->validate_post_del_option82($data, $line);
+
+            /* When errors occured, get log */
+            if ($ret === false) {
+                $err_flag = 1;
+                $all_tag[$line] = $this->tag_arr;
+                continue;
+            }
+
+
+            $new_config = $this->conf->delete_option82($data['class_name'], $data['subnet']); 
+
+            /* save new config to session */
+            $this->conf->save_conf_to_sess($new_config);
+            $this->conf->get_config(DHCPV4);
+
+            $success_log = sprintf('Option82 setting deleted successfully.(line: %s)', $line);
+            $this->store->log->log($success_log);
+        }
+
+        foreach ($all_tag as $value) {
+            foreach ($value as $key => $val) {
+                if (preg_match("/^e_/", $key) && $val != "") {
+                    array_push($merge_tag_arr, $val);
+                }
+            }
+        }
+
+        if ($err_flag === 1) {
+            $this->csv_err = $merge_tag_arr;
+            /* Rollback to previous settings */
+            $this->conf->save_conf_to_sess($before_config);
+
+            /* Clear the operation history */
+            $this->conf->delete_hist_from_sess(); 
+
+            /* Restore original history */
+            if (!is_null($before_hist)) {
+                foreach ($before_hist as $one_hist) {
+                    $this->conf->save_hist_to_sess($one_hist);
+                }
+            }
+
+            $err_log = 'Rolled back due to failed delete.';
+            $this->store->log->log($err_log);
+
+            return false;
+        }
+
+        $success_log = sprintf('Option82 setting deleted successfully.(total: %s)', $total_num);
+        /* save log to session history */
+        $this->conf->save_hist_to_sess($success_log);
+        $this->store->log->log($success_log);
+
+        $this->msg_tag['success'] = _('Option82 setting deleted successfully.');
+
+        return true;
+    }
     /*************************************************************************
     * Method        : display
     * args          : 
@@ -721,6 +1377,9 @@ class BulkHost4
         $this->store->view->assign("csverr", $this->csv_err);
         $this->store->view->assign("exist", $this->exist);
         $this->store->view->assign("is_show_warn_msg", $this->is_show_warn_msg);
+        $this->store->view->assign('config_type', $this->config_type);
+        $this->store->view->assign('allowleased', $this->allowleased);
+        $this->store->view->assign('mode', $this->mode);
         $this->store->view->render("bulkhost4.tmpl", $this->msg_tag);
     }
 }
@@ -741,8 +1400,30 @@ if (isset($apply)) {
     /************************************
     * apply section
     ************************************/
+    $config_type = post('config_type');
     $mode = post('mode');
-    $ret = $bh4->apply_csvfile($mode);
+
+    /* Keep mode and config_type */    
+    $bh4->mode = $mode;
+    $bh4->config_type = $config_type;
+
+    if ($config_type === 'host') {
+        $bh4->apply_csvfile_host($mode);
+    } else if ($config_type === 'option82') {
+        switch ($mode) {
+            case '0':
+                $allowleased = post('allow_leased', 'false');
+                $bh4->allowleased = $allowleased;
+                $bh4->apply_csvfile_option82_add($allowleased);
+                break;
+
+            case '1':
+                $bh4->apply_csvfile_option82_del();
+
+            default:
+                break;
+        }
+    }
 
     $bh4->display();
     exit;

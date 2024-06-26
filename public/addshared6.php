@@ -42,9 +42,18 @@ class ListShared6 {
     *************************************************************************/
     public function __construct($store)
     {
-        $this->msg_tag = ['e_msg'            => null,
+        $this->msg_tag = ['e_interface'      => null,
+                          'e_interfaceid'    => null,
+                          'e_relayagent'     => null,
+                          'e_msg'            => null,
                           'e_sharednetwork'  => null,
                           'success'          => null];
+
+        $this->pre = ['sharednetwork' => "",
+                      'interface'     => "",
+                      'interfaceid'   => "",
+                      'relayagent'    => "",
+                      'interfacelist' => [],];
 
         $this->store = $store;
 
@@ -54,8 +63,9 @@ class ListShared6 {
         /* check config error */
         if ($this->conf->result === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
         }
+
     }
 
     /*************************************************************************
@@ -83,6 +93,9 @@ class ListShared6 {
     public function validate_post($values)
     {
         /*  define rules */
+        $interface = $values['interface'];
+        $interfaceid = $values['interfaceid'];
+
         $rules['sharednetwork'] =
           [
            'method' => 'exist|sharedname|shared6exist',
@@ -98,6 +111,47 @@ class ListShared6 {
                          sprintf('Shared-network name already exists.(%s)'
                                                ,$values['sharednetwork'])
                        ],
+          ];
+
+        $rules['interface'] =
+          [
+           'method' => "interface|duplicateifid:$interfaceid",
+           'msg'    => [
+                          _('No such Interface.'),
+                          _('Interface and InterfaceID cannot be used together.'),
+                       ],
+           'log'    => [
+                         sprintf('No such Interface.(%s)'
+                                               ,$values['interface']),
+                         'Interface and InterfaceID cannot be used together.',
+                       ],
+          ];
+
+        $rules['interfaceid'] =
+          [
+           'method' => "interfaceid",
+           'msg'    => [
+                          _('Invalid InerfaceID format.'),
+                       ],
+           'log'    => [
+                         sprintf('Invalid InerfaceID format.(%s)'
+                                               ,$values['interfaceid']),
+                       ],
+          ];
+
+        $rules['relayagent'] =
+          [
+           'method' => 'exist|ipv6',
+           'msg'    => [
+                          '',
+                          _('Invalid  RelayAgent format.'),
+                       ],
+           'log'    => [
+                         '',
+                         sprintf('Invalid RelayAgent format.(%s)'
+                                               ,$values['relayagent']),
+                       ],
+           'option' => ['allowempty']
           ];
 
         /* input store into values */
@@ -131,19 +185,26 @@ class ListShared6 {
         /* replace variable */
         $params = $this->pre;
 
+        /* get relay */
+        $relayagent['ip-addresses'] = [];
+        if (!empty($params['relayagent'])) {
+            $relayagent['ip-addresses'] = array($params['relayagent']);
+        }
         /* get shared-network */
         $shared_data = [
             STR_NAME     => $params["sharednetwork"],
+            STR_INTERFACE => $params["interface"],
+            STR_INTERFACEID => $params["interfaceid"],
+            STR_RELAY => $relayagent,
         ];
 
         /* add shared_name */
         $new_config = $this->conf->add_shared_name($shared_data);
         if ($new_config === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
-
         /* save new config to session */
         $this->conf->save_conf_to_sess($new_config);
 
@@ -154,8 +215,8 @@ class ListShared6 {
         /* save log to session history */
         $this->conf->save_hist_to_sess($success_log);
 
-        $this->store->log->log($success_log, NULL);
-        $this->pre = "";
+        $this->store->log->log($success_log);
+        $this->pre = []; 
         return true;
     }
 
@@ -167,19 +228,30 @@ class ListShared6 {
     *************************************************************************/
     public function init_disp()
     {
+        /* get network-interfaces */
+        [$ret, $interfaces] = $this->conf->get_interfaces();
+        if ($ret === false)
+        {
+            $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
+            $this->log = $this->conf->err['e_log'];
+            return false; 
+        }
+        $this->pre['interfacelist'] = $interfaces;
+
         /* fetch all shared-network6 */
-        $sharednetworks = $this->_get_shared6();
+        [$ret, $sharednetworks] = $this->_get_shared6();
 
         /* failed to fetch shared-network6*/
-        if ($sharednetworks === false) {
+        if ($ret === false) {
             if ($this->log !== "") {
-                $this->store->log->log($this->log, null);
+                $this->store->log->log($this->log);
             }
             return false;
         }
 
         asort($sharednetworks);
         $this->sharednetworks = $sharednetworks;
+
         return true;
     }
 
@@ -193,16 +265,16 @@ class ListShared6 {
     private function _get_shared6($cond = null)
     {
         /* get all shared-network name */
-        $sharednetworks = $this->conf->search_shared6();
+        [$ret, $sharednetworks] = $this->conf->search_shared6();
 
         /* failed to search shared-network */
-        if ($sharednetworks === false) {
+        if ($ret === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
             $this->log = $this->conf->err['e_log'];
-            return false;
+            return [false, []];
         }
 
-        return $sharednetworks;
+        return [true, $sharednetworks];
     }
 
     /*************************************************************************
@@ -216,7 +288,7 @@ class ListShared6 {
         if ($sharednetworks !== null) {
             $this->store->view->assign('item', $sharednetworks);
         }
-        $this->store->view->assign('result', count($sharednetworks));
+        $this->store->view->assign('result', count_array($sharednetworks));
         $this->store->view->assign('pre', $this->pre);
         $this->store->view->render("addshared6.tmpl", $this->msg_tag);
     }
@@ -250,7 +322,10 @@ if (isset($apply)) {
     /************************************
     * Add shared network information
     ************************************/
-    $post = ['sharednetwork' => post('sharednetwork')];
+    $post = ['sharednetwork' => post('sharednetwork'),
+             'interface' => post('interface'),
+             'interfaceid' => post('interfaceid'),
+             'relayagent' => post('relayagent')];
 
     $ret = $shared6->validate_post($post);
 

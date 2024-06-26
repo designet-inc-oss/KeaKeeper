@@ -49,7 +49,7 @@ class mysqlAuth extends AbstractAuth {
                      ];
 
         $ret_arr = $dbdriver->fetch_all($sql, $value_arr);
-        $count_ret = count($ret_arr);
+        $count_ret = count_array($ret_arr);
 
         /* Cannot get passwd from database. */
         if ($count_ret === 0) {
@@ -97,7 +97,7 @@ class mysqlAuth extends AbstractAuth {
                      ];
 
         $ret_arr = $driver->fetch_all($sql, $value_arr);
-        $count_ret = count($ret_arr);
+        $count_ret = count_array($ret_arr);
 
         /* Cannot get user from database. */
         if ($count_ret === 0) {
@@ -115,6 +115,7 @@ class mysqlAuth extends AbstractAuth {
             return false;
         }
 
+	/* Not to be passed. */
         if ($_SESSION['timeout'] < time()) {
             $this->log_msg = "session timeout. (login ID: "
                              . $_SESSION['login_id'] . ")";

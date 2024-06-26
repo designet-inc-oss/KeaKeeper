@@ -39,7 +39,7 @@ function remove_hyphen ($id_hyphen) {
 }
 
 /*****************************************************************************
-* function        : remove_both
+* function        : remove_colon
 * Description     : Remove colon from identifier
 * args            : $id_colon
 * return          : $removed_id - identifier removed colon
@@ -115,26 +115,10 @@ function chec_str($val, $allow_str)
 }
 
 /*****************************************************************************
- * function        : reindex_numeric
- * Description     : re-index array
- * args            : $arr
- * return          : new_arr
- *****************************************************************************/
-function reindex_numeric($arr)
-{
-    $i = 0;
-    $new_arr = [];
-    foreach ($arr as $key => $val) {
-        $new_arr[$i++] = $val;
-    }
-    return $new_arr;
-}
-
-/*****************************************************************************
- * function        : reindex_numeric
- * Description     : re-index array
- * args            : $arr
- * return          : new_arr
+ * function        : convert_str_ascii
+ * Description     : convert str to ascii
+ * args            : $str
+ * return          : new_str
  *****************************************************************************/
 function convert_str_ascii($str)
 {
@@ -469,7 +453,7 @@ function delete_lockfile($login_user, &$errmsg)
     /* check login_user and remote ip address*/
     if (($filedata[0] !== $login_user) || (
          $filedata[1] !== $_SERVER["REMOTE_ADDR"])) {
-        $errmsg = "Invalid loginser.($login_user)". "(". $_SERVER["REMOTE_ADDR"]. ")";
+        $errmsg = "Invalid loginuser.($login_user)". "(". $_SERVER["REMOTE_ADDR"]. ")";
         return 3;
     }
 
@@ -484,4 +468,53 @@ function delete_lockfile($login_user, &$errmsg)
     return 1;    
 }
 
+/*****************************************************************************
+ * function        : count_array
+ * Description     : count array elements
+ * args            : $arr               count target
+ * return          : $result            Counting results
+ *****************************************************************************/
+function count_array($arr) {
+    $result = 0;
+    if (!is_array($arr) or empty($arr)) {
+        return $result;
+    }
+
+    $result = count($arr);
+    return $result;
+}
+
+/*****************************************************************************
+ * function        : download_file
+ * Description     : file download
+ * args            : $filepath
+                     $mime_type
+ * return          : true or false
+ *****************************************************************************/
+function download_file($filepath, $mime_type) {
+    if (is_readable($filepath) === false) {
+        return false;
+    }
+
+    /* Determine mime_type */
+    $mime_type = isset($mime_type) ? $mime_type : 'application/octet-stream';
+
+    /* Creating Headers */
+    header('Content-Type: ' . $mime_type);
+    header('Content-Length: ' . filesize($filepath));
+    header('Content-Disposition: attachment; filename="' . basename($filepath) . '"');
+    header('Connection: close');
+
+    /* Clear the php buffer */
+    while (ob_get_level()) { 
+        ob_end_clean(); 
+    }
+    
+    $ret = readfile($filepath);
+    if ($ret === false) {
+        return false;
+    }
+
+    return true;
+}
 ?>

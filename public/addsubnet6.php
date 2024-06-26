@@ -62,9 +62,20 @@ class AddSubnet6
     public function __construct($store)
     {
         $this->msg_tag = [
-                           'e_subnet' => null,
-                           'success'  => null,
+                           'e_subnet'      => null,
+                           'e_interface'   => null,
+                           'e_interfaceid' => null,
+                           'e_relayagent'  => null,
+                           'success'       => null,
                          ];
+
+        $this->pre = ['subnet'        => "",
+                      'interface'     => "",
+                      'interfaceid'   => "",
+                      'relayagent'    => "",
+                      'interfacelist' => [],
+                     ];
+        
         $this->err_tag = ['e_msg'     => null];
         $this->store = $store;
 
@@ -72,7 +83,7 @@ class AddSubnet6
         $this->conf = new KeaConf(DHCPV6);
         if ($this->conf->result === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
             return;
         }
@@ -86,6 +97,9 @@ class AddSubnet6
     public function validate_post($values)
     {
         /*  define rules */
+        $interface = $values['interface'];
+        $interfaceid = $values['interfaceid'];
+
         $rules['subnet'] = [
            'method' => 'exist|subnet6format|subnetoverldap6:exist_false',
            'msg'    => [
@@ -99,6 +113,47 @@ class AddSubnet6
                          sprintf(AddSubnet6::LOG_SUBNET_OVERLDAP, $values['subnet']),
                        ],
         ];
+
+        $rules['interface'] =
+          [
+           'method' => "interface|duplicateifid:$interfaceid",
+           'msg'    => [
+                          _('No such Interface.'),
+                          _('Interface and InterfaceID cannot be used together.'),
+                       ],
+           'log'    => [
+                         sprintf('No such Interface.(%s)'
+                                               ,$values['interface']),
+                         'Interface and InterfaceID cannot be used together.',
+                       ],
+          ];
+
+        $rules['interfaceid'] =
+          [
+           'method' => "interfaceid",
+           'msg'    => [
+                          _('Invalid InerfaceID format.'),
+                       ],
+           'log'    => [
+                         sprintf('Invalid InerfaceID format.(%s)'
+                                               ,$values['interfaceid']),
+                       ],
+          ];
+
+        $rules['relayagent'] =
+          [
+           'method' => 'exist|ipv6',
+           'msg'    => [
+                          '',
+                          _('Invalid  RelayAgent format.'),
+                       ],
+           'log'    => [
+                         '',
+                         sprintf('Invalid RelayAgent format.(%s)'
+                                               ,$values['relayagent']),
+                       ],
+           'option' => ['allowempty']
+          ];
 
         /* input store into values */
         $values['store'] = $this->store;
@@ -137,16 +192,26 @@ class AddSubnet6
         /* get subnet */
         $subnet = $params["subnet"];
 
+        /* get relay */
+        $relayagent['ip-addresses'] = [];
+
+        if (!empty($params['relayagent'])) {
+            $relayagent['ip-addresses'] = array($params['relayagent']);
+        }
+
         $subnet_data = [
             STR_ID     => $subnet_id,
             STR_SUBNET => $subnet,
+            STR_INTERFACE => $params["interface"],
+            STR_INTERFACEID => $params["interfaceid"],
+            STR_RELAY => $relayagent,
         ];
 
         /* add subnet */
-        $new_config = $this->conf->add_subnet($subnet_data);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->add_subnet($subnet_data);
+        if ($ret === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
             return false;
         }
@@ -160,7 +225,7 @@ class AddSubnet6
         /* save log to session history */
         $this->conf->save_hist_to_sess($success_log);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $this->msg_tag['success'] = _('Subnet added.');
 
         return true;
@@ -173,6 +238,15 @@ class AddSubnet6
      *************************************************************************/
     public function display()
     {
+        /* get network-interfaces */
+        [$ret, $interfaces] = $this->conf->get_interfaces();
+        if ($ret === false)
+        {
+            $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
+            $this->store->log->log($this->conf->err['e_log']);
+        }
+        $this->pre['interfacelist'] = $interfaces;
+
         $errors = array_merge($this->msg_tag, $this->err_tag);
         $this->store->view->assign("pre", $this->pre);
         $this->store->view->render("addsubnet6.tmpl", $errors);
@@ -198,6 +272,9 @@ if (isset($addbtn)) {
 
     $post = [
         'subnet' => post('subnet'),
+        'interface' => post('interface'),
+        'interfaceid' => post('interfaceid'),
+        'relayagent' => post('relayagent'),
     ];
 
     /* validate post */

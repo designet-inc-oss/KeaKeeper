@@ -119,11 +119,11 @@ class EditSubnet6 {
             "method"=>"exist|subnet6exist:exist_true",
             "msg"=>[
                 _('Can not find a subnet.'),
-                _('Subnet do not exit in config.'),
+                _('Subnet does not exist in config.'),
             ],
             "log"=>[
                 'Can not find a subnet in GET parameters.',
-                sprintf('Subnet do not exist in config.(%s)', $params["subnet"]),
+                sprintf('Subnet does not exist in config.(%s)', $params["subnet"]),
             ],
         ];
 
@@ -267,7 +267,7 @@ class EditSubnet6 {
         /* display in extra option part only */
         $extra_option = [];     
 
-        $optiondata = $this->conf->get_options($subnet);
+        [$ret, $optiondata] = $this->conf->get_options($subnet);
 
         foreach ($optiondata as $optdata) {
             if ($optdata['name'] === 'dns-servers') {
@@ -305,10 +305,10 @@ class EditSubnet6 {
          ];
 
         /* add option data to current config */
-        $new_config = $this->conf->add_option($subnet, $new_opt_data);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->add_option($subnet, $new_opt_data);
+        if ($ret === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -345,10 +345,10 @@ class EditSubnet6 {
          ];
 
         /* add option data to current config */
-        $new_config = $this->conf->add_option($subnet, $new_opt_data);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->add_option($subnet, $new_opt_data);
+        if ($ret === false) {
             $this->err_tag['e_msg_extra'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -380,10 +380,10 @@ class EditSubnet6 {
         $array_opt_del = ['dns-servers'];
 
         /* add option data to current config */
-        $new_config = $this->conf->del_option($subnet, $array_opt_del);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->del_option($subnet, $array_opt_del);
+        if ($ret === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -418,10 +418,10 @@ class EditSubnet6 {
         $array_opt_del = [$optionname];
 
         /* add option data to current config */
-        $new_config = $this->conf->del_option($subnet, $array_opt_del);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->del_option($subnet, $array_opt_del);
+        if ($ret === false) {
             $this->err_tag['e_msg_extra'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 

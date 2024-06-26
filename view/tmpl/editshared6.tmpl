@@ -31,8 +31,7 @@
   // -->
   <!--
   function selectAll(){
-
-    var str = document.getElementsByTagName("option");
+    var str = document.querySelectorAll('.move_sub > option');
     for (i=0;i<str.length;i++) {
         str[i].selected = true;
     }
@@ -93,16 +92,28 @@
             {$e_msg}{call br var=$e_msg}
             {$e_old_shared_name}{call br var=$e_old_shared_name}
             {$e_shared_name}{call br var=$e_shared_name}
+            {$e_interface}{call br var=$e_interface}
+            {$e_interfaceid}{call br var=$e_interfaceid}
+            {$e_relayagent}{call br var=$e_relayagent}
+            {{$e_shared_subnet}|nl2br nofilter}
             {$success}
           </div>
 
+    <!-- description -->
+    <div class="col-sm-6 col-md-push-6">
+      <div class="table-bordered">
+        <ul>
+          <li>{t}Unattached subnets are, Interface, Interface-id, and RelayAgent settings as necessary.{/t}</li>
+        </ul>
+      </div>
+    </div>
 
     <!-- 編集フォーム -->
-    <div class="col-sm-12">
+    <div class="col-sm-6 col-md-pull-6">
       <form class="form-horizontal" action="editshared6.php" method="post">
         <div class="form-group">
-          <label class="col-sm-2 control-label text-nowrap" for="Shared-network">{t}Shared network name{/t}</label>
-          <div class="col-sm-4">
+          <label class="col-sm-4 control-label text-nowrap" for="Shared-network">{t}Shared network name{/t}</label>
+          <div class="col-sm-8">
             {if isset($pre.old_shared_name)}
             <input type="text" class="form-control" id="Shared-network" name ="shared_name" placeholder="Shared-network" value="{$pre.shared_name}">
             <input type="hidden" name="old_shared_name" value="{$pre.old_shared_name}">
@@ -111,64 +122,89 @@
             <input type="hidden" name="old_shared_name" value="{$shared_name}">
             {/if}
           </div>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-4 control-label text-nowrap" for="Interface">{t}Interface{/t}</label>
+          <div class="col-sm-8">
+            <select class="form-control" id="Interface" name="interface">
+              {if isset($pre.interface)}
+              {html_options values=$pre.interfacelist output=$pre.interfacelist selected=$pre.interface}
+              {else}
+              {html_options values=$pre.interfacelist output=$pre.interfacelist}
+              {/if}
+            </select>
           </div>
-
-          <!-- 所属するサブネット -->
-          <div class="form-group">
-            <label class="col-sm-2 control-label text-nowrap" for="Subnet">{t}Subnet{/t}</label>
-
-            <div class="col-sm-8">
-
-            <table class="table table-striped table-bordered responsive">
-            <thead class="thead-default thead-default-extend">
-              <tr>
-                <th>
-                  {t}Shared subnets{/t}
-                </th>
-                <th>
-                </th>
-                <th>
-                  {t}Other subnets{/t}
-                </th>
-              </tr>
-            </thead>
-
-            <!-- サブネット  -->
-            <tbody>
-              <tr>
-              <td>
-                <select name="selectleft[]" style="width:200px;height:150px" multiple>
-            {if isset($pre.shared_subnet)}
-                  {foreach from={$pre.shared_subnet} item=sharedval}
-                    <option name={$sharedval} value={$sharedval}>{$sharedval}</option>
-                  {/foreach}
+        </div>
+        <div class="form-group">
+          <label class="col-sm-4 control-label text-nowrap" for="InterfaceID">{t}InterfaceID{/t}</label>
+          <div class="col-sm-8">
+            {if isset($pre.interfaceid)}
+            <input type="text" class="form-control" id="InterfaceID" name ="interfaceid" placeholder="InterfaceID" value="{$pre.interfaceid}">
             {else}
-                  {foreach from=$shareditem item=sharedval}
-                    <option name={$sharedval} value={$sharedval}>{$sharedval}</option>
-                  {/foreach}
+            <input type="text" class="form-control" id="InterfaceID" name ="interfaceid" placeholder="InterfaceID">
             {/if}
-
-                </select>
-              </td>
-
-              <td class="td_vertical_align_middle">
-                <input type="button" value="←" name="left" onclick="MoveSelect(this.form,'selectright[]','selectleft[]');"><br>
-                <input type="button" value="→" name="right" onclick="MoveSelect(this.form,'selectleft[]','selectright[]');">
-              </td>
-
-              <td>
-                <select name="selectright[]" style="width:200px;height:150px" multiple>
-                  {foreach from=$otheritem item=otherval}
-                    <option value={$otherval}>{$otherval}</option>
-                  {/foreach}
-                </select>
-              </td>
-
-              </tr>
-            </tbody>
-          </table>
           </div>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-4 control-label text-nowrap" for="RelayAgent">{t}RelayAgent{/t}</label>
+          <div class="col-sm-8">
+            {if isset($pre.relayagent)}
+            <input type="text" class="form-control" id="RelayAgent" name ="relayagent" placeholder="RelayAgent" value="{$pre.relayagent}">
+            {else}
+            <input type="text" class="form-control" id="RelayAgent" name ="relayagent" placeholder="RelayAgent">
+            {/if}
           </div>
+        </div>
+
+        <!-- 所属するサブネット -->
+        <div class="form-group">
+          <label class="col-sm-4 control-label text-nowrap" for="Subnet">{t}Subnet{/t}</label>
+
+          <div class="col-sm-8">
+
+          <table class="table table-striped table-bordered responsive">
+          <thead class="thead-default thead-default-extend">
+            <tr>
+              <th>
+                {t}Shared subnets{/t}
+              </th>
+              <th>
+              </th>
+              <th>
+                {t}Other subnets{/t}
+              </th>
+            </tr>
+          </thead>
+
+          <!-- サブネット  -->
+          <tbody>
+            <tr>
+            <td>
+              <select class='move_sub' name="selectleft[]" style="width:200px;height:150px" multiple>
+                {foreach from=$shareditem item=sharedval}
+                  <option  name={$sharedval} value={$sharedval}>{$sharedval}</option>
+                {/foreach}
+              </select>
+            </td>
+
+            <td class="td_vertical_align_middle">
+              <input type="button" value="←" name="left" onclick="MoveSelect(this.form,'selectright[]','selectleft[]');"><br>
+              <input type="button" value="→" name="right" onclick="MoveSelect(this.form,'selectleft[]','selectright[]');">
+            </td>
+
+            <td>
+              <select class='move_sub' name="selectright[]" style="width:200px;height:150px" multiple>
+                {foreach from=$otheritem item=otherval}
+                  <option value={$otherval}>{$otherval}</option>
+                {/foreach}
+              </select>
+            </td>
+
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        </div>
 
 	<!-- 編集ボタン -->
 	<div class="form-group">

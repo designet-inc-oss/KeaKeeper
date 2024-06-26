@@ -68,14 +68,17 @@ class SearchHost4 {
     public function __construct($store)
     {
         /* Tag */
-        $this->msg_tag =  ["ipaddr"     => "",
-                           "identifier" => "",
+        $this->msg_tag =  ["e_ipaddr"     => "",
+                           "e_identifier" => "",
                            "subnet_id"  => "",
                            "subnet"     => "",
                            "e_pool"     => "",
                            "host_id"    => "",
                            "disp_msg"   => "",
                           ];
+        $this->pre = ["ipaddr" => "",
+                      "identifier" => "",
+                     ];
         $this->pools = null;
         $this->err_tag =  ["e_page"     => "",
                            "e_all"      => "",
@@ -120,7 +123,7 @@ class SearchHost4 {
         $this->dbutil->from('hosts');
 
         /* result */
-        $count_ret = count($this->dbutil->get());
+        $count_ret = count_array($this->dbutil->get());
 
         /* Cannot get data from database */
         if ($count_ret === 0) {
@@ -193,10 +196,10 @@ class SearchHost4 {
             return false;
         }
 
-        $pools_arr = $this->conf->get_pools($this->subnet_val['subnet']);
-        if ($pools_arr === false) {
+        [$ret, $pools_arr] = $this->conf->get_pools($this->subnet_val['subnet']);
+        if ($ret === false) {
             $this->msg_tag['e_pool'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->display();
             return false;
         }
@@ -292,15 +295,19 @@ class SearchHost4 {
     {
         /* Check validation */
         $rules['ipaddr'] = [
-                            'method' => 'exist',
-                            'msg' => [''],
-                            'log' => [''],
+                            'method' => 'exist|decimal',
+                            'msg' => ['',
+                                      _('IPv4 address contains characters that cannot be used.')],
+                            'log' => ['',
+                                      'IPv4 address contains characters that cannot be used.'],
                             'option' => ['allowempty']
                            ];
         $rules['identifier'] = [
-                                'method' => 'exist',
-                                'msg' => [''],
-                                'log' => [''],
+                                'method' => 'exist|hexadecimal',
+                                'msg' => ['',
+                                          _('Identifier contains characters that cannot be used.')],
+                                'log' => ['',
+                                          'Identifier contains characters that cannot be used.'],
                                 'option' => ['allowempty']
                                ];
 
@@ -352,7 +359,11 @@ class SearchHost4 {
 
         $host4data = [];
         foreach ($tmp_data as $item) {
-            $item['id'] = add_colon($item['id']);
+	        if ($item['type'] === CIRCUITID_TYPE) {	
+	            $item['id'] = hex2bin($item['id']);
+	        } else {
+                $item['id'] = add_colon($item['id']);
+	        }
             $item['type'] = $this->_check_type($item['type']);
             if ($item['hostname'] === NULL) {
                 $item['hostname'] === "";
@@ -373,11 +384,11 @@ class SearchHost4 {
     private function _check_type($type_num)
     {
         switch ($type_num) {
-            case 0:
+            case MAC_TYPE:
                 return "MAC";
-            case 1:
+            case DUID_TYPE:
                 return "DUID";
-            case 2:
+            case CIRCUITID_TYPE:
                 return "Circuit-ID";
         }
     }
@@ -447,7 +458,7 @@ class SearchHost4 {
         global $appini;
         $this->pageobj = new Pagination('mysql');
         $this->pageobj->currentpage = get('page', 1);
-        $this->pageobj->linknum     = 5;
+        $this->pageobj->linknum     = $appini['search']['pagelinks'];
         $this->pageobj->dataperpage = $appini['search']['hostmax'];
         $this->pageobj->source = 'SELECT COUNT(ipv4_address) from hosts WHERE ' .
                                   $this->where;

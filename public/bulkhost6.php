@@ -55,10 +55,12 @@ class BulkHost6
         $this->conf = new KeaConf(DHCPV6);
         if ($this->conf->result === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_conf = false;
             return;
         }
+
+        $this->mode = '0';
 
         /* check history in session */
         $history = $this->conf->get_hist_from_sess();
@@ -78,21 +80,21 @@ class BulkHost6
         if ($data['type'] === 'ip') {
             /* type is IP */
             $method = 'exist|regex:/^128$/';
-            $msg = [_('Please enter prefix.') . sprintf(_('(line: %s)'), $line),
-                    _('Prefix is not 128.') . sprintf(_('(line: %s)'), $line)];
-            $log = ['Empty prefix.(line: ' . $line . ')',
-                    'Prefix is not 128.(' . $data['prefix']. ').(line: ' . $line . ')'];
+            $msg = [_('Please enter prefix length.') . sprintf(_('(line: %s)'), $line),
+                    _('Prefix length is not 128.') . sprintf(_('(line: %s)'), $line)];
+            $log = ['Empty prefix length.(line: ' . $line . ')',
+                    'Prefix length is not 128.(' . $data['prefix']. ').(line: ' . $line . ')'];
         } else {
             /* type is Prefix */
             $method = 'exist|int|intmin:1|intmax:128';
-            $msg = [_('Please enter prefix.') . sprintf(_('(line: %s)'), $line),
-                        _('Invalid prefix.') . sprintf(_('(line: %s)'), $line),
-                        _('Invalid prefix.') . sprintf(_('(line: %s)'), $line),
-                        _('Invalid prefix.') . sprintf(_('(line: %s)'), $line)];
-            $log = ['Empty prefix.',
-                        'prefix is not an integer(' . $data['prefix']. ').(line: ' . $line . ')',
-                        'prefix is smaller than 1(' . $data['prefix']. ').(line: ' . $line . ')',
-                        'prefix is larger than 128(' . $data['prefix']. ').(line: ' . $line . ')'];
+            $msg = [_('Please enter prefix length.') . sprintf(_('(line: %s)'), $line),
+                        _('Invalid prefix length.') . sprintf(_('(line: %s)'), $line),
+                        _('Invalid prefix length.') . sprintf(_('(line: %s)'), $line),
+                        _('Invalid prefix length.') . sprintf(_('(line: %s)'), $line)];
+            $log = ['Empty prefix length.',
+                        'prefix length is not an integer(' . $data['prefix']. ').(line: ' . $line . ')',
+                        'prefix length is smaller than 1(' . $data['prefix']. ').(line: ' . $line . ')',
+                        'prefix length is larger than 128(' . $data['prefix']. ').(line: ' . $line . ')'];
         }
 
         $rules['prefix'] =
@@ -156,10 +158,10 @@ class BulkHost6
         $rules['type'] =
           [
            'method' => 'exist|v6type',
-           'msg'    => [_('Please enter prefix delegation.'),
-                        _('Invalid prefix delegation.')],
-           'log'    => ['Empty prefix delegation(' . $data['type'] . ').',
-                        'Numbers other than 0 or 2 are entered in prefix delegation.(' . $data['type'] . ').'],
+           'msg'    => [_('Please enter reservation mode.') . sprintf(_('(line: %s)'), $line),
+                        _('Invalid reservation mode.') .  sprintf(_('(line: %s)'), $line)],
+           'log'    => ['Empty reservation mode(' . $data['type'] . ').',
+                        'For prefix reservation, enter ip or prefix.(' . $data['type'] . ').'],
           ];
 
         $validater = new validater($rules, $data, true);
@@ -186,10 +188,10 @@ class BulkHost6
         $prefix = $values['prefix'];
 
         if ($values['type'] == 'prefix') {
-            /* When prefix delegate is checked */
-            $ipv6_check = "exist|ipv6_delegate:$prefix|insubnet_delegate6:$sub:$prefix|outpool_delegate6:$sub:$prefix|checkexistdelegate:$prefix";
+            /* When prefix reservation is checked */
+            $ipv6_check = "exist|ipv6_prefreserve:$prefix|insubnet_prefreserve:$sub:$prefix|outpool_prefreserve:$sub:$prefix|checkexistprefreserve:$prefix";
         } else if ($values['type'] == 'ip') {
-            /* When prefix delegate is not checked */
+            /* When prefix reservation is not checked */
             $ipv6_check = "exist|ipv6|insubnet6:$sub|outpool6:$sub|checkexistipv6";
         }
 
@@ -295,10 +297,10 @@ class BulkHost6
         $prefix = $values['prefix'];
 
         if ($values['type'] == 'prefix') {
-            /* When prefix delegate is checked */
-            $ipv6_check = "exist|ipv6_delegate:$prefix|insubnet_delegate6:$sub:$prefix|outpool_delegate6:$sub:$prefix|duplicate_delegate6:$prefix";
+            /* When prefix reservation is checked */
+            $ipv6_check = "exist|ipv6_prefreserve:$prefix|insubnet_prefreserve:$sub:$prefix|outpool_prefreserve:$sub:$prefix|duplicate_prefreserve:$prefix";
         } else if ($values['type'] == 'ip') {
-            /* When prefix delegate is not checked */
+            /* When prefix reservation is not checked */
             $ipv6_check = "exist|ipv6|insubnet6:$sub|outpool6:$sub|duplicate6";
         }
 
@@ -317,20 +319,12 @@ class BulkHost6
                 'IPv6 address already exists(' . $values['address'] . '/' . $values['prefix'] . ').(line: ' . $line . ')']
           ];
 
-        $rules['domain_name_servers'] =
+        $rules['dns_servers'] =
           [
            'method' => 'ipaddrs6',
-           'msg'    => [_('Invalid domain-name-server.') . sprintf(_('(line: %s)'), $line)],
-           'log'    => ['Invalid domain-name-server(' .
-                        $values['domain_name_servers']. ').(line: ' . $line . ')'],
-           'option' => ['allowempty']
-          ];
-
-        $rules['routers'] =
-          [
-           'method' => 'ipaddrs6',
-           'msg'    => [_('Invalid routers.') . sprintf(_('(line: %s)'), $line)],
-           'log'    => ['Invalid routers(' . $values['routers']. ').(line: ' . $line . ')'],
+           'msg'    => [_('Invalid DNS Server Address.') . sprintf(_('(line: %s)'), $line)],
+           'log'    => ['Invalid DNS Server Address(' .
+                        $values['dns_servers']. ').(line: ' . $line . ')'],
            'option' => ['allowempty']
           ];
 
@@ -420,10 +414,9 @@ class BulkHost6
                     $insert_data['prefix_len'] = intval($data);
                     break;
                 case 'address':
-                    $data = inet_pton($data);
-                    $data = inet_ntop($data);
                     $data = $this->store->db->dbh->quote($data);
-                    $insert_data['address'] = $data;
+                    $aton_addr = $this->store->db->inet6_aton($data);
+                    $insert_data['address'] = $aton_addr;
                     break;
                 case 'type':
                     if($data === NULL) {
@@ -455,26 +448,17 @@ class BulkHost6
     private function _options_query($options_val, $lastid)
     {
         global $options;
+        global $scope_id;
 
         $dbutil = new dbutils($this->store->db);
 
         /* define insert column */
         $insert_data = ['host_id' => $lastid,
-                        'code' => '', 'formatted_value' => ''];
+                        'code' => '', 'formatted_value' => '', 'scope_id' => $scope_id['host']];
 
         /* input value into array */
         foreach ($options_val as $col => $data) {
-
             $insert_data['code'] = $options[$col];
-
-            /* Check either IP address or host name */
-            $ipaddr = ipv6Validate::run($data);
-            $host   = domainValidate::run($data);
-            if ($ipaddr !== false) {
-                /* If it is an IP address, match the format */
-                $data = inet_ntop(inet_pton($data));
-            }
-
             $data = $this->store->db->dbh->quote($data);
             $insert_data['formatted_value'] = $data;
 
@@ -559,7 +543,7 @@ class BulkHost6
         * options
         *****************/
         /* make array for making insert options sql */
-        $col_options = ['domain_name_servers', 'routers'];
+        $col_options = ['dns_servers'];
 
         /* input value into made array */
         $foroptions = [];
@@ -580,7 +564,7 @@ class BulkHost6
         $success_log = sprintf($log_format, $forreserv['address'],
                                             $forhosts['dhcp_identifier']);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $this->msg_tag['success'] = _('Add successful!');
     }
 
@@ -598,9 +582,8 @@ class BulkHost6
         $dbutil->select('host_id');
         $dbutil->from('ipv6_reservations');
 
-        $ipaddr = inet_pton($ipaddr);
-        $ipaddr = inet_ntop($ipaddr);
-        $dbutil->where(sprintf('address = "%s"', $ipaddr));
+        $aton_addr = $this->store->db->inet6_aton($ipaddr);
+        $dbutil->where(sprintf('address = "%s"', $aton_addr));
 
         /* return all data */
         $hosts_data = $dbutil->get();
@@ -838,7 +821,7 @@ class BulkHost6
                               'e_msg'                  => null];
 
             /* Check number of columns */
-            if (count($csvdata) !== 8) {
+            if (count_array($csvdata) !== 7) {
                 $this->store->log->output_log("Invalid number of columns.(line: " . $line . ")");
                 $this->tag_arr['e_csv_column'] = _("Invalid number of columns.") . sprintf(_('(line: %s)'), $line);
 
@@ -848,7 +831,7 @@ class BulkHost6
             }
 
             /* check IP address */
-            if ($csvdata[3] == "") {
+            if ($csvdata[2] == "") {
                 $this->store->log->output_log("Empty IP address and prefix.(line: " . $line . ")");
                 $this->tag_arr['e_csv_prefix'] = _("Please enter IP address and prefix.") . sprintf(_('(line: %s)'), $line);
                 $all_tag[$line] = $this->tag_arr;
@@ -857,7 +840,7 @@ class BulkHost6
             }
 
             /* check prefix */
-            if (strpos($csvdata[3], '/') === false) {
+            if (strpos($csvdata[2], '/') === false) {
                 $this->store->log->output_log("Empty prefix.(line: " . $line . ")");
                 $this->tag_arr['e_csv_prefix'] = _("Please enter prefix.") . sprintf(_('(line: %s)'), $line);
                 $all_tag[$line] = $this->tag_arr;
@@ -865,19 +848,18 @@ class BulkHost6
                 continue;
             }
 
-            list($addr, $prefix) = explode('/', $csvdata[3]);
+            list($addr, $prefix) = explode('/', $csvdata[2]);
 
             /* Validation check */
             $data = [
                 'subnet'               => $csvdata[0],
-                'dhcp_identifier_type' => $csvdata[1],
-                'dhcp_identifier'      => $csvdata[2],
+                'type'                 => $csvdata[1],
                 'address'              => $addr,
                 'prefix'               => $prefix,
-                'type'                 => $csvdata[4],
+                'dhcp_identifier_type' => $csvdata[3],
+                'dhcp_identifier'      => $csvdata[4],
                 'hostname'             => $csvdata[5],
-                'domain_name_servers'  => $csvdata[6],
-                'routers'              => $csvdata[7],
+                'dns_servers'          => $csvdata[6],
             ];
 
             /* First check subnet, type, prefix */
@@ -1049,6 +1031,7 @@ class BulkHost6
         $this->store->view->assign("csverr", $this->csv_err);
         $this->store->view->assign("exist", $this->exist);
         $this->store->view->assign("is_show_warn_msg", $this->is_show_warn_msg);
+        $this->store->view->assign("mode", $this->mode);
         $this->store->view->render("bulkhost6.tmpl", $this->msg_tag);
     }
 }
@@ -1070,6 +1053,7 @@ if (isset($apply)) {
     * apply section
     ************************************/
     $mode = post('mode');
+    $bh6->mode = $mode;
     $ret = $bh6->apply_csvfile($mode);
 
     $bh6->display();

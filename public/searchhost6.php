@@ -73,8 +73,8 @@ class SearchHost6 {
 
         $this->pools = null;
 
-        $this->msg_tag =  ["ipaddr"     => "",
-                           "identifier" => "",
+        $this->msg_tag =  ["e_ipaddr"     => "",
+                           "e_identifier" => "",
                            "subnet_id"  => "",
                            "subnet"     => "",
                            "host_id"    => "",
@@ -87,6 +87,10 @@ class SearchHost6 {
         $this->err_tag2 = ["e_subnet"    => "",
                            "e_subnet_id" => "",
                           ];
+
+        $this->pre = ["ipaddr"     => "",
+                      "identifier" => "",
+                     ];
 
         $this->result = null;
         $this->store  = $store;
@@ -112,7 +116,7 @@ class SearchHost6 {
                                                $this->subnet_val['subnet']);
         if ($exist === false) {
             $this->msg_tag['disp_msg'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
             return;
         }
@@ -147,7 +151,7 @@ class SearchHost6 {
         $this->dbutil->from('hosts');
 
         /* result */
-        $count_ret = count($this->dbutil->get());
+        $count_ret = count_array($this->dbutil->get());
 
         /* Cannot get data from database */
         if ($count_ret === 0) {
@@ -232,10 +236,10 @@ class SearchHost6 {
         $this->subnet_val['subnet'] = $addr . "/" . $mask;
 
         /* get pools */
-        $pools_arr = $this->conf->get_pools6($this->subnet_val['subnet']);
-        if ($pools_arr === false) {
+        [$ret, $pools_arr] = $this->conf->get_pools6($this->subnet_val['subnet']);
+        if ($ret === false) {
             $this->msg_tag['e_pool'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -260,15 +264,19 @@ class SearchHost6 {
     {
         /* Check validation */
         $rules['ipaddr'] = [
-                            'method' => 'exist',
-                            'msg' => [''],
-                            'log' => [''],
+                            'method' => 'exist|hexadecimal',
+                            'msg' => ['',
+                                      _('IPv6 address contains characters that cannot be used.')],
+                            'log' => ['',
+                                      'IPv6 address contains characters that cannot be used.'],
                             'option' => ['allowempty']
                            ];
         $rules['identifier'] = [
-                                'method' => 'exist',
-                                'msg' => [''],
-                                'log' => [''],
+                                'method' => 'exist|hexadecimal',
+                                'msg' => ['',
+                                          _('Identifier contains characters that cannot be used.')],
+                                'log' => ['',
+                                          'Identifier ontains characters that cannot be used.'],
                                 'option' => ['allowempty']
                                ];
 
@@ -362,7 +370,7 @@ class SearchHost6 {
 
         /* make where statement of ipaddr */
         if ($conditions['ipaddr'] != null) {
-            $this->dbutil->like('ipv6_reservations.address', $conditions['ipaddr'] . "%");
+            $this->dbutil->like($this->store->db->inet6_ntoa('ipv6_reservations.address'), $conditions['ipaddr'] . "%");
         }
 
         /* make where statement of identifier */
@@ -386,7 +394,7 @@ class SearchHost6 {
     {
         /* make SELECT statement */
         $select = [$this->store->db->hex('hosts.dhcp_identifier') . ' AS "id"',
-                   'ipv6_reservations.address' . ' AS "ip"',
+                   $this->store->db->inet6_ntoa('ipv6_reservations.address') . ' AS "ip"',
                    'hosts.hostname AS "hostname"',
                    'hosts.dhcp_identifier_type AS "type"',
                    'hosts.host_id AS "host_id"',

@@ -28,6 +28,7 @@ require "../bootstrap.php";
 * args           : $store
 *****************************************************************************/
 class ListShared4 {
+    public $result;
     public $sharednetworks = null;
     public $conf;
     private $store;
@@ -54,7 +55,7 @@ class ListShared4 {
         /* check config error */
         if ($this->conf->result === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
         }
     }
 
@@ -140,7 +141,7 @@ class ListShared4 {
         $new_config = $this->conf->add_shared_name($shared_data);
         if ($new_config === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -154,7 +155,7 @@ class ListShared4 {
         /* save log to session history */
         $this->conf->save_hist_to_sess($success_log);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $this->pre = "";
         return true;
     }
@@ -168,12 +169,12 @@ class ListShared4 {
     public function init_disp()
     {
         /* fetch all shared-network4 */
-        $sharednetworks = $this->_get_shared4();
+        [$ret, $sharednetworks] = $this->_get_shared4();
 
         /* failed to fetch shared-network4*/
-        if ($sharednetworks === false) {
+        if ($ret === false) {
             if ($this->log !== "") {
-                $this->store->log->log($this->log, null);
+                $this->store->log->log($this->log);
             }
             return false;
         }
@@ -188,21 +189,21 @@ class ListShared4 {
     * Description   : Method for get shared-network4 data
     * args          : $mode - init or others
     *                 $cond - search condition
-    * return        : fetched $sharednetworks or false
+    * return        : true or false
     *************************************************************************/
     private function _get_shared4($cond = null)
     {
         /* get all shared-network name */
-        $sharednetworks = $this->conf->search_shared4();
+        [$ret, $sharednetworks] = $this->conf->search_shared4();
 
         /* failed to search shared-network */
-        if ($sharednetworks === false) {
+        if ($ret === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
             $this->log = $this->conf->err['e_log'];
-            return false;
-        }
-
-        return $sharednetworks;
+            return [false, []];
+	}
+	
+        return [true, $sharednetworks];
     }
 
     /*************************************************************************
@@ -216,7 +217,7 @@ class ListShared4 {
         if ($sharednetworks !== null) {
             $this->store->view->assign('item', $sharednetworks);
         }
-        $this->store->view->assign('result', count($sharednetworks));
+        $this->store->view->assign('result', count_array($sharednetworks));
         $this->store->view->assign('pre', $this->pre);
         $this->store->view->render("addshared4.tmpl", $this->msg_tag);
     }

@@ -45,7 +45,6 @@ class ListRange4 {
     public function __construct($store)
     {
         $this->msg_tag =  [
-                           "subnet"     => null,
                            "e_pool"     => null,
                            "disp_msg"   => null,
                           ];
@@ -54,6 +53,7 @@ class ListRange4 {
                           ];
         $this->err_tag2 = [];
 
+        $this->subnet = "";
         $this->pools  = null;
         $this->result = null;
         $this->store  = $store;
@@ -92,11 +92,11 @@ class ListRange4 {
         $rules["subnet"] = ["method"=>"exist|subnet4exist:exist_true",
                             "msg"=>[
                                      _('Can not find a subnet.'),
-                                     _('Subnet do not exit in config.'),
+                                     _('Subnet does not exist in config.'),
                                    ],
                             "log"=>[
                                      'Can not find a subnet in GET parameters.',
-                                     sprintf('Subnet do not exist in config.(%s)', $params["subnet"]),
+                                     sprintf('Subnet does not exist in config.(%s)', $params["subnet"]),
                                    ],
                            ];
 
@@ -114,6 +114,7 @@ class ListRange4 {
             return false;
         }
 
+        $this->subnet = $params['subnet'];
         return true;
     }
 
@@ -125,11 +126,12 @@ class ListRange4 {
      **************************************************************************/
     public function get_all_pools($params)
     {
+        global $appini;
         /* get all pools of this subnet */
-        $pools_arr = $this->conf->get_pools($params['subnet']);
-        if ($pools_arr === false) {
+        [$ret, $pools_arr] = $this->conf->get_pools($params['subnet']);
+        if ($ret === false) {
             $this->msg_tag['e_pool'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -139,6 +141,18 @@ class ListRange4 {
                 $pools[] = $value[STR_POOL];
             }
             $this->pools = $pools;
+        }
+
+        /* Pagination */
+        if (!empty($this->pools)) {
+            $this->pageobj = new Pagination('array');
+            $this->pageobj->currentpage = get('page', 1);
+            $this->pageobj->linknum = $appini['search']['pagelinks'];
+            $this->pageobj->dataperpage = $appini['search']['poolmax'];
+            $this->pageobj->source = $this->pools;
+            $this->pageobj->run();
+
+            $this->pools = array_slice($this->pools, $this->pageobj->datahead, $this->pageobj->dataperpage);
         }
 
         return true;
@@ -154,7 +168,7 @@ class ListRange4 {
     {
         $rules["pool"] = ["method"=>"exist",
                             "msg"=>[
-                                     _('Delete target of range does not exist.'),
+                                     _('Delete target of Pool IP address range does not exist.'),
                                    ],
                             "log"=>[
                                      'Can not find a pool in GET parameters.',
@@ -170,7 +184,6 @@ class ListRange4 {
         /* When validation check fails */
         if ($validater->err['result'] === false) {
             $this->store->log->output_log_arr($validater->logs);
-            $this->display();
             return false;
         }
 
@@ -178,7 +191,7 @@ class ListRange4 {
         $pools_arr = $this->get_all_pools($postdata);
         if ($pools_arr === false) {
             $this->msg_tag['e_pool'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -195,24 +208,24 @@ class ListRange4 {
     public function delete_range($subnet, $pool)
     {
         /* delete pool in this subnet */
-        $new_config = $this->conf->del_range($subnet, $pool);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->del_range($subnet, $pool);
+        if ($ret === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return;
         }
 
         /* save new config to session */
         $this->conf->save_conf_to_sess($new_config);
 
-        $log_msg = "Range deleted(%s)(%s).";
+        $log_msg = "Pool IP address range deleted(%s)(%s).";
         $log_msg = sprintf($log_msg, $subnet, $pool);
 
         /* save log to session history */
         $this->conf->save_hist_to_sess($log_msg);
 
         $this->store->log->output_log($log_msg);
-        $this->msg_tag['disp_msg'] = sprintf(_("Range deleted(%s)."), $pool);
+        $this->msg_tag['disp_msg'] = sprintf(_("Pool IP address range deleted(%s)."), $pool);
 
         return;
     }
@@ -220,18 +233,15 @@ class ListRange4 {
     /*************************************************************************
      * Method        : display
      * Description   : Method for displaying the template on the screen
-     * args          : $host4data Search result on host
+     * args          : $None
      * return        : None
      **************************************************************************/
-    public function display($host4data = null)
+    public function display()
     {
-        /* If host4data exists, display the table */
-        if ($host4data != null) {
-            $this->store->view->assign('item', $host4data);
-        }
-
         $array = array_merge($this->msg_tag, $this->err_tag, $this->err_tag2);
+        $this->store->view->assign('subnet', $this->subnet);
         $this->store->view->assign("pools", $this->pools);
+        $this->store->view->assign('paging', $this->pageobj);
         $this->store->view->render("listrange4.tmpl", $array);
     }
 }
@@ -287,9 +297,6 @@ if (isset($del)) {
 * List section
 ***********************************/
 $objListRange->get_all_pools($subnet_params);
-
-/* set hidden tag */
-$objListRange->msg_tag['subnet'] = $subnet;
 
 /************************************
 * Initial display

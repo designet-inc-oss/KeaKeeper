@@ -72,7 +72,7 @@ class AddSubnet4
         $this->conf = new KeaConf(DHCPV4);
         if ($this->conf->result === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
             return;
         }
@@ -143,10 +143,10 @@ class AddSubnet4
         ];
 
         /* add subnet */
-        $new_config = $this->conf->add_subnet($subnet_data);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->add_subnet($subnet_data);
+        if ($ret === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
             return false;
         }
@@ -160,7 +160,7 @@ class AddSubnet4
         /* save log to session history */
         $this->conf->save_hist_to_sess($success_log);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $this->msg_tag['success'] = _('Subnet added.');
 
         return true;

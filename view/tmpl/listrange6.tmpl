@@ -1,4 +1,4 @@
-{$title = "{t}List range{/t}"}
+{$title = "{t}List Pool IP address range{/t}"}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -90,7 +90,7 @@
                           {t}delete{/t}
                         </th>
                         <th>
-                          {t}Pool IP addresses{/t}
+                          {t}Pool IP address range{/t}
                         </th>
                         <th>
                         </th>
@@ -101,7 +101,7 @@
                       {foreach from=$pools item=info}
                         <tr>
                           <td data-title="delete">
-                            <p><a href="listrange6.php?subnet={$subnet}&pool={$info}&del=DeletePool" onClick="javascript:return confirm('{t}Are you sure you want to delete this range?{/t}')"><span class="glyphicon glyphicon-trash"></span></i></a></p>
+                            <p><a href="listrange6.php?subnet={$subnet}&pool={$info}&del=DeletePool" onClick="javascript:return confirm('{t}Are you sure you want to delete this Pool IP address range?{/t}')"><span class="glyphicon glyphicon-trash"></span></i></a></p>
                           </td>
                           <td data-title="hostname">
                             {$info} 

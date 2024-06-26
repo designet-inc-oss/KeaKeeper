@@ -68,12 +68,22 @@ class Searchlease6 {
     *************************************************************************/
     public function __construct($store)
     {
-        $this->msg_tag = ['e_ldate1'  => null,
-                          'e_ldate2'  => null,
-                          'e_edate1'  => null,
-                          'e_edate2'  => null,
-                          'e_all'     => null,
-                          'no_result' => null];
+        $this->msg_tag = ['e_ipaddr'     => null,
+                          'e_identifier' => null,
+                          'e_ldate1'     => null,
+                          'e_ldate2'     => null,
+                          'e_edate1'     => null,
+                          'e_edate2'     => null,
+                          'e_all'        => null,
+                          'no_result'    => null];
+
+        $this->pre = ['ipaddr'     => '',
+                      'identifier' => '',
+                      'ldate1'     => '',
+                      'ldate2'     => '',
+                      'edate1'     => '',
+                      'edate2'     => '',
+                      'all'        => ''];
 
         $this->result = null;
         $this->store  = $store;
@@ -90,15 +100,19 @@ class Searchlease6 {
     {
         global $appini;
         $rules['ipaddr'] = [
-                            'method' => 'exist',
-                            'msg' => [''],
-                            'log' => [''],
+                            'method' => 'exist|hexadecimal',
+                            'msg' => ['',
+                                      _('IPv6 address contains characters that cannot be used.')],
+                            'log' => ['',
+                                      'IPv6 address contains characters that cannot be used.'],
                             'option' => ['allowempty']
                         ];
         $rules['identifier'] = [
-                                'method' => 'exist',
-                                'msg' => [''],
-                                'log' => [''],
+                                'method' => 'exist|hexadecimal',
+                                'msg' => ['',
+                                          _('Identifier contains characters that cannot be used.')],
+                                'log' => ['',
+                                          'Identifier contains characters that cannot be used.'],
                                 'option' => ['allowempty']
                         ];
         $rules['ldate1'] = [
@@ -237,7 +251,7 @@ class Searchlease6 {
         /* make where statement of address */
         if ($conditions['ipaddr'] != null) {
             $esc = $this->dbutil->escape_wildcard($conditions['ipaddr']);
-            $this->dbutil->like('address', 
+            $this->dbutil->like($this->store->db->inet6_ntoa('address'), 
                                 $esc . "%");
         }
 
@@ -287,7 +301,7 @@ class Searchlease6 {
         /* make SELECT statement */
         $select = [$this->store->db->hex('hwaddr') . ' AS "id"',
                    $this->store->db->hex('duid') . ' AS "duid"',
-                   'address AS "ip"',
+                   $this->store->db->inet6_ntoa('address') .  'AS "ip"',
                    LEASE . ' AS "lease"', 'expire'];
         $this->dbutil->select($select);
 

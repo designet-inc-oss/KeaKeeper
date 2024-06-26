@@ -50,7 +50,7 @@ class UpdateConfig6 {
         /* check config error */
         if ($this->conf->result === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
         }
 
     }
@@ -68,16 +68,15 @@ class UpdateConfig6 {
         $ret = $this->conf->config_reflect();
         if ($ret === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return;
         }
 
         /* delete log message from session */
         $this->conf->delete_hist_from_sess();
-        $log_format = "Config file update successfully.(%s)";
-        $success_log = sprintf($log_format, $appini["conf"]["pathdhcp6"]);
-        $this->msg_tag['success'] = _('Config file update successfully.');
-        $this->store->log->log($success_log, null);
+        $success_log = "Config file update successfully.";
+        $this->msg_tag['success'] = _('Config file update successfully.') . sprintf(_('Configuration file backup created at (%s).'), $appini["api"]["dhcpv6backup"]);
+        $this->store->log->log($success_log);
         return;
     }
 

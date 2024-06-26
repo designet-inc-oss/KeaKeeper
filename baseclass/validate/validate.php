@@ -36,13 +36,18 @@ class Validater {
     *                : $values - validate values
     * return         : None
     *************************************************************************/
-    public function __construct($rules, $values, $convert = false)
+    public function __construct($rules, $values, $convert = false, $method_delimiter = '|', $option_delimiter = ':')
     { 
         $this->err["result"] = true;
 
         /* Loop for extract rules array */
         foreach ($rules as $key => $validaters) {
-            $methods = explode("|", $validaters["method"]);
+            $methods = explode($method_delimiter, $validaters["method"]);
+            /* initialized variables */
+            $errkey = "e_". $key;
+            $this->err["keys"][$key] = $values[$key];
+            $this->err["msg"][$errkey] = [];
+            $this->err["log"][$errkey] = [];
 
             /* Processing methods and options for validation */
             $i = -1;
@@ -54,28 +59,23 @@ class Validater {
                 $tmp = [];
                 $method = null;
                 $moption = [];
+                $continueonfail = false;
 
                 /* Split method and option in colon. For example..
                  *        rule: max:16
                  *  $tmp[0]   -> max (this is validate class)
                  *  $tmp[1-*] -> 16  (this is validate class options)
                  */
-                $tmp = explode(":", $method_option, 2);
+                $tmp = explode($option_delimiter, $method_option, 2);
                 $method = array_shift($tmp);
-                if (count($tmp) !== 0) {
-                    $moption = explode(":", $tmp[0]);
+                if (count_array($tmp) !== 0) {
+                    $moption = explode($option_delimiter, $tmp[0]);
                 }
 
                 /* If there is no key, it can be filled with null */
                 if (!isset($values[$key])) {
                     $values[$key] = null;
                 }
-
-                /* initialized variables */
-                $errkey = "e_". $key;
-                $this->err["keys"][$key] = $values[$key];
-                $this->err["msg"][$errkey] = [];
-                $this->err["log"][$errkey] = [];
 
                 /************************************************************
                 * validate option section
@@ -93,6 +93,13 @@ class Validater {
                     continue;
                 }
 
+                /* initialized variables */
+                if ($continueonfail !== true ) {
+                    $this->err["keys"][$key] = $values[$key];
+                    $this->err["msg"][$errkey] = [];
+                    $this->err["log"][$errkey] = [];
+                }
+
                 /************************************************************
                 * validate section
                 *************************************************************/
@@ -102,10 +109,18 @@ class Validater {
 
                 $validater->allval = $values;
 
-                if (count($moption) === 0) {
+                if (count_array($moption) === 0) {
                     $ret = $validater->run($values[$key]);
                 } else {
                     $ret = $validater->run($values[$key], $moption);
+                }
+
+                if (isset($validater->errmsg)) {
+                    $rules[$key]["msg"][$i] = $validater->errmsg;
+                }
+
+                if (isset($validater->errlog)) {
+                    $rules[$key]["log"][$i] = $validater->errlog;
                 }
 
                 unset($validater);
@@ -115,13 +130,16 @@ class Validater {
                     continue;
                 }
                 $this->err["result"] = false;
-
                 /************************************************************
                 * Error handling section
                 *************************************************************/
                 /* Set display errors */
                 if (isset($rules[$key]["msg"][$i])) {
-                    $this->err["msg"][$errkey][] = $rules[$key]["msg"][$i];
+                    if (gettype($rules[$key]["msg"][$i]) === 'array') {
+                        $this->err["msg"][$errkey] = array_merge($this->err["msg"][$errkey], $rules[$key]["msg"][$i]);
+                    } else {
+                        $this->err["msg"][$errkey][] = $rules[$key]["msg"][$i];
+                    }
                 } else {
                     $this->err["msg"][$errkey][] =
                                              "Undefined message.($key:$method)";
@@ -129,7 +147,11 @@ class Validater {
 
                 /* Set log errors */
                 if (isset($rules[$key]["log"][$i])) {
-                    $this->err["log"][$errkey][] = $rules[$key]["log"][$i];
+                    if (gettype($rules[$key]["log"][$i]) === 'array') {
+                        $this->err["log"][$errkey] = array_merge($this->err["log"][$errkey], $rules[$key]["log"][$i]);
+                    } else {
+                        $this->err["log"][$errkey][] = $rules[$key]["log"][$i];
+                    }
                 } else {
                     $this->err["log"][$errkey][] =
                                              "Undefined message.($key:$method)";
@@ -202,7 +224,7 @@ class Validater {
         foreach ($this->err["msg"] as $key => $msg) {
             $tag[$key] = implode("\n", $msg);
         }
-
+ 
         return $tag;
     }
 
@@ -369,7 +391,7 @@ class intValidate extends AbstractValidate {
 class minValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
-        if (count($option) === 0) {
+        if (count_array($option) === 0) {
             return false;
         }
 
@@ -391,7 +413,7 @@ class minValidate extends AbstractValidate {
 class maxValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
-        if (count($option) === 0) {
+        if (count_array($option) === 0) {
             return false;
         }
 
@@ -413,7 +435,7 @@ class maxValidate extends AbstractValidate {
 class intminValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
-        if (count($option) === 0) {
+        if (count_array($option) === 0) {
             return false;
         }
 
@@ -437,7 +459,7 @@ class intminValidate extends AbstractValidate {
 class intmaxValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
-        if (count($option) === 0) {
+        if (count_array($option) === 0) {
             return false;
         }
 
@@ -587,8 +609,8 @@ class duidValidate extends AbstractValidate {
 class circuitidValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
-        $ret = preg_match('/[^a-fA-F0-9\-:]/', $val);
-        if ($ret === 1) {
+        $ret = preg_match('/[^a-zA-Z0-9!"#\$%&\'\(\)\*\+,\-\.\/:;<=>\?\\\@\[\]\^_`\{\|\}~]/', $val);
+        if ($ret === 1 || $ret === false) {
             return false;
         }
         return true;
@@ -685,7 +707,7 @@ class insubnet6Validate extends AbstractValidate {
 class regexValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
-        if (count($option) === 0) {
+        if (count_array($option) === 0) {
             return false;
         }
 
@@ -739,7 +761,7 @@ class datecmpValidate extends AbstractValidate {
         $format = "Y/m/d";
         $cond = array_shift($option);
         $cmpkey = array_shift($option);
-        if (count($option) !== 0) {
+        if (count_array($option) !== 0) {
             $format = implode(":", $option);
         }
 
@@ -989,6 +1011,42 @@ class greateripv6Validate extends AbstractValidate {
             return false;
         }
 
+        return true;
+    }
+}
+
+/*****************************************************************************
+ * Class          : hexadecimalValidate
+ * Description    : Validation class that ip or identifier is hexadecimal
+ * args           : $val
+ *                : $options - method options
+ * return         : true or false
+ *****************************************************************************/
+class hexadecimalValidate extends AbstractValidate {
+    public function run($val, $option = array())
+    {
+        $ret = preg_match('/[^a-fA-F0-9:]/', $val);
+        if ($ret === 1 || $ret === false) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+ * Class          : decimalValidate
+ * Description    : Validation class that ip is decimal
+ * args           : $val
+ *                : $options - method options
+ * return         : true or false
+ *****************************************************************************/
+class decimalValidate extends AbstractValidate {
+    public function run($val, $option = array())
+    {
+        $ret = preg_match('/[^0-9.]/', $val);
+        if ($ret === 1 || $ret === false) {
+            return false;
+        }
         return true;
     }
 }

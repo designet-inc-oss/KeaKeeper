@@ -78,6 +78,8 @@
               {$e_subnet_id}{call br var=$e_subnet_id}
               {$e_subnet}{call br var=$e_subnet}
               {$e_pool}{call br var=$e_pool}
+              {$e_ipaddr}{call br var=$e_ipaddr}
+              {$e_identifier}{call br var=$e_identifier}
               {$disp_msg}{call br var=$disp_msg}
 
               {if isset($no_result)}
@@ -119,6 +121,7 @@
                 <div class="form-group">
                   <div class="col-sm-12">
                     <button type="submit" name="search">{t}Search{/t}</button>
+                    <button onclick='location.href = "addhost4.php?subnet_id={$subnet_id}&subnet={$subnet}";' type="button">{t}Add{/t}</button>
                   </div>
                 </div>
               </form>

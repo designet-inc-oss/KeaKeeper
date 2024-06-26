@@ -24,4 +24,15 @@ $options = [
     'routers'             => 3,
     'tftp_server_name'    => 66,
     'boot_file_name'      => 67,
+    'dns_servers'         => 23,
+];
+
+$scope_id = [
+    'global' => 0,
+    'subnet' => 1,
+    'client-class' => 2,
+    'host' => 3,
+    'shared-networks' => 4,
+    'pool' => 5,
+    'pd-pool' => 6
 ];

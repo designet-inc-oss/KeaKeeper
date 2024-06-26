@@ -69,7 +69,7 @@ class duplicate6_hostid_notinValidate extends AbstractValidate {
     {
         /* make query for check duplicate */
         $dbutil = new dbutils($this->allval['store']->db);
-        $dbutil->select('address,prefix_len,type');
+        $dbutil->select($this->allval['store']->db->inet6_ntoa('address') . ' AS address,prefix_len,type');
         $dbutil->from('ipv6_reservations');
         $dbutil->where('host_id NOT IN', get('host_id'));
 
@@ -108,18 +108,18 @@ class duplicate6_hostid_notinValidate extends AbstractValidate {
 }
 
 /*****************************************************************************
-* Class          : duplicate_delegate6_hostid_notinValidate
+* Class          : duplicate_prefreserve_hostid_notinValidate
 * Description    : Validation class that check duplication
 * args           : $val
 *                : $options - method options
 * return         : true or false
 *****************************************************************************/
-class duplicate_delegate6_hostid_notinValidate extends AbstractValidate {
+class duplicate_prefreserve_hostid_notinValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
         /* make query for check duplicate */
         $dbutil = new dbutils($this->allval['store']->db);
-        $dbutil->select('address, prefix_len, type');
+        $dbutil->select($this->allval['store']->db->inet6_ntoa('address') . 'AS address,prefix_len,type');
         $dbutil->from('ipv6_reservations');
         $dbutil->where('host_id NOT IN', get('host_id'));
 
@@ -193,17 +193,13 @@ class EditHost6
         $this->pools = null;
         $this->msg_tag = ['e_hostname'             => null,
                           'e_dhcp_identifier'      => null,
-                          'e_address'         => null,
-                          'e_domain_name_servers'  => null,
-                          'e_routers'              => null,
+                          'e_address'              => null,
+                          'e_dns_servers'          => null,
                           'e_pool'                 => null,
                           'e_prefix'               => null,
                           'e_type'                 => null,
                           'checked'                => null,
-                          'code_6'                 => null,
-                          'code_3'                 => null,
-                          'code_66'                => null,
-                          'code_67'                => null,
+                          'code_23'                => null,
                           'is_show_warn_msg'       => 0,
                           'success'                => null];
 
@@ -218,7 +214,7 @@ class EditHost6
         $this->conf = new KeaConf(DHCPV6);
         if ($this->conf->result === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
             return;
         }
@@ -236,7 +232,7 @@ class EditHost6
 
         if ($exist === false) {
             $this->err_tag['e_msg'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
         }
 
         /* check history in session */
@@ -274,17 +270,8 @@ class EditHost6
             return;
         }
         foreach ($option_data as $item) {
-            if ($item['code'] == 6) {
-                $this->msg_tag['code_6'] = $item['option_id'];
-            }
-            if ($item['code'] == 3) {
-                $this->msg_tag['code_3'] = $item['option_id'];
-            }
-            if ($item['code'] == 66) {
-                $this->msg_tag['code_66'] = $item['option_id'];
-            }
-            if ($item['code'] == 67) {
-                $this->msg_tag['code_67'] = $item['option_id'];
+            if ($item['code'] == 23) {
+                $this->msg_tag['code_23'] = $item['option_id'];
             }
         }
         return;
@@ -328,10 +315,10 @@ class EditHost6
         $this->subnet_val['subnet'] = $addr . "/" . $mask;
 
         /* get pools */
-        $pools_arr = $this->conf->get_pools6($this->subnet_val['subnet']);
-        if ($pools_arr === false) {
+        [$ret, $pools_arr] = $this->conf->get_pools6($this->subnet_val['subnet']);
+        if ($ret === false) {
             $this->msg_tag['e_pool'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -384,83 +371,52 @@ class EditHost6
         $rules['type'] =
           [
            'method' => 'exist|regex:/^[02]$/',
-           'msg'    => [_('Please enter prefix delegation.'),
-                        _('Invalid prefix delegation.')],
-           'log'    => ['Empty prefix delegation(' . $values['type'] . ').',
-                        'Numbers other than 0 or 2 are entered in prefix delegation.(' . $values['type'] . ').'],
+           'msg'    => [_('Please enter prefix reservation.'),
+                        _('Invalid prefix reservation.')],
+           'log'    => ['Empty prefix reservation(' . $values['type'] . ').',
+                        'Numbers other than 0 or 2 are entered in prefix reservation.(' . $values['type'] . ').'],
            'option' => ['allowempty']
           ];
 
         $sub = $this->subnet_val['subnet'];
         $prefix = $values['prefix'];
 
-        if ($values['type'] !== NULL) {
-            /* When prefix delegate is checked */
-            $method_str = "exist|ipv6_delegate:$prefix|insubnet_delegate6:$sub:$prefix|outpool_delegate6:$prefix|duplicate_delegate6_hostid_notin:$prefix";
-            $msg1 = 'Invalid IPv6 address(' . $values['address'] . "/" . $prefix . ').';
-            $msg2 = 'IPv6 address out of subnet range(' . $values['address'] . "/" . $prefix . ').';
-            $msg3 = 'IPv6 address is within subnet pool range(' . $values['address'] . "/" . $prefix . ').';
-            $msg4 = 'IPv6 address already exists(' . $values['address'] . "/" . $prefix . ').';
-        } else {
-            /* When prefix delegate is not checked */
-            $method_str = "exist|ipv6|insubnet6:$sub|outpool6:$sub|duplicate6_hostid_notin";
-            $msg1 = 'Invalid IPv6 address(' . $values['address'] . ').';
-            $msg2 = 'IPv6 address out of subnet range(' . $values['address'] . ').';
-            $msg3 = 'IPv6 address is within subnet pool range(' . $values['address'] . ').';
-            $msg4 = 'IPv6 address already exists(' . $values['address'] . ').';
-        }
-
         $rules['address'] =
           [
-           'method' =>
-            $method_str,
-           'msg'    => [_('Please enter IP address.'),
-                        _('Invalid IP address.'),
-                        _('IP address out of subnet range.'),
-                        _('IP address is within subnet pool range.'),
-                        _('IP address already exists.')],
-           'log'    => ['Empty IPv6 address.',
-                        $msg1,
-                        $msg2,
-                        $msg3,
-                        $msg4]
+           'method' => 'exist',
+           'msg'    => [_('Please enter IP address.')],
+           'log'    => ['Empty IPv6 address.']
           ];
 
-        $rules['domain_name_servers'] =
+        /* validate */
+        $validater = new validater($rules, $values, true);
+        $rules['dns_servers'] =
           [
            'method' => 'ipaddrs6',
-           'msg'    => [_('Invalid domain-name-server.')],
-           'log'    => ['Invalid domain-name-server(' .
-                        $values['domain_name_servers']. ').'],
-           'option' => ['allowempty']
-          ];
-
-        $rules['routers'] =
-          [
-           'method' => 'ipaddrs6',
-           'msg'    => [_('Invalid routers.')],
-           'log'    => ['Invalid routers(' . $values['routers']. ').'],
+           'msg'    => [_('Invalid DNS Server Address.')],
+           'log'    => ['Invalid DNS Server Address(' .
+                        $values['dns_servers']. ').'],
            'option' => ['allowempty']
           ];
 
         if ($values['type'] !== NULL) {
-            /* When prefix delegate is checked */
+            /* When prefix reservation is checked */
             $method_str = 'exist|int|intmin:1|intmax:128';
-            $msg = [_('Please enter prefix.'),
-                    _('Invalid prefix.'),
-                    _('Invalid prefix.'),
-                    _('Invalid prefix.')];
-            $log = ['Empty prefix.',
-                    'prefix is not an integer(' . $values['prefix'] . ').',
-                    'prefix is smaller than 1(' . $values['prefix'] . ').',
-                    'prefix is larger than 128(' . $values['prefix'] . ').'];
+            $msg = [_('Please enter prefix length.'),
+                    _('Invalid prefix length.'),
+                    _('Invalid prefix length.'),
+                    _('Invalid prefix length.')];
+            $log = ['Empty prefix length..',
+                    'prefix length is not an integer(' . $values['prefix'] . ').',
+                    'prefix length is smaller than 1(' . $values['prefix'] . ').',
+                    'prefix length is larger than 128(' . $values['prefix'] . ').'];
         } else {
-            /* When prefix delegate is not checked */
+            /* When prefix reservation is not checked */
             $method_str = "exist|regex:/^128$/";
-            $msg = [_('Please enter prefix.'),
-                    _('Prefix is not 128.')];
-            $log = ['Empty prefix.',
-                    'Prefix is not 128.(' . $values['prefix'] . ')'];
+            $msg = [_('Please enter prefix length.'),
+                    _('Prefix length is not 128.')];
+            $log = ['Empty prefix length.',
+                    'Prefix length is not 128.(' . $values['prefix'] . ')'];
         }
         $rules['prefix'] =
           [
@@ -481,6 +437,49 @@ class EditHost6
 
         /* keep validated value into property */
         $this->pre = $validater->err["keys"];
+
+        /* input made message into property */
+        $this->msg_tag = array_merge($this->msg_tag, $validater->tags);
+
+        /* validation error, output log and return */
+        if ($validater->err['result'] === false) {
+            $this->_get_optionid_tag();
+            $this->store->log->output_log_arr($validater->logs);
+            return false;
+        }
+
+        if ($values['type'] !== NULL) {
+            /* When prefix reservation is checked */
+            $method_str = "ipv6_prefreserve:$prefix|insubnet_prefreserve:$sub:$prefix|outpool_prefreserve:$sub:$prefix|duplicate_prefreserve_hostid_notin:$prefix";
+            $msg1 = 'Invalid IPv6 address(' . $values['address'] . "/" . $prefix . ').';
+            $msg2 = 'IPv6 address out of subnet range(' . $values['address'] . "/" . $prefix . ').';
+            $msg3 = 'IPv6 address is within subnet pool range(' . $values['address'] . "/" . $prefix . ').';
+            $msg4 = 'IPv6 address already exists(' . $values['address'] . "/" . $prefix . ').';
+        } else {
+            /* When prefix reservation is not checked */
+            $method_str = "ipv6|insubnet6:$sub|outpool6:$sub|duplicate6_hostid_notin";
+            $msg1 = 'Invalid IPv6 address(' . $values['address'] . ').';
+            $msg2 = 'IPv6 address out of subnet range(' . $values['address'] . ').';
+            $msg3 = 'IPv6 address is within subnet pool range(' . $values['address'] . ').';
+            $msg4 = 'IPv6 address already exists(' . $values['address'] . ').';
+        }
+
+        $rules['address'] =
+          [
+           'method' =>
+            $method_str,
+           'msg'    => [_('Invalid IP address.'),
+                        _('IP address out of subnet range.'),
+                        _('IP address is within subnet pool range.'),
+                        _('IP address already exists.')],
+           'log'    => [$msg1,
+                        $msg2,
+                        $msg3,
+                        $msg4]
+          ];
+
+        /* validate */
+        $validater = new validater($rules, $values, true);
 
         /* input made message into property */
         $this->msg_tag = array_merge($this->msg_tag, $validater->tags);
@@ -546,7 +545,7 @@ class EditHost6
         /* define select columns */
         $columns = ['type',
                     'prefix_len',
-                    'address'];
+                    $this->store->db->inet6_ntoa('address') . 'AS address'];
 
         /* make sql and fetch */
         $dbutil->select($columns);
@@ -560,7 +559,7 @@ class EditHost6
             $msg = _("There is no data in ipv6_reservations table concerning the host ID(%s).");
             $this->err_tag['disp_msg'] = sprintf($msg, $host_id);
             $this->store->log->log('There is no data in ipv6_reservations table concerning the host ID('
-                                   . $host_id .').', null);
+                                   . $host_id .').');
             return null;
         }
 
@@ -571,20 +570,20 @@ class EditHost6
         if ($ipv6_data[0]['address'] === "" ||
             $ipv6_data[0]['address'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find address.");
-            $this->store->log->log('Cannot find address.', null);
+            $this->store->log->log('Cannot find address.');
             return null;
         }
         if ($ipv6_data[0]['prefix_len'] === "" ||
             $ipv6_data[0]['prefix_len'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find prefix_len.");
-            $this->store->log->log('Cannot find prefix_len.', null);
+            $this->store->log->log('Cannot find prefix_len.');
             return null;
 
         }
         if ($ipv6_data[0]['type'] === "" ||
             $ipv6_data[0]['type'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find type.");
-            $this->store->log->log('Cannot find type.', null);
+            $this->store->log->log('Cannot find type.');
             return null;
 
         }
@@ -620,7 +619,7 @@ class EditHost6
             $msg = _("There is no data concerning the host ID(%s).");
             $this->err_tag['disp_msg'] = sprintf($msg, $host_id);
             $this->store->log->log('There is no data concerning the host ID('
-                                   . $host_id .').', null);
+                                   . $host_id .').');
             return null;
         }
 
@@ -632,20 +631,20 @@ class EditHost6
         if ($hosts_data[0]['dhcp_identifier'] === "" ||
             $hosts_data[0]['dhcp_identifier'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find dhcp_identifier.");
-            $this->store->log->log('Cannot find dhcp_identifier.', null);
+            $this->store->log->log('Cannot find dhcp_identifier.');
             return null;
         }
         if ($hosts_data[0]['dhcp_identifier_type'] === "" ||
             $hosts_data[0]['dhcp_identifier_type'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find dhcp_identifier_type.");
-            $this->store->log->log('Cannot find dhcp_identifier_type.', null);
+            $this->store->log->log('Cannot find dhcp_identifier_type.');
             return null;
 
         }
         if ($hosts_data[0]['dhcp6_subnet_id'] === "" ||
             $hosts_data[0]['dhcp6_subnet_id'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find dhcp6_subnet_id.");
-            $this->store->log->log('Cannot find dhcp6_subnet_id.', null);
+            $this->store->log->log('Cannot find dhcp6_subnet_id.');
             return null;
 
         }
@@ -685,63 +684,22 @@ class EditHost6
             return null;
         }
 
-        $code6_flag  = 0;
-        $code3_flag  = 0;
-        $code66_flag = 0;
-        $code67_flag = 0;
+        $code23_flag = 0;
 
         foreach ($option_data as $item) {
-            if ($item['code'] == 6) {
-                $this->msg_tag['code_6'] = $item['option_id'];
+            if ($item['code'] == 23) {
+                $this->msg_tag['code_23'] = $item['option_id'];
                 if ($item['formatted_value'] !== NULL) {
-                    $code6_flag = 1;
-                    $this->pre['domain_name_servers'] = $item['formatted_value'];
+                    $code23_flag = 1;
+                    $this->pre['dns_servers'] = $item['formatted_value'];
                 } else {
-                    $this->pre['domain_name_servers'] = "";
-                }
-            }
-
-            if ($item['code'] == 3) {
-                $this->msg_tag['code_3'] = $item['option_id'];
-                if ($item['formatted_value'] !== NULL) {
-                    $code3_flag = 1;
-                    $this->pre['routers'] = $item['formatted_value'];
-                } else {
-                    $this->pre['routers'] = "";
-                }
-            }
-            if ($item['code'] == 66) {
-                $this->msg_tag['code_66'] = $item['option_id'];
-                if ($item['formatted_value'] !== NULL) {
-                    $code66_flag = 1;
-                    $this->pre['bootp_tftp_server_name'] = $item['formatted_value'];
-                } else {
-                    $this->pre['bootp_tftp_server_name'] = "";
-                }
-            }
-
-            if ($item['code'] == 67) {
-                $this->msg_tag['code_67'] = $item['option_id'];
-                if ($item['formatted_value'] !== NULL) {
-                    $code67_flag = 1;
-                    $this->pre['bootp_file_name'] = $item['formatted_value'];
-                } else {
-                    $this->pre['bootp_file_name'] = "";
+                    $this->pre['dns_servers'] = "";
                 }
             }
         }
 
-        if ($code6_flag === 0) {
-            $this->pre['domain_name_servers'] = "";
-        }
-        if ($code3_flag === 0) {
-            $this->pre['routers'] = "";
-        }
-        if ($code66_flag === 0) {
-            $this->pre['tftp_server_name'] = "";
-        }
-        if ($code67_flag === 0) {
-            $this->pre['boot_file_name'] = "";
+        if ($code23_flag === 0) {
+            $this->pre['dns_servers'] = "";
         }
 
         return $option_data;
@@ -814,10 +772,9 @@ class EditHost6
                     $insert_data['prefix_len'] = intval($data);
                     break;
                 case 'address':
-                    $data = inet_pton($data);
-                    $data = inet_ntop($data);
                     $data = $this->store->db->dbh->quote($data);
-                    $insert_data['address'] = $data;
+                    $aton_addr = $this->store->db->inet6_aton($data);
+                    $insert_data['address'] = $aton_addr;
                     break;
                 case 'type':
                     if($data === NULL) {
@@ -870,7 +827,7 @@ class EditHost6
         $dbutil->from('dhcp6_options');
 
         /* count result */
-        $count_ret = count($dbutil->get());
+        $count_ret = count_array($dbutil->get());
 
         /* Cannot get data from database */
         if ($count_ret === 0) {
@@ -888,12 +845,10 @@ class EditHost6
     private function _options_query($options_val)
     {
         global $options;
+        global $scope_id;
 
         foreach ($options as $key => $value) {
-            $arr[6] = post('code_6');
-            $arr[3] = post('code_3');
-            $arr[66] = post('code_66');
-            $arr[67] = post('code_67');
+            $arr[23] = post('code_23');
         }
 
         /* input value into array */
@@ -925,17 +880,12 @@ class EditHost6
                 /********************************
                 * insert
                 *********************************/
-                $ipaddr = ipv6Validate::run($data);
-                $host   = domainValidate::run($data);
-                if ($ipaddr !== false) {
-                    /* If it is an IP address, match the format */
-                    $data = inet_ntop(inet_pton($data));
-                }
                 $data = $this->store->db->dbh->quote($data);
 
                 $insert_data['code'] = $options[$col];
                 $insert_data['formatted_value'] = $data;
                 $insert_data['host_id'] = $this->subnet_val['host_id'];
+                $insert_data['scope_id'] = $scope_id['host'];
 
                 try {
                     $dbutil->into($insert_data);
@@ -952,12 +902,6 @@ class EditHost6
                 /********************************
                 * update
                 *********************************/
-                $ipaddr = ipv6Validate::run($data);
-                $host   = domainValidate::run($data);
-                if ($ipaddr !== false) {
-                    /* If it is an IP address, match the format */
-                    $data = inet_ntop(inet_pton($data));
-                }
                 $data = $this->store->db->dbh->quote($data);
 
                 try {
@@ -1045,7 +989,7 @@ class EditHost6
         * options
         *****************/
         /* make array for making insert options sql */
-        $col_options = ['domain_name_servers', 'routers'];
+        $col_options = ['dns_servers'];
 
         /* input value into made array */
         $foroptions = [];
@@ -1065,7 +1009,7 @@ class EditHost6
         $success_log = sprintf($log_format, $forreserv['address'],
                                             $forhosts['dhcp_identifier']);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $this->msg_tag['success'] = _('Edit successful!');
     }
 
@@ -1107,10 +1051,9 @@ if (isset($apply)) {
         'dhcp_identifier'      => post('identifier'),
         'address'              => post('ip'),
         'prefix'               => post('prefix'),
-        'domain_name_servers'  => post('domain-name-servers'),
-        'routers'              => post('routers'),
-        'dhcp4_subnet_id'      => get('subnet_id'),
-        'type'                 => post('delegation')
+        'dns_servers'          => post('dns-servers'),
+        'dhcp6_subnet_id'      => get('subnet_id'),
+        'type'                 => post('prefix_reservation')
     ];
 
     $ret = $eh6->validate_post($post);

@@ -49,10 +49,20 @@ class EditShared6 {
         /* Tag */
         $this->msg_tag =  [
                            "e_msg"             => null,
+                           "e_shared_subnet"   => null,
                            "e_shared_name"     => null,
                            "e_old_shared_name" => null,
+                           "e_interface"       => null,
+                           "e_interfaceid"     => null,
+                           "e_relayagent"      => null,
                            "success"           => null
                           ];
+
+        $this->pre = ['sharednetwork' => "",
+                      'interface'     => "",
+                      'interfaceid'   => "",
+                      'relayagent'    => "",
+                      'interfacelist' => [],];
 
         $this->store  = $store;
 
@@ -62,7 +72,7 @@ class EditShared6 {
         /* check config error */
         if ($this->conf->result === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
         }
     }
 
@@ -106,6 +116,12 @@ class EditShared6 {
             return false;
         }
 
+        /* completion of input fields */
+        $sharedconfig = $this->conf->get_shared_params($params['shared_name']);
+        $this->pre['interface'] = isset($sharedconfig['interface']) ? $sharedconfig['interface'] : "";
+        $this->pre['interfaceid'] = isset($sharedconfig['interface-id']) ? $sharedconfig['interface-id'] : "";
+        $this->pre['relayagent'] = isset($sharedconfig['relay']['ip-addresses'][0]) ? $sharedconfig['relay']['ip-addresses'][0] : "";
+
         return true;
     }
     /*************************************************************************
@@ -118,9 +134,11 @@ class EditShared6 {
 
         $new_name = $values['shared_name'];
         $old_name = $values['old_shared_name'];
+        $interface = $values['interface'];
+        $interfaceid = $values['interfaceid'];
 
         /*  define rules */
-         $rules['shared_name'] =
+        $rules['shared_name'] =
            [
             'method' => "exist|sharedname|shared6exist:$new_name:$old_name",
             'msg'    => [
@@ -137,7 +155,7 @@ class EditShared6 {
                         ],
           ];
 
-	$rules['old_shared_name'] =
+        $rules['old_shared_name'] =
           [
            'method' => 'shared6exist:exist_true',
             "msg"=>[
@@ -147,6 +165,56 @@ class EditShared6 {
                      sprintf('Shared-network does not exists.(%s)',
                                                 $values["old_shared_name"]),
                    ],
+          ];
+
+        $rules['interface'] =
+          [
+           'method' => "interface|duplicateifid:$interfaceid",
+           'msg'    => [
+                          _('No such Interface.'),
+                          _('Interface and InterfaceID cannot be used together.'),
+                       ],
+           'log'    => [
+                         sprintf('No such Interface.(%s)'
+                                               ,$values['interface']),
+                         'Interface and InterfaceID cannot be used together.',
+                       ],
+          ];
+
+        $rules['interfaceid'] =
+          [
+           'method' => "interfaceid",
+           'msg'    => [
+                          _('Invalid InerfaceID format.'),
+                       ],
+           'log'    => [
+                         sprintf('Invalid InerfaceID format.(%s)'
+                                               ,$values['interfaceid']),
+                       ],
+          ];
+
+        $rules['relayagent'] =
+          [
+           'method' => 'exist|ipv6',
+           'msg'    => [
+                          '',
+                          _('Invalid  RelayAgent format.'),
+                       ],
+           'log'    => [
+                         '',
+                         sprintf('Invalid RelayAgent format.(%s)'
+                                               ,$values['relayagent']),
+                       ],
+           'option' => ['allowempty']
+          ];
+
+        $rules['shared_subnet'] =
+          [
+           'method' => "existinterface|existinterfaceid|existrelay",
+           'msg'    => [],
+           'log'    => [],
+           'option' => ['continueonfail',
+                        'continueonfail',],
           ];
 
         /* input store into values */
@@ -162,7 +230,6 @@ class EditShared6 {
 
         /* input made message into property */
         $this->msg_tag = array_merge($this->msg_tag, $validater->tags);
-
         /* validation error, output log and return */
         if ($validater->err['result'] === false) {
             $this->store->log->output_log_arr($validater->logs, null);
@@ -184,7 +251,7 @@ class EditShared6 {
         $new_config = $this->conf->delete_shared_network($delete_shared);
         if ($new_config === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -197,7 +264,7 @@ class EditShared6 {
         /* save log to session history */
         $this->conf->save_hist_to_sess($log_msg);
 
-        $this->store->log->log($log_msg, null);
+        $this->store->log->log($log_msg);
 
         return true;
     }
@@ -215,13 +282,13 @@ class EditShared6 {
         $shared_subnet = $this->conf->get_shared_subnet
                                             ($values["old_shared_name"]);
         if (!empty($shared_subnet)) {
-            $this->pre = $values["old_shared_name"];
+            $this->pre['sharednetwork'] = $values["old_shared_name"];
             $this->sharedsubnet = $values["shared_subnet"];
             $this->othersubnet = $values["other_subnet"];
             $this->msg_tag['e_msg'] = _("Subnet exists in shared-network.");
 
             $log_msg = "Subnet exists in shared-network.";
-            $this->store->log->log(sprintf($log_msg), null);
+            $this->store->log->log(sprintf($log_msg));
             return false;
         }
         return true;
@@ -259,6 +326,9 @@ class EditShared6 {
         /* keep validated value into property */
         $this->pre = $validater->err["keys"];
         $this->pre["shared_name"] = $values["old_shared_name"];
+        $this->pre["interface"] = $values["interface"];
+        $this->pre["interfaceid"] = $values["interfaceid"];
+        $this->pre["relayagent"] = $values["relayagent"];
         $this->sharedsubnet = $values["shared_subnet"];
         $this->othersubnet = $values["other_subnet"];
 
@@ -286,7 +356,7 @@ class EditShared6 {
         $new_config = $this->conf->edit_shared_network($postdata);
         if ($new_config === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -299,7 +369,7 @@ class EditShared6 {
         /* save log to session history */
         $this->conf->save_hist_to_sess($log_msg);
 
-        $this->store->log->log($log_msg, null);
+        $this->store->log->log($log_msg);
 
         return true;
     }
@@ -312,13 +382,23 @@ class EditShared6 {
     *************************************************************************/
     public function init_disp($sharedname)
     {
+        /* get network-interfaces */
+        [$ret, $interfaces] = $this->conf->get_interfaces();
+        if ($ret === false)
+        {
+            $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
+            $this->log = $this->conf->err['e_log'];
+            return false;
+        }
+        $this->pre['interfacelist'] = $interfaces;
+
+        /* validate shared name GET param */
         /* fetch all get subnet data */
         $subnet_data = $this->_get_subnet_part($sharedname);
-
         /* failed to fetch other subnet*/
         if ($subnet_data === false) {
             if ($this->log !== "") {
-                $this->store->log->log($this->log, null);
+                $this->store->log->log($this->log);
             }
             return false;
         }
@@ -356,6 +436,7 @@ class EditShared6 {
 
         return true;
     }
+
     /*************************************************************************
     * Method        : display
     * Description   : Method for displaying the template on the screen
@@ -367,6 +448,7 @@ class EditShared6 {
         if ($shared_name !== null) {
             $this->store->view->assign('shared_name', $shared_name);
         }
+
         $this->store->view->assign('shareditem', $this->sharedsubnet);
         $this->store->view->assign('otheritem', $this->othersubnet);
         $this->store->view->assign('pre', $this->pre);
@@ -403,17 +485,36 @@ if (isset($editbtn)) {
         'shared_name'      => post('shared_name'),
         'shared_subnet'    => post('selectleft'),
         'other_subnet'     => post('selectright'),
-	];
+        'interface'        => post('interface'),
+        'interfaceid'      => post('interfaceid'),
+        'relayagent'       => post('relayagent')
+        ];
 
     $ret = $objEditShared6->validate_post($postdata);
     if (!$ret) {
+        $objEditShared6->init_disp($postdata["old_shared_name"]);
         $objEditShared6->display($postdata["old_shared_name"]);
         exit(1);
     }
 
-    $ret = $objEditShared6->edit_shared($postdata);
+    /* make edit data */
+    $relayagent['ip-addresses'] = [];
+    if (!empty($postdata['relayagent'])) {
+        $relayagent['ip-addresses'] = array($postdata['relayagent']);
+    }
+    $editdata = ['old_shared_name' => post('old_shared_name'),
+                 'shared_name'     => post('shared_name'),
+                 'shared_subnet'   => post('selectleft'),
+                 'other_subnet'    => post('selectright'),
+                 'interface'       => post('interface'),
+                 'interface-id'    => post('interfaceid'),
+                 'relay'           => $relayagent,
+                ];
+
+    $ret = $objEditShared6->edit_shared($editdata);
     if ($ret === false) {
-        $objEditShared6->display($postdata["old_shared_name"]);
+        $objEditShared6->init_disp($postdata["old_shared_name"]);
+        $objEditShared6->display($editdata["old_shared_name"]);
         exit(1);
     }
 
@@ -431,11 +532,13 @@ if (isset($editbtn)) {
         'shared_name'      => post('shared_name'),
         'shared_subnet'    => post('selectleft'),
         'other_subnet'     => post('selectright'),
+        'interface'        => post('interface'),
+        'interfaceid'      => post('interfaceid'),
+        'relayagent'       => post('relayagent'),
         ];
 
     /* check exist shared_network */
     $ret = $objEditShared6->check_exist_shared($postdata);
-
     /* validation error */
     if ($ret === false) {
         $objEditShared6->init_disp($postdata["old_shared_name"]);
@@ -472,7 +575,6 @@ if (isset($editbtn)) {
         'shared_name'    => $sharedname,
     ];
 
-    /* validate shared name GET param */
     if ($objEditShared6->validate_params($shared_params) === false) {
         $objEditShared6->display();
         exit(1);

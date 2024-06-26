@@ -75,6 +75,8 @@
           <div class="row">
             <!-- エラーメッセージ -->
             <div class="ErrorMessage">
+              {$e_ipaddr}{call br var=$e_ipaddr}
+              {$e_identifier}{call br var=$e_identifier}
               {$e_ldate1}{call br var=$e_ldate1}
               {$e_ldate2}{call br var=$e_ldate2}
               {$e_edate1}{call br var=$e_edate1}
@@ -129,20 +131,20 @@
                   <div class="form-group">
                     <label class="col-sm-3 control-label text-nowrap" for="lease_date">{t}Lease date{/t}</label>
                     <div class="col-sm-4">
-                      <input type="text" class="form-control" id="lease_date1" name="ldate1" placeholder="start date:2017-01-01">
+                      <input type="text" class="form-control" id="lease_date1" name="ldate1" placeholder="start date:2024-01-01">
                     </div>
                     <div class="col-sm-4">
-                      <input type="text" class="form-control" id="lease_date2" name="ldate2" placeholder="end date:2017-01-31">
+                      <input type="text" class="form-control" id="lease_date2" name="ldate2" placeholder="end date:2024-01-31">
                     </div>
                   </div>
                 
                   <div class="form-group">
                     <label class="col-sm-3 control-label text-nowrap" for="expire_date">{t}Expire date{/t}</label>
                     <div class="col-sm-4">
-                      <input type="text" class="form-control" id="expire_date1" name="edate1" placeholder="start date:2017-01-01">
+                      <input type="text" class="form-control" id="expire_date1" name="edate1" placeholder="start date:2024-01-01">
                     </div>
                     <div class="col-sm-4">
-                      <input type="text" class="form-control" id="expire_date2" name="edate2" placeholder="end date:2017-01-31">
+                      <input type="text" class="form-control" id="expire_date2" name="edate2" placeholder="end date:2024-01-31">
                     </div>
                   </div>
   

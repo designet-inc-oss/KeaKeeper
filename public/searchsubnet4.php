@@ -28,7 +28,7 @@ require "../bootstrap.php";
 * args           : $store
 *****************************************************************************/
 class SearchSubnet4 {
-    public $subnets = null;
+    public $subnets = [];
     public $conf;
     private $store;
     private $pre;
@@ -59,7 +59,7 @@ class SearchSubnet4 {
         /* check config error */
         if ($this->conf->result === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
         }
     }
 
@@ -149,15 +149,15 @@ class SearchSubnet4 {
     public function init_disp()
     {
         /* fetch all subnet4 */
-        $subnets = $this->_get_subnet4();
+        [$ret, $subnets] = $this->_get_subnet4();
 
         /* failed to fetch subnet4 */
-        if ($subnets === false) {
-            $this->store->log->log($this->log, null);
+        if ($ret === false) {
+            $this->store->log->log($this->log);
             return false;
         }
 
-        $this->subnets = $subnets;
+	$this->subnets = $subnets;
         return true;
     }
 
@@ -182,16 +182,15 @@ class SearchSubnet4 {
         }
 
         /* search subnet4 by passed condition */
-        $subnets = $this->_get_subnet4($condition, $del_action);
+        [$ret, $subnets] = $this->_get_subnet4($condition, $del_action);
 
         /* failed to fetch subnet4 */
-        if ($subnets === false) {
-            $this->store->log->log($this->log, null);
+        if ($ret === false) {
+            $this->store->log->log($this->log);
             return true;
         }
 
-        /* keep searched data */
-        $this->subnets = $subnets;
+	$this->subnets = $subnets;
         return true;
     }
 
@@ -208,10 +207,10 @@ class SearchSubnet4 {
 
         /* get subnet part only */
         $conf_all_subnet = $this->conf->mk_arr_all_subnet($this->conf->dhcp4);
-
         /* loop all subnet in config */
         foreach ($conf_all_subnet as $shnet => $conf_subnet) {
             foreach ($conf_subnet as $one_subnet) {
+                /* get subnet id */
                 if(isset($one_subnet[STR_SUBNET])) {
                     if ($one_subnet[STR_SUBNET] === $subnet) {
                         $subnet_id = $one_subnet[STR_ID];
@@ -221,7 +220,7 @@ class SearchSubnet4 {
                 }
             }
         }
- 
+
         /* save input data */
         $this->pre = $params;
 
@@ -229,8 +228,24 @@ class SearchSubnet4 {
         if (!$flg_found) {
             $log_format = "Subnet delete target do not exist in config(%s).";
             $log_msg = sprintf($log_format, $subnet);
-            $this->store->log->log($log_msg, null);
+            $this->store->log->log($log_msg);
             $msg = _('Subnet delete target do not exist in config(%s).');
+            $this->msg_tag['e_subnet_del'] = sprintf($msg, $subnet);
+            return false;
+        }
+
+        /* search option82 setting */
+        [$ret, $conf_del_subnet] = $this->conf->get_one_subnet($subnet);
+        if (isset($conf_del_subnet[STR_POOLS])) {
+            [$opt82_found, $pools] = $this->conf->survey_option82_pools($conf_del_subnet[STR_POOLS], 'search');
+        }
+ 
+        /* deletion target has option82 setting */
+        if ($opt82_found) {
+            $log_format = "Since the option82 remains in the subnet, can not delete.(%s)";
+            $log_msg = sprintf($log_format, $subnet);
+            $this->store->log->log($log_msg);
+            $msg = _('Since the option82 remains in the subnet, can not delete.(%s)');
             $this->msg_tag['e_subnet_del'] = sprintf($msg, $subnet);
             return false;
         }
@@ -250,10 +265,10 @@ class SearchSubnet4 {
 
         /* greater than 0, already exists */
         if (max($ret[0]) > 0) {
-            $log_format = "Since the host remains in the subnet, can not delete(%s).";
+            $log_format = "Since the host remains in the subnet, can not delete.(%s)";
             $log_msg = sprintf($log_format, $subnet);
-            $this->store->log->log($log_msg, null);
-            $msg = _('Since the host remains in the subnet, can not delete(%s).');
+            $this->store->log->log($log_msg);
+            $msg = _('Since the host remains in the subnet, can not delete.(%s)');
             $this->msg_tag['e_subnet_del'] = sprintf($msg, $subnet);
             return false;
         }
@@ -270,10 +285,10 @@ class SearchSubnet4 {
     public function delete_subnet($subnet)
     {
         /* delete subnet in config */
-        $new_config = $this->conf->del_subnet($subnet);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->del_subnet($subnet);
+        if ($ret === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -286,7 +301,7 @@ class SearchSubnet4 {
         /* save log to session history */
         $this->conf->save_hist_to_sess($success_log);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $msg = _('Subnet deleted successfullly.(%s)');
         $this->msg_tag['success'] = sprintf($msg, $subnet);
 
@@ -298,22 +313,22 @@ class SearchSubnet4 {
     * Description   : Method for get subnet4 data
     * args          : $cond       - search condition
     *                 $del_action - in delete subnet mode
-    * return        : fetched $subnets or false
+    * return        : true or false
     *************************************************************************/
     private function _get_subnet4($cond = null, $del_action = false)
     {
         /* decide whether to all or search subnet */
         if ($cond === null) {
-            $subnets = $this->conf->search_subnet4();
+            [$ret, $subnets] = $this->conf->search_subnet4();
         } else {
-            $subnets = $this->conf->search_subnet4($cond['subnet'], 'foward');
+            [$ret, $subnets] = $this->conf->search_subnet4($cond['subnet'], 'foward');
         }
 
         /* failed to search subnet */
-        if ($subnets === false) {
+        if ($ret === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
             $this->log = $this->conf->err['e_log'];
-            return false;
+            return [false, []];
         }
 
         /* sort subnets by id */
@@ -323,6 +338,10 @@ class SearchSubnet4 {
                 is_array($subnets[$i][STR_POOLS])) {
                 $pool_data = [];
                 foreach ($subnets[$i][STR_POOLS] as $pool) {
+                    /* Exclude pool for option82 */
+                    if (isset($pool[STR_CLIENT_CLASS]) && preg_match('/^opt82_/', $pool[STR_CLIENT_CLASS]) == 1) {
+                        continue;
+                    }
                     if (isset($pool[STR_POOL])) {
                         list($pool_min, $pool_max) = get_kea_pool_v4($pool[STR_POOL]); 
                         $pool_data[] = $pool_min. '-'. $pool_max; 
@@ -337,7 +356,8 @@ class SearchSubnet4 {
         /* sort subnet id by ASC */
         array_multisort($sort, SORT_ASC, SORT_NATURAL, $subnets);
 
-        return $subnets;
+        /* keep searched data */
+        return [true, $subnets];
     }
 
     /*************************************************************************
@@ -351,7 +371,7 @@ class SearchSubnet4 {
         if ($subnets !== null) {
             $this->store->view->assign('item', $subnets);
         }
-        $this->store->view->assign('result', count($subnets));
+        $this->store->view->assign('result', count_array($subnets));
         $this->store->view->assign('pre', $this->pre);
         $this->store->view->render("searchsubnet4.tmpl", $this->msg_tag);
     }

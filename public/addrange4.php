@@ -33,30 +33,34 @@ class AddRange4 {
     /*
      * constant message
      */
-    const MSG_IPSTART_EMPTY     = 'Please enter Start IP address.';
-    const MSG_IPSTART_INVALID   = 'Invalid Start IP address.';
-    const MSG_IPSTART_OUT_RANGE = 'Start IP address out of subnet range.';
-    const MSG_IPSTART_OVERLAP  = 'Start IP address overlaps.';
+    const MSG_IPSTART_EMPTY         = 'Please enter Pool IP address range(start).';
+    const MSG_IPSTART_INVALID       = 'Invalid Pool IP address range(start).';
+    const MSG_IPSTART_OUT_RANGE     = 'Pool IP address range(start) out of subnet range.';
+    const MSG_IPSTART_OVERLAP       = 'Pool IP address range(start) overlaps.';
 
-    const MSG_IPEND_EMPTY       = 'Please enter End IP address.';
-    const MSG_IPEND_INVALID     = 'Invalid End IP address.';
-    const MSG_IPEND_OUT_RANGE   = 'End IP address out of subnet range.';
-    const MSG_IPEND_OVERLDAP    = 'End IP address overlaps.';
-    const MSG_IPEND_SMALLER     = 'Start IP address greater then End IP address.';
+    const MSG_IPEND_EMPTY           = 'Please enter Pool IP address range(end).';
+    const MSG_IPEND_INVALID         = 'Invalid Pool IP address range(end).';
+    const MSG_IPEND_OUT_RANGE       = 'Pool IP address range(end) out of subnet range.';
+    const MSG_IPEND_OVERLDAP        = 'Pool IP address range(end) overlaps.';
+    const MSG_IPEND_SMALLER         = 'Pool IP address range(start) greater then Pool IP address range(end).';
+
+    const MSG_IPSTART_IPEND_INCLUDE = 'Pool IP address range includes used pools.';
 
     /*
      * constant log
      */
-    const LOG_IPSTART_EMPTY     = 'Empty Start IP address.';
-    const LOG_IPSTART_INVALID   = 'Invalid Start IP address(%s)';
-    const LOG_IPSTART_OUT_RANGE = 'Start IP address out of subnet range(%s)';
-    const LOG_IPSTART_OVERLDAP  = 'Start IP address overlaps.(%s)';
+    const LOG_IPSTART_EMPTY         = 'Empty Pool IP address range(start).';
+    const LOG_IPSTART_INVALID       = 'Invalid Pool IP address range(start)(%s)';
+    const LOG_IPSTART_OUT_RANGE     = 'Pool IP address range(start) out of subnet range(%s)';
+    const LOG_IPSTART_OVERLDAP      = 'Pool IP address range(start) overlaps.(%s)';
 
-    const LOG_IPEND_EMPTY       = 'Empty End IP address.';
-    const LOG_IPEND_INVALID     = 'Invalid End IP address(%s)';
-    const LOG_IPEND_OUT_RANGE   = 'End IP address out of subnet range(%s)';
-    const LOG_IPEND_OVERLDAP    = 'End IP address overlaps.(%s)';
-    const LOG_IPEND_SMALLER     = 'Start IP address greater then End IP address(%s)(%s).';
+    const LOG_IPEND_EMPTY           = 'Empty Pool IP address range(end).';
+    const LOG_IPEND_INVALID         = 'Invalid Pool IP address range(end)(%s)';
+    const LOG_IPEND_OUT_RANGE       = 'Pool IP address range(end) out of subnet range(%s)';
+    const LOG_IPEND_OVERLDAP        = 'Pool IP address range(end) overlaps.(%s)';
+    const LOG_IPEND_SMALLER         = 'Pool IP address range(start) greater then Pool IP address range(end)(%s)(%s).';
+
+    const LOG_IPSTART_IPEND_INCLUDE = 'Pool IP address range includes used pools(%s)(%s).';
 
     /*
      * properties
@@ -129,11 +133,11 @@ class AddRange4 {
             "method"=>"exist|subnet4exist:exist_true",
             "msg"=>[
                  _('Can not find a subnet.'),
-                 _('Subnet do not exit in config.'),
+                 _('Subnet does not exist in config.'),
              ],
              "log"=>[
                   'Can not find a subnet in GET parameters.',
-                  sprintf('Subnet do not exist in config.(%s)', $params["subnet"]),
+                  sprintf('Subnet does not exist in config.(%s)', $params["subnet"]),
              ],
         ];
 
@@ -164,6 +168,7 @@ class AddRange4 {
         $subnet = $values["subnet"];
         $start  = $values["poolstart"];
 
+	/* check the validity of the IP address. */
         $rules["poolstart"] = ["method"=>"exist|ipv4|insubnet4:$subnet|ipv4overlap",
                                 "msg"=>[
                                    _(AddRange4::MSG_IPSTART_EMPTY),
@@ -178,20 +183,18 @@ class AddRange4 {
                                   sprintf(AddRange4::LOG_IPSTART_OVERLDAP, $values['poolstart']),
                                 ],
                               ];
-        $rules["poolend"] = ["method"=>"exist|ipv4|insubnet4:$subnet|ipv4overlap|greateripv4:$start",
+        $rules["poolend"] = ["method"=>"exist|ipv4|insubnet4:$subnet|ipv4overlap",
                                "msg"=>[
                                  _(AddRange4::MSG_IPEND_EMPTY),
                                  _(AddRange4::MSG_IPEND_INVALID),
                                  _(AddRange4::MSG_IPEND_OUT_RANGE),
                                  _(AddRange4::MSG_IPEND_OVERLDAP),
-                                 _(AddRange4::MSG_IPEND_SMALLER),
                                ],
                                "log"=>[
                                  AddRange4::LOG_IPEND_EMPTY,
                                  sprintf(AddRange4::LOG_IPEND_INVALID, $values['poolend']),
                                  sprintf(AddRange4::LOG_IPEND_OUT_RANGE, $values['poolend']),
                                  sprintf(AddRange4::LOG_IPEND_OVERLDAP, $values['poolend']),
-                                 sprintf(AddRange4::LOG_IPEND_SMALLER, $values['poolend'], $values['poolend']),
                                ],
                             ];
 
@@ -203,6 +206,29 @@ class AddRange4 {
 
         /* keep subnet */
         $this->msg_tag['subnet'] = $subnet;
+        $this->err_tag2 = $validater->tags;
+
+        /* When validation check fails */
+        if ($validater->err['result'] === false) {
+            $this->store->log->output_log_arr($validater->logs);
+            return false;
+        }
+
+        /* check start and end ranges.  */
+        $rules["poolend"] = ["method"=>"greateripv4:$start|includepool:$start:$subnet",
+                               "msg"=>[
+                                 _(AddRange4::MSG_IPEND_SMALLER),
+                                 _(AddRange4::MSG_IPSTART_IPEND_INCLUDE),
+                               ],
+                               "log"=>[
+                                 sprintf(AddRange4::LOG_IPEND_SMALLER, $values['poolstart'], $values['poolend']),
+                                 sprintf(AddRange4::LOG_IPSTART_IPEND_INCLUDE, $values['poolstart'], $values['poolend']),
+                               ],
+                            ];
+
+        /* crearte object validater */
+        $validater = new validater($rules, $values, true);
+
         $this->err_tag2 = $validater->tags;
 
         /* When validation check fails */
@@ -226,17 +252,17 @@ class AddRange4 {
         $new_pool[STR_POOL] = $pooldata["poolstart"]. "-". $pooldata["poolend"];
 
         /* delete pool in this subnet */
-        $new_config = $this->conf->add_range($subnet, $new_pool);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->add_range($subnet, $new_pool);
+        if ($ret === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return;
         }
 
         /* save new config to session */
         $this->conf->save_conf_to_sess($new_config);
 
-        $log_msg = "Range added.(%s)(%s)";
+        $log_msg = "Pool IP address range added.(%s)(%s)";
         $log_msg = sprintf($log_msg, $subnet,
                           $pooldata["poolstart"]. "-". $pooldata["poolend"]);
 
@@ -244,7 +270,7 @@ class AddRange4 {
         $this->conf->save_hist_to_sess($log_msg);
 
         $this->store->log->output_log($log_msg);
-        $this->msg_tag['disp_msg'] = _("Range added.");
+        $this->msg_tag['disp_msg'] = _("Pool IP address range added.");
 
         return;
     }

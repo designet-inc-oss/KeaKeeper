@@ -130,7 +130,7 @@
                         {t}Subnet{/t}
                       </th>
                       <th>
-                        {t}Pool IP addresses{/t}
+                        {t}Pool IP address range{/t}
                       </th>
                       <th>
                         {* Edit button *}
@@ -154,7 +154,7 @@
                         <td data-title="Subnet">
                           {$info.subnet}
                         </td>
-                        <td data-title="Pool IP addresses">
+                        <td data-title="Pool IP address range">
                           {foreach from=$info.pools item=tmp}
                             {foreach from=$tmp item=pool}
                               {$pool}<br>
@@ -162,13 +162,16 @@
                           {/foreach}
                         </td>
                         <td data-title="Edit button">
+                          <button type="button" onClick="location.href='editsubnetconfig6.php?subnet_id={$info.id|escape:"url"}&subnet={$info.subnet|escape:"url"}'">{t}Edit Config{/t}</button>
+                          <button type="button" onClick="location.href='editsubnet6.php?subnet={$info.subnet|escape:"url"}'">{t}Edit option{/t}</button>
+                          <button type="button" onClick="location.href='listrange6.php?subnet={$info.subnet|escape:"url"}'">{t}Edit Pool IP address range{/t}</button>
+                          <br>
                           {if $info.id ne ''}
                             <button type="button" onClick="location.href='searchhost6.php?subnet_id={$info.id|escape:"url"}&subnet={$info.subnet|escape:"url"}'">{t}Edit host{/t}</button>
                           {else}
                             <button type="button" onClick="location.href='searchhost6.php?subnet_id={$info.id|escape:"url"}&subnet={$info.subnet|escape:"url"}'" disabled=disabled>{t}Edit{/t}</button>
                           {/if}
-                          <button type="button" onClick="location.href='listrange6.php?subnet={$info.subnet|escape:"url"}'">{t}Edit range{/t}</button>
-                          <button type="button" onClick="location.href='editsubnet6.php?subnet={$info.subnet|escape:"url"}'">{t}Edit option{/t}</button>
+                          <button type="button" onClick="location.href='listpd.php?subnet={$info.subnet|escape:"url"}'">{t}PD config{/t}</button>
                         </td>
                      </tr>
                     {/foreach}

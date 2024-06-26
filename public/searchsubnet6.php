@@ -59,7 +59,21 @@ class SearchSubnet6 {
         /* check config error */
         if ($this->conf->result === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
+        }
+    }
+
+    /*************************************************************************
+    * Method        : msg_set
+    * Description   : Method for when values are received.
+    * args          : $mst
+    * return        : None
+    **************************************************************************/
+    public function msg_set($msg)
+    {
+        if ($msg === "edit_ok") {
+            $this->msg_tag["success"] =
+                                _("Subnet config edited successfully.");
         }
     }
 
@@ -174,7 +188,7 @@ class SearchSubnet6 {
         if (!$flg_found) {
             $log_format = "Subnet delete target do not exist in config(%s).";
             $log_msg = sprintf($log_format, $subnet);
-            $this->store->log->log($log_msg, null);
+            $this->store->log->log($log_msg);
             $msg = _('Subnet delete target do not exist in config(%s).');
             $this->msg_tag['e_subnet_del'] = sprintf($msg, $subnet);
             return false;
@@ -198,7 +212,7 @@ class SearchSubnet6 {
         if (max($ret[0]) > 0) {
             $log_format = "Since the host remains in the subnet, can not delete(%s).";
             $log_msg = sprintf($log_format, $subnet);
-            $this->store->log->log($log_msg, null);
+            $this->store->log->log($log_msg);
             $msg = _('Since the host remains in the subnet, can not delete(%s).');
             $this->msg_tag['e_subnet_del'] = sprintf($msg, $subnet);
             return false;
@@ -216,10 +230,10 @@ class SearchSubnet6 {
     public function delete_subnet($subnet)
     {
         /* delete subnet in config */
-        $new_config = $this->conf->del_subnet($subnet);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->del_subnet($subnet);
+        if ($ret === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -232,7 +246,7 @@ class SearchSubnet6 {
         /* save log to session history */
         $this->conf->save_hist_to_sess($success_log);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $msg = _('Subnet deleted successfullly.(%s)');
         $this->msg_tag['success'] = sprintf($msg, $subnet);
 
@@ -247,11 +261,11 @@ class SearchSubnet6 {
     public function init_disp()
     {
         /* fetch all subnet6 */
-        $subnets = $this->_get_subnet6();
+        [$ret, $subnets] = $this->_get_subnet6();
 
         /* failed to fetch subnet6 */
-        if ($subnets === false) {
-            $this->store->log->log($this->log, null);
+        if ($ret === false) {
+            $this->store->log->log($this->log);
             return false;
         }
 
@@ -285,11 +299,11 @@ class SearchSubnet6 {
         }
 
         /* search subnet6 by passed condition */
-        $subnets = $this->_get_subnet6($condition, $del_action);
+        [$ret, $subnets] = $this->_get_subnet6($condition, $del_action);
 
         /* failed to fetch subnet6 */
-        if ($subnets === false) {
-            $this->store->log->log($this->log, null);
+        if ($ret === false) {
+            $this->store->log->log($this->log);
             return true;
         }
 
@@ -315,16 +329,16 @@ class SearchSubnet6 {
     {
         /* decide whether to all or search subnet */
         if ($cond === null) {
-            $subnets = $this->conf->search_subnet6();
+            [$ret, $subnets] = $this->conf->search_subnet6();
         } else {
-            $subnets = $this->conf->search_subnet6($cond['subnet'], 'foward');
+            [$ret, $subnets] = $this->conf->search_subnet6($cond['subnet'], 'foward');
         }
 
         /* failed to search subnet */
-        if ($subnets === false) {
+        if ($ret === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
             $this->log = $this->conf->err['e_log'];
-            return false;
+            return [false, []];
         }
 
         /* sort subnets by id */
@@ -347,7 +361,7 @@ class SearchSubnet6 {
         }
         array_multisort($sort, SORT_ASC, SORT_NATURAL, $subnets);
 
-        return $subnets;
+        return [true, $subnets];
     }
 
     /*************************************************************************
@@ -361,7 +375,7 @@ class SearchSubnet6 {
         if ($subnets !== null) {
             $this->store->view->assign('item', $subnets);
         }
-        $this->store->view->assign('result', count($subnets));
+        $this->store->view->assign('result', count_array($subnets));
         $this->store->view->assign('pre', $this->pre);
         $this->store->view->render("searchsubnet6.tmpl", $this->msg_tag);
     }
@@ -378,6 +392,14 @@ $sub6 = new SearchSubnet6($store);
 if ($sub6->conf->result === false) {
     $sub6->display();
     exit;
+}
+
+/************************************
+ * message section
+ ************************************/
+$msg = get('msg');
+if ($msg !== NULL) {
+    $sub6->msg_set($msg);
 }
 
 /**********************************

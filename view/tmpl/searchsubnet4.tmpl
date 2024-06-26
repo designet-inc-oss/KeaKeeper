@@ -70,6 +70,8 @@
               <div class="table-bordered"> 
                 <ul>
                   <li>{t}Search subnet with forward match.{/t}</li>
+                  <li>{t}Options Settings is a screen for setting options for the subnet.{/t}</li>
+                  <li>{t}Option82 Settings is a screen for setting the client class and Pool IP address range for which option82 information is used.{/t}</li>
                 </ul>
               </div>
             </div>
@@ -130,7 +132,7 @@
                         {t}Subnet{/t}
                       </th>
                       <th>
-                        {t}Pool IP addresses{/t}
+                        {t}Pool IP address range{/t}
                       </th>
                       <th>
                         {* Edit button *}
@@ -154,7 +156,7 @@
                         <td data-title="Subnet">
                           {$info.subnet}
                         </td>
-                        <td data-title="Pool IP addresses">
+                        <td data-title="Pool IP address range">
                           {foreach from=$info.pools item=tmp}
                             {foreach from=$tmp item=pool}
                               {$pool}<br>
@@ -167,8 +169,9 @@
                           {else}
                             <button type="button" onClick="location.href='searchhost4.php?subnet_id={$info.id|escape:"url"}&subnet={$info.subnet|escape:"url"}'" disabled=disabled>{t}Edit host{/t}</button>
                           {/if}
-                          <button type="button" onClick="location.href='listrange4.php?subnet={$info.subnet|escape:"url"}'">{t}Edit range{/t}</button>
+                          <button type="button" onClick="location.href='listrange4.php?subnet={$info.subnet|escape:"url"}'">{t}Edit Pool IP address range{/t}</button>
                           <button type="button" onClick="location.href='editsubnet4.php?subnet={$info.subnet|escape:"url"}'">{t}Edit option{/t}</button>
+                          <button type="button" onClick="location.href='listoption82.php?subnet={$info.subnet|escape:"url"}'">{t}Edit option82 setting{/t}</button>
                         </td>
                      </tr>
                     {/foreach}

@@ -99,11 +99,11 @@ class EditSubnet4 {
             "method"=>"exist|subnet4exist:exist_true",
             "msg"=> [
                  _('Can not find a subnet.'),
-                 _('Subnet do not exit in config.'),
+                 _('Subnet does not exist in config.'),
              ],
              "log"=> [
                  'Can not find a subnet in GET parameters.',
-                 sprintf('Subnet do not exist in config.(%s)', $params["subnet"]),
+                 sprintf('Subnet does not exist in config.(%s)', $params["subnet"]),
             ],
         ];
 
@@ -137,6 +137,14 @@ class EditSubnet4 {
         $router_str    = $values['routers'];
         $dnsserver_str = $values['dnsserveraddr'];
 
+        if (empty($router_str) && empty($dnsserver_str)) {
+            $this->msg_tag['e_msg'] = _('Please enter routers or domain-name-servers.');
+            $this->store->log->log('Please enter routers or domain-name-servers.');
+
+            return false;
+        } 
+
+
         if (strpos($router_str, ',') !== false) {
             $arr_router = explode(',', $router_str);
         } else {
@@ -164,6 +172,7 @@ class EditSubnet4 {
                                       'Invalid routers(' . $router_str. ').', 
                                       'Router out of subnet range(' . $dnsserver_str. ').',
                                     ],
+                                    "option"=>['allowempty'],
                                ];
 
             $validater = new validater($rules, $data_check, true);
@@ -200,6 +209,7 @@ class EditSubnet4 {
                                           'Invalid DNS Server Address.(' . $dnsserver_str . ')', 
                                           'DNS Server Address. out of subnet range(' . $dnsserver_str . ').',
                                          ],
+                                        "option"=>['allowempty'],
                                      ];
             $validater = new validater($rules, $data_check, true);
             /* keep validated value into property */
@@ -288,7 +298,7 @@ class EditSubnet4 {
         /* display in extra option part only */
         $extra_option = [];     
 
-        $optiondata = $this->conf->get_options($subnet);
+        [$ret, $optiondata] = $this->conf->get_options($subnet);
 
         foreach ($optiondata as $optdata) {
             if ($optdata['name'] === 'routers') {
@@ -325,22 +335,26 @@ class EditSubnet4 {
      *************************************************************************/
     public function add_options($subnet, $postdata)
     {
-        $new_opt_data = [
-           0 => [
-                  STR_OPT_NAME  => 'routers',
-                  STR_OPT_VALUE => $postdata['routers'],
-                ],
-           1 => [
-                  STR_OPT_NAME   => 'domain-name-servers',
-                  STR_OPT_VALUE  => $postdata['dnsserveraddr'],
-                ],
-         ];
+        $new_opt_data = [];
+        if (!empty($postdata['routers'])) {
+            $new_opt_data[] = [
+                STR_OPT_NAME  => 'routers',
+                STR_OPT_VALUE  => $postdata['routers'],
+            ];
+        }
+
+        if (!empty($postdata['dnsserveraddr'])) {
+            $new_opt_data[] = [
+                STR_OPT_NAME  => 'domain-name-servers',
+                STR_OPT_VALUE  => $postdata['dnsserveraddr'],
+            ];
+        }
 
         /* add option data to current config */
-        $new_config = $this->conf->add_option($subnet, $new_opt_data);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->add_option($subnet, $new_opt_data);
+        if ($ret === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -378,10 +392,10 @@ class EditSubnet4 {
          ];
 
         /* add option data to current config */
-        $new_config = $this->conf->add_option($subnet, $new_opt_data);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->add_option($subnet, $new_opt_data);
+        if ($ret === false) {
             $this->err_tag['e_msg_extra'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -413,10 +427,10 @@ class EditSubnet4 {
         $array_opt_del = ['domain-name-servers', 'routers'];
 
         /* add option data to current config */
-        $new_config = $this->conf->del_option($subnet, $array_opt_del);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->del_option($subnet, $array_opt_del);
+        if ($ret === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -451,8 +465,8 @@ class EditSubnet4 {
         $array_opt_del = [$optionname];
 
         /* add option data to current config */
-        $new_config = $this->conf->del_option($subnet, $array_opt_del);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->del_option($subnet, $array_opt_del);
+        if ($ret === false) {
             $this->err_tag['e_msg_extra'] = $this->conf->err['e_msg'];
             $this->store->log->log($this->conf->err['e_log'], null);
             return false;

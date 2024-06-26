@@ -29,18 +29,31 @@
 
 {if isset($subnet_val)}
   {$sub=$subnet_val.subnet}
-  {$subid=$subnet_val.subnet_id}
-  {$side_searchhost4 = [
-      ['searchhost4', 'Search IP reservation', "searchhost4.php?subnet_id=$subid&subnet=$sub"],
-      ['addhost4', 'Add IP reservation', "addhost4.php?subnet_id=$subid&subnet=$sub"]
+  {if isset($subnet_val.subnet_id)}
+    {$subid=$subnet_val.subnet_id}
+    {$side_searchhost4 = [
+        ['searchhost4', 'Search IP reservation', "searchhost4.php?subnet_id=$subid&subnet=$sub"],
+        ['addhost4', 'Add IP reservation', "addhost4.php?subnet_id=$subid&subnet=$sub"]
+    ]}
+    {$side_listrange4 = [
+        ['listrange4', 'List Pool IP address range', "listrange4.php?subnet=$subnet"],
+        ['addrange4', 'Add Pool IP address range', "addrange4.php?subnet=$subnet"]
+    ]}
+    {$side_searchhost6 = [
+        ['searchhost6', 'Search IP reservation', "searchhost6.php?subnet_id=$subid&subnet=$sub"],
+        ['addhost6', 'Add IP reservation', "addhost6.php?subnet_id=$subid&subnet=$sub"]
+    ]}
+  {/if}
+  {$side_listpd = [
+      ['listpd', 'List Prefix delegation', "listpd.php?subnet=$sub"],
+      ['addpd', 'Add Prefix delegation', "addpd.php?subnet=$sub"]
   ]}
-  {$side_listrange4 = [
-      ['listrange4', 'List range', "listrange4.php?subnet=$subnet"],
-      ['addrange4', 'Add range', "addrange4.php?subnet=$subnet"]
-  ]}
-  {$side_searchhost6 = [
-      ['searchhost6', 'Search IP reservation', "searchhost6.php?subnet_id=$subid&subnet=$sub"],
-      ['addhost6', 'Add IP reservation', "addhost6.php?subnet_id=$subid&subnet=$sub"]
+{/if}
+
+{if isset($subnet)}
+  {$side_listoption82 = [
+    ['listoption82', 'List Option82 setting', "listoption82.php?subnet=$subnet"],
+    ['addoption82', 'Add Option82 setting', "addoption82.php?subnet=$subnet"]
   ]}
 {/if}
 

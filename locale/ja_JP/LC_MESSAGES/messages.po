@@ -17,362 +17,255 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: /home/nisimura/DGN_keaweb/class/keaconf.php:50
 #, php-format
-msgid "No subnet4 setting(%s)."
-msgstr "サブネットがありません(%s)。"
+msgid "No subnet4 setting."
+msgstr "サブネットがありません。"
 
-#: /home/nisimura/DGN_keaweb/class/keaconf.php:95
 msgid "No search result for subnet4."
 msgstr "subnet4の設定を取得できませんでした。"
 
-#: /home/nisimura/DGN_keaweb/class/keaconf.php:114
 #, php-format
-msgid "No subnet6 setting(%s)."
-msgstr "サブネットがありません(%s)。"
+msgid "No subnet6 setting."
+msgstr "サブネットがありません。"
 
-#: /home/nisimura/DGN_keaweb/class/keaconf.php:123
 #, php-format
 msgid "No such subnet(%s)"
 msgstr "サブネットが存在しません(%s)。"
 
-#: /home/nisimura/DGN_keaweb/class/keaconf.php:132
 #, php-format
 msgid "No such subnet id(%s)"
 msgstr "サブネットIDが存在しません(%s)。"
 
-#: /home/nisimura/DGN_keaweb/class/keaconf.php:178
 #, php-format
 msgid "No such file(%s)."
 msgstr "ファイルが存在しません(%s)。"
 
-#: /home/nisimura/DGN_keaweb/class/keaconf.php:187
 #, php-format
 msgid "Cannot read file(%s)."
 msgstr "ファイルが読み込めません(%s)。"
 
-#: /home/nisimura/DGN_keaweb/class/keaconf.php:235
 #, php-format
 msgid "Cannot read file. Syntax error?(%s)"
 msgstr "ファイルが読み込めません。シンタックスに問題がある可能性があります(%s)。"
 
-#: /home/nisimura/DGN_keaweb/public/password.php:52
 msgid "Password changed."
 msgstr "パスワードを変更しました。"
 
-#: /home/nisimura/DGN_keaweb/public/password.php:66
 msgid "Please enter Password."
 msgstr "パスワードを入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/password.php:67
 msgid "Password too short."
 msgstr "パスワードが短すぎます。"
 
-#: /home/nisimura/DGN_keaweb/public/password.php:68
 msgid "Password too long."
 msgstr "パスワードが長すぎます。"
 
-#: /home/nisimura/DGN_keaweb/public/password.php:69
 msgid "Invalid password."
 msgstr "パスワードに利用できない文字が含まれています。"
 
-#: /home/nisimura/DGN_keaweb/public/password.php:82
 msgid "Please enter confirm password."
 msgstr "確認用パスワードを入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/password.php:83
 msgid "Password does not match."
 msgstr "確認用パスワードが一致しません。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:84
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:129
-#: /home/nisimura/DGN_keaweb/public/searchhost4.php:147
 msgid "Can not find a subnet id."
 msgstr "サブネットIDが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:88
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:133
-#: /home/nisimura/DGN_keaweb/public/searchhost4.php:151
 msgid "Can not find a subnet."
 msgstr "サブネットが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:116
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:165
 msgid "Invalid hostname."
 msgstr "ホスト名に利用できない文字が含まれています。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:117
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:166
 msgid "Hostname already exists."
 msgstr "ホスト名が既に使われています。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:127
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:175
 msgid "Please enter type."
 msgstr "識別子のタイプを入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:128
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:176
 msgid "Invalid type of identifier."
 msgstr "識別子のタイプに利用できない文字が含まれています。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:150
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:198
 msgid "Please enter Identifier."
 msgstr "識別子を入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:151
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:152
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:199
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:200
 msgid "Invalid identifier."
 msgstr "識別子が利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:153
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:201
 msgid "Identifier already exists."
 msgstr "識別子が既に使われています。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:168
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:216
 msgid "Please enter IP address."
 msgstr "IPアドレスを入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost6.php:173
-msgid "Please enter prefix."
-msgstr "プレフィックスを入力してください。"
+msgid "Please enter prefix length."
+msgstr "プレフィックス長を入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost6.php:379
 msgid "Cannot find address."
 msgstr "addressが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost6.php:379
 msgid "Cannot find prefix_len."
 msgstr "prefix_lenが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost6.php:379
 msgid "Cannot find type."
 msgstr "typeが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost6.php:86
 msgid "Invalid subnet."
 msgstr "サブネットが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:86
 msgid "Invalid pool."
 msgstr "プールが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost6.php:172
-msgid "Please enter prefix delegation."
-msgstr "prefix delegationを入力してください。"
+msgid "Please enter reservation mode."
+msgstr "ホスト予約のモードを入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost6.php:173
-msgid "Invalid prefix delegation."
-msgstr "prefix delegationが利用できないフォーマットです。"
+msgid "Invalid reservation mode."
+msgstr "ホスト予約のモードが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:169
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:170
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:217
 msgid "Invalid IP address."
 msgstr "IPアドレスが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost6.php:173
-msgid "Invalid prefix."
-msgstr "プレフィックスが利用できないフォーマットです。"
+msgid "Invalid prefix length."
+msgstr "プレフィックス長が利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost6.php:381
 msgid "There is no data concerning the host ID(%s)."
 msgstr "ホストIDに関するデータがありません(%s)。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:171
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:218
 msgid "IP address out of subnet range."
 msgstr "IPアドレスがサブネットの範囲外です。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:172
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:219
 msgid "IP address is within subnet pool range."
 msgstr "IPアドレスがサブネットプールの範囲内です。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:173
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:220
 msgid "IP address already exists."
 msgstr "IPアドレスが既に使われています。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:185
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:231
 msgid "Invalid domain-name-server."
 msgstr "domain-name-serversが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:194
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:240
 msgid "Invalid routers."
 msgstr "routersが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:202
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:248
 msgid "Invalid dhcp:next-server."
 msgstr "dhcp:next-serverが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:211
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:257
 msgid "Invalid dhcp:boot-file."
 msgstr "dhcp:boot-fileが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:220
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:266
 msgid "Invalid tftp-server-name."
 msgstr "tftp-server-nameが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:229
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:275
 msgid "Invalid boot-file-name."
 msgstr "boot-file-nameが利用できないフォーマットです。"
 
-#: /home/nisimura/DGN_keaweb/public/addhost4.php:508
 msgid "Add successful!"
 msgstr "追加に成功しました。"
 
-#: /home/nisimura/DGN_keaweb/public/index.php:61
 msgid "logged out."
 msgstr "ログアウトしました。"
 
-#: /home/nisimura/DGN_keaweb/public/index.php:66
 msgid "Session timed out."
 msgstr "セッションがタイムアウトしました。"
 
-#: /home/nisimura/DGN_keaweb/public/index.php:70
 msgid "Invalid session."
 msgstr "セッションが不正です。"
 
-#: /home/nisimura/DGN_keaweb/public/index.php:90
 msgid "Please enter your ID."
 msgstr "ユーザIDを入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/index.php:95
 msgid "Please enter your password."
 msgstr "パスワードを入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/index.php:100
 msgid "Authentication failed."
 msgstr "認証に失敗しました。"
 
 msgid "Double login."
 msgstr "別のユーザがログインしています。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:137
-#: /home/nisimura/DGN_keaweb/public/searchhost4.php:85
 msgid "Can not find a host id."
 msgstr "ホストIDが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:379
 msgid "Cannot find dhcp_identifier."
 msgstr "dhcp_identifierが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:385
 msgid "Cannot find dhcp_identifier_type."
 msgstr "dhcp_identifier_typeが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:392
 msgid "Cannot find dhcp4_subnet_id."
 msgstr "dhcp4_subnet_idが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:399
 msgid "Cannot find ipv4_address."
 msgstr "ipv4_addressが見つかりません。"
 
-#: /home/nisimura/DGN_keaweb/public/edithost4.php:788
 msgid "Edit successful!"
 msgstr "編集に成功しました。"
 
-#: /home/nisimura/DGN_keaweb/public/searchlease4.php:86
 msgid "Please check the format of start lease date."
 msgstr "リース開始日(開始)のフォーマットを確認してください。"
 
-#: /home/nisimura/DGN_keaweb/public/searchlease4.php:87
 msgid "Please check the lease date range."
 msgstr "リース開始日の範囲を確認してください。"
 
-#: /home/nisimura/DGN_keaweb/public/searchlease4.php:100
 msgid "Please check the format of end lease date."
 msgstr "リース開始日(終了)のフォーマットを確認してください。"
 
-#: /home/nisimura/DGN_keaweb/public/searchlease4.php:110
 msgid "Please check the format of start expire date."
 msgstr "リース期限日(開始)のフォーマットを確認してください。"
 
-#: /home/nisimura/DGN_keaweb/public/searchlease4.php:111
 msgid "Please check the expire date range."
 msgstr "リース期限日の範囲を確認してください。"
 
-#: /home/nisimura/DGN_keaweb/public/searchlease4.php:124
 msgid "Please check the format of end expire date."
 msgstr "リース期限日(終了)のフォーマットを確認してください。"
 
-#: /home/nisimura/DGN_keaweb/public/searchlease4.php:133
-#: /home/nisimura/DGN_keaweb/public/searchhost4.php:259
 msgid "Please enter search conditions."
 msgstr "検索条件を入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/searchlease4.php:202
-#: /home/nisimura/DGN_keaweb/public/searchhost4.php:405
 msgid "No result."
 msgstr "検索結果がありません。"
 
-#: /home/nisimura/DGN_keaweb/public/searchsubnet4.php:51
 msgid "Please enter subnet."
 msgstr "サブネットを入力してください。"
 
-#: /home/nisimura/DGN_keaweb/public/searchhost4.php:106
 msgid "Reservation IP has already been deleted."
 msgstr "ホストは既に削除されています。"
 
-#: /home/nisimura/DGN_keaweb/public/searchhost4.php:134
 msgid "Reservation IP deleted."
 msgstr "ホストを削除しました。"
 
-#: /home/nisimura/DGN_keaweb/public/searchhost4.php:253
 msgid "Invalid page number."
 msgstr "不正なページ番号が指定されています。"
 
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:253
 msgid "Subnet id or Subnet does not exist in keaconf."
 msgstr "サブネットIDまたはサブネットがkeaconfの中に存在しません。"
 
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:253
 msgid "Subnet does not exist in keaconf."
 msgstr "サブネットがkeaconfの中に存在しません。"
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:503
+
 msgid "Invalid number of columns."
 msgstr "列数が正しくありません。"
 
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:530
 msgid "hostname is duplicated in registration data."
 msgstr "CSVファイルの中でホスト名が重複しています。"
 
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:536
 msgid "identifier is duplicated in registration data."
 msgstr "CSVファイルの中で識別子が重複しています。"
 
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:551
 msgid "IP address is duplicated in registration data."
 msgstr "CSVファイルの中でIPアドレスが重複しています。"
 
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:592
 msgid "The file content is empty."
 msgstr "CSVファイルが空です。"
 
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:624
 msgid "Please select csv file."
 msgstr "CSVファイルを選択してください。"
 
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:633
 msgid "Failed to open csvfile."
 msgstr "CSVファイルを開けません。"
 
-#: /home/nisimura/DGN_keaweb/public/bulkhost4.php:633
-msgid "Prefix is not 128."
-msgstr "単一のホスト予約をするときは、プレフィックスは128である必要があります。"
+msgid "Prefix length is not 128."
+msgstr "単一のホスト予約をするときは、プレフィックス長は128である必要があります。"
 
 msgid "(line: %s)"
 msgstr "(%s行目)"
@@ -455,7 +348,7 @@ msgstr "未所属のサブネット"
 msgid "Pool"
 msgstr "プール"
 
-msgid "Pool IP addresses"
+msgid "Pool IP address range"
 msgstr "貸出IPアドレスの範囲"
 
 msgid "Edit"
@@ -564,7 +457,7 @@ msgid "DUID"
 msgstr "DUID"
 
 msgid "Circuit-ID"
-msgstr "Circuit-ID"
+msgstr "サーキットID"
 
 msgid "Confirm"
 msgstr "確認"
@@ -608,11 +501,11 @@ msgstr "共有ネットワーク編集"
 msgid "Subnet add"
 msgstr "サブネット追加"
 
-msgid "Add range"
-msgstr "範囲追加"
+msgid "Add Pool IP address range"
+msgstr "貸出IPアドレスの範囲追加"
 
-msgid "List range"
-msgstr "範囲一覧"
+msgid "List Pool IP address range"
+msgstr "貸出IPアドレスの範囲一覧"
 
 msgid "Please enter subnet with format ipaddress/nestmask."
 msgstr "IPアドレス/ネットマスク形式でサブネットを入力してください。"
@@ -620,8 +513,8 @@ msgstr "IPアドレス/ネットマスク形式でサブネットを入力して
 msgid "Edit host"
 msgstr "ホスト設定"
 
-msgid "Edit range"
-msgstr "範囲設定"
+msgid "Edit Pool IP address range"
+msgstr "貸出IPアドレスの範囲設定"
 
 msgid "Edit option"
 msgstr "オプション設定"
@@ -632,8 +525,8 @@ msgstr "戻る"
 msgid "Subnet edit"
 msgstr "オプション更新"
 
-msgid "Range edit"
-msgstr "範囲更新"
+msgid "Update Pool IP address range"
+msgstr "貸出IPアドレスの範囲更新"
 
 msgid "Option name"
 msgstr "オプション名"
@@ -650,7 +543,7 @@ msgstr "追加オプション"
 msgid "Invalid subnet validate."
 msgstr "サブネットの形式が不正です。"
 
-msgid "Subnet do not exit in config."
+msgid "Subnet does not exist in config."
 msgstr "サブネットが存在していません。"
 
 msgid "Subnet overlapping."
@@ -674,50 +567,35 @@ msgstr "サブネットの削除対象が存在しています。"
 msgid "Subnet delete target do not exist in config(%s)."
 msgstr "サブネットが存在していません。(%s)"
 
-msgid "Since the host remains in the subnet, can not delete(%s)."
+msgid "Since the host remains in the subnet, can not delete.(%s)"
 msgstr "サブネットの中にクライアントが残っているので、削除出来ません。(%s)"
 
-msgid "Deleting pool do not exist."
-msgstr "削除対象範囲が存在していません。"
+msgid "Deleting Pool IP address range do not exist."
+msgstr "削除対象の貸出IPアドレスの範囲が存在していません。"
 
-msgid "Please enter Start IP address."
-msgstr "範囲(開始)を入力してください。"
+msgid "Pool IP address range(start) out of subnet range."
+msgstr "貸出IPアドレスの範囲(開始)がサブネットの範囲外です。"
 
-msgid "Invalid Start IP address."
-msgstr "範囲(開始)の形式が不正です。"
+msgid "Pool IP address range(end) out of subnet range."
+msgstr "貸出IPアドレスの範囲(終了)がサブネットの範囲外です。"
 
-msgid "Please enter End IP address."
-msgstr "範囲(終了)を入力してください。"
+msgid "Pool IP address range(start) overlaps."
+msgstr "貸出IPアドレスの範囲(開始)が他の範囲と重なっています。"
 
-msgid "Invalid End IP address."
-msgstr "範囲(終了)の形式が不正です。"
+msgid "Pool IP address range(end) overlaps."
+msgstr "貸出IPアドレスの範囲(終了)が他の範囲と重なっています。"
 
-msgid "Start IP address greater then End IP address."
-msgstr "範囲(開始)が範囲(終了)よりも大きくなっています。"
+msgid "Pool IP address range added."
+msgstr "貸出IPアドレスの範囲の追加に成功しました。"
 
-msgid "Start IP address out of subnet range."
-msgstr "範囲(開始)がサブネットの範囲外です。"
+msgid "Pool IP address range edited."
+msgstr "貸出IPアドレスの範囲の更新に成功しました。"
 
-msgid "End IP address out of subnet range."
-msgstr "範囲(終了)がサブネットの範囲外です。"
+msgid "Pool IP address range deleted(%s)."
+msgstr "貸出IPアドレスの範囲の削除に成功しました。(%s)"
 
-msgid "Start IP address overlaps."
-msgstr "範囲(開始)が他の範囲と重なっています。"
-
-msgid "End IP address overlaps."
-msgstr "範囲(終了)が他の範囲と重なっています。"
-
-msgid "Range added."
-msgstr "範囲の追加に成功しました。"
-
-msgid "Range edited."
-msgstr "範囲の更新に成功しました。"
-
-msgid "Range deleted(%s)."
-msgstr "範囲の削除に成功しました。(%s)"
-
-msgid "Are you sure you want to delete this range?"
-msgstr "本当に範囲を削除してもよろしいですか?"
+msgid "Are you sure you want to delete this Pool IP address range?"
+msgstr "本当に貸出IPアドレスの範囲を削除してもよろしいですか?"
 
 msgid "Option added."
 msgstr "オプションの更新に成功しました。"
@@ -761,14 +639,14 @@ msgstr "オプション名を入力してください。"
 msgid "Are you sure you want to delete this option?"
 msgstr "本当にオプションを削除してもよろしいですか?"
 
-msgid "Range has already been deleted.(%s)"
-msgstr "範囲は既に削除されています。(%s)"
+msgid "Pool IP address range has already been deleted.(%s)"
+msgstr "貸出IPアドレスの範囲は既に削除されています。(%s)"
 
-msgid "Delete target of range does not exist."
-msgstr "範囲の削除対象が存在していません。"
+msgid "Delete target of Pool IP address range does not exist."
+msgstr "貸出IPアドレスの範囲の削除対象が存在していません。"
 
-msgid "Editing range do not exist.(%s)"
-msgstr "範囲の編集対象が存在していません。(%s)"
+msgid "Editing Pool IP address range do not exist.(%s)"
+msgstr "貸出IPアドレスの範囲の編集対象が存在していません。(%s)"
 
 msgid "Shared-network added successfully."
 msgstr "共有ネットワークの追加に成功しました。"
@@ -797,8 +675,8 @@ msgstr "共有ネットワークの編集に成功しました。"
 msgid "Shared-network deleted successfully.(%s)"
 msgstr "共有ネットワークの削除に成功しました。"
 
-msgid "Cannot read configuration.(%s)"
-msgstr "コンフィグレーションの取得ができませんでした。(%s)"
+msgid "Cannot read configuration."
+msgstr "コンフィグレーションの取得ができませんでした。"
 
 msgid "Cannot write config.(%s)"
 msgstr "設定ファイルに書き込みできません。(%s)"
@@ -809,8 +687,500 @@ msgstr "適用されていない設定が残っています。処理を続けま
 msgid "Config file update successfully."
 msgstr "設定ファイルへの設定適用に成功しました。"
 
-msgid "Cannot update config file. Dhcp start-up error?(%s)"
-msgstr "設定ファイルの反映に失敗しました。DHCPが起動していない可能性があります。(%s)"
+msgid "Cannot update config file. Dhcp start-up error?"
+msgstr "設定ファイルの反映に失敗しました。DHCPが起動していない可能性があります。"
 
 msgid "Are you sure you want to update config file?"
 msgstr "設定ファイルに設定を適用してもよろしいですか?"
+
+msgid "IPv6 address contains characters that cannot be used."
+msgstr "IPv6アドレスに使用できない文字が含まれています。"
+
+msgid "IPv4 address contains characters that cannot be used."
+msgstr "IPv4アドレスに使用できない文字が含まれています。"
+
+msgid "Identifier contains characters that cannot be used."
+msgstr "識別子に使用できない文字が含まれています。"
+
+msgid "Interface"
+msgstr "インターフェース"
+
+msgid "InterfaceID"
+msgstr "インターフェースID"
+
+msgid "RelayAgent"
+msgstr "リレーエージェント"
+
+msgid "For \"Interface\", specify the name of the interface to be used in the shared network."
+msgstr "インタフェースには、共有ネットワークで使用されるインターフェイス名を指定します。"
+
+msgid "For \"Interface\", specify the name of the interface to be used in the subnet."
+msgstr "インタフェースには、サブネットで使用されるインターフェイス名を指定します。"
+
+msgid "For \"Interface-ID\", specify the interface name of the relay agent."
+msgstr "インタフェースIDには、リレーエージェントのインターフェース名を指定します。"
+
+msgid "For \"RelayAgent\", specify the the IP address of the relay agent."
+msgstr "リレーエージェントには、リレーエージェントのIPアドレスを指定します。"
+
+msgid "When making a request directly without going through a relay agent, the Interface must be specified."
+msgstr "リレーエージェントを介さずに直接リクエストする場合は、インタフェースの指定が必須です。"
+
+msgid "No such Interface."
+msgstr "インターフェースが存在しません。"
+
+msgid "Failed to get network-interfaces."
+msgstr "ネットワークインターフェースの取得に失敗しました。"
+
+msgid "Invalid InerfaceID format."
+msgstr "インターフェースIDの形式が不正です。"
+
+msgid "Invalid  RelayAgent format."
+msgstr "リレーエージェントの形式が不正です。"
+
+msgid "Interface and InterfaceID cannot be used together."
+msgstr "インターフェースとインターフェースIDは、併用することができません。"
+
+msgid "Unattached subnets are, Interface, Interface-id, and RelayAgent settings as necessary."
+msgstr "未所属にしたサブネットは、必要に応じてインターフェース、インターフェースID、リレーエージェントを設定する必要があります。"
+
+msgid "Subnet has Interface setting.(%s)"
+msgstr "サブネットがインターフェースの設定を持っています。(%s)"
+
+msgid "Subnet has Interface-ID setting.(%s)"
+msgstr "サブネットがインターフェースIDの設定を持っています。(%s)"
+
+msgid "Subnet has RelayAgent setting.(%s)"
+msgstr "サブネットがリレーエージェントの設定を持っています。(%s)"
+
+msgid "Edit Config"
+msgstr "設定編集"
+
+msgid "Subnet config edited successfully."
+msgstr "サブネットの編集に成功しました。"
+
+msgid "Subnet belongs to a shared network.(%s)"
+msgstr "サブネットが共有ネットワークに所属しています。(%s)"
+
+msgid "Subnet config edit"
+msgstr "サブネット設定編集"
+
+msgid "dns-servers is the IP address of the DNS server to be assigned to the subnet."
+msgstr "DNSサーバには、サブネットに割り当てるDNSサーバのIPアドレスを指定します。"
+
+msgid "dns-servers"
+msgstr "DNSサーバ"
+
+msgid "Please refer to the following links for option names and values."
+msgstr "オプション名とオプション値は以下のリンクに参考してください。"
+
+msgid "Prefix length"
+msgstr "プレフィックス長"
+
+msgid "Prefix reservation"
+msgstr "プレフィックス予約"
+
+msgid "For \"dns-servers\", specify the IP address of the DNS server to be distributed to the host."
+msgstr "\"dns-servers\"には、ホストに割り当てるDNSサーバのIPアドレスを指定します。"
+
+msgid "When Prefix reservation is enabled, the setting is to rent out the range of networks specified by the IP address prefix length."
+msgstr "プレフィックス予約を有効にした場合、IPアドレス・プレフィックス長で指定したネットワークの範囲を貸し出す設定になります。"
+
+msgid "Prefix reservation on this screen is a setting for lending prefixes to individual terminals. The separately existing prefix-deletgation feature is a setting that lends multiple prefixes from a pool."
+msgstr "本画面のプレフィックス予約は個別の端末にプレフィックスを貸与する設定です。別途存在するprefix-deletgationの機能は、プールから複数のプレフィックスを貸与する設定です。"
+
+msgid "Please enter IP address and prefix."
+msgstr "IPアドレスかプレフィックスを入力してください。"
+
+msgid "Prefix"
+msgstr "プレフィックス"
+
+msgid "Prefix-len"
+msgstr "プレフィックス長"
+
+msgid "Delegated-len"
+msgstr "委任するプレフィックス長"
+
+msgid "Prefix/Prefix-length corresponds to the prefix/prefix-length in KEA."
+msgstr "プレフィックス/プレフィックス長は、KEAのprefix/prefix-lengthと対応する内容です。"
+
+msgid "Delegated-len is the corresponding content of Kea's deletgated-len."
+msgstr "委任するプレフィックスは、Keaのdeletgated-lenと対応する内容です。"
+
+msgid "It works as a range of networks registered as Prefix/Prefix-len, from which the range of Delegated-len is carved out and lent out."
+msgstr "プレフィックス/プレフィックス長として登録されたネットワークの範囲から、委任するプレフィックスの範囲が切り出されて貸し出される動作をします。"
+
+msgid "List PD"
+msgstr "PD設定一覧"
+
+msgid "Prefix delete does not exist."
+msgstr "プレフィックスが存在しません。"
+
+msgid "Invalid prefix validate."
+msgstr "プレフィックスが不正な形式です。"
+
+msgid "Prefix delegation setting does not exist."
+msgstr "プレフィックスデリゲーション設定が存在しません。"
+
+msgid "Prefix delegation target does not exist in config(%s)."
+msgstr "対象のプレフィックスデリゲーション設定が存在しません。(%s)"
+
+msgid "Prefix delegation deleted successfullly.(%s)"
+msgstr "プレフィックスデリゲーション設定の削除に成功しました。(%s)"
+
+msgid "Edit PD"
+msgstr "PD編集"
+
+msgid "List Prefix delegation"
+msgstr "PD設定一覧"
+
+msgid "Add Prefix delegation"
+msgstr "PD追加"
+
+msgid "Are you sure you want to delete this prefix delegation?"
+msgstr "本当にプレフィックスデリゲーションを削除してもよろしいですか？"
+
+msgid "Subnet does not exist(%s)."
+msgstr "サブネットが存在しません(%s)。"
+
+msgid "Add PD"
+msgstr "PD追加"
+
+msgid "Please enter prefix."
+msgstr "プレフィックスを入力してください。"
+
+msgid "Invalid prefix format."
+msgstr "プレフィックスが不正な形式です。"
+
+msgid "Prefix overlaps with other subnets."
+msgstr "プレフィックスが他のサブネットと重なっています。"
+
+msgid "Prefix overlaps with other prefix delegation."
+msgstr "プレフィックスが他のプレフィックスデリゲーション設定と重なっています。"
+
+msgid "Please Enter prefix-len."
+msgstr "プレフィックス長を入力してください。"
+
+msgid "Invalid prefix-len format."
+msgstr "プレフィックス長が不正な形式です。"
+
+msgid "Please Enter delegated-len."
+msgstr "委任するプレフィックス長を入力してください。"
+
+msgid "Invalid delegated-len format."
+msgstr "委任するプレフィックス長が不正な形式です。"
+
+msgid "Prefix/Prefix-len overlaps with existing subnet pool."
+msgstr "プレフィックス/プレフィックス長が既存のサブネットプールと重なっています。"
+
+msgid "Prefix/Prefix-len is in an invalid format."
+msgstr "プレフィックス/プレフィックス長が不正な形式です。"
+
+msgid "Delegated-len must be greater than Prefix-len."
+msgstr "委任するプレフィックス長はプレフィックス長より大きい必要があります。"
+
+msgid "Prefix delegation added successfully."
+msgstr "プレフィックスデリゲーションの追加に成功しました。"
+
+msgid "Prefix/Prefix-len overlaps with existing pd-pools."
+msgstr "プレフィックス/プレフィックス長が既存のプレフィックスデリゲーションと重なっています。"
+
+msgid "Prefix must be entered in IPv6 format."
+msgstr "プレフィックスはIPv6形式で入力してください。"
+
+msgid "Prefix-len, Delegated-len must be entered as a number between 1-128."
+msgstr "プレフィックス長、委任するプレフィックス長は1-128の数値で入力してください。"
+
+msgid "Delegated-len must be greater than or equal to Prefix-len."
+msgstr "委任するプレフィックス長はプレフィックス長以上の値にしてください。"
+
+msgid "Prefix delegation edited successfully."
+msgstr "プレフィックスデリゲーションの編集に成功しました。"
+
+msgid "Prefix does not exist in config."
+msgstr "プレフィックスが存在していません。"
+
+msgid "Changing Prefix/Prefix-len during operation is not allowed because it may cause trouble that affects a wide area."
+msgstr "運用中のプレフィックス/プレフィックス長の変更は広範囲に影響するトラブルを招く恐れがあるためできません。"
+
+msgid "If changes are necessary, delete once and then add again."
+msgstr "変更が必要な場合は、一度削除してから追加を行ってください。"
+
+msgid "Prefix cannot be edited."
+msgstr "プレフィックスは編集できません。"
+
+msgid "PD config"
+msgstr "PD設定"
+
+msgid "Options Settings is a screen for setting options for the subnet."
+msgstr "オプション設定は、サブネットに対するオプションの設定画面です。"
+
+msgid "Option82 Settings is a screen for setting the client class and Pool IP address range for which option82 information is used."
+msgstr "Option82設定は、option82の情報を利用するクライアントクラスと貸出IPアドレス範囲の設定画面です。"
+
+msgid "Edit option82 setting"
+msgstr "Option82設定"
+
+msgid "Since the option82 remains in the subnet, can not delete.(%s)"
+msgstr "サブネットの中にoption82の設定が残っているので、削除出来ません。(%s)"
+
+msgid "List Option82 setting"
+msgstr "Option82設定一覧"
+
+msgid "Add Option82 setting"
+msgstr "Option82設定追加"
+
+msgid "Keyword"
+msgstr "キーワード"
+
+msgid "Partial match search for Circuit-ID, Remote-ID, and MAC Address, respectively"
+msgstr "サーキットID、リモートID、MACアドレスそれぞれに対して、部分一致検索を行います"
+
+msgid "Performs a partial match search for payout conditions using items other than the above three"
+msgstr "上記3つの項目以外を使用している払い出し条件に対して、部分一致検索を行います"
+
+msgid "Pool IP address"
+msgstr "貸出IPアドレス"
+
+msgid "Performs an exact match search for the beginning or end of Pool IP address range"
+msgstr "貸出IPアドレスの範囲の、開始または終了に対して、完全一致検索を行います"
+
+msgid "Exists within the Pool IP address range"
+msgstr "貸出IPアドレスの範囲内に存在するか検索します"
+
+msgid "For Pool IP address, enter an IP address within the subnet range"
+msgstr "貸出IPアドレスには、サブネットの範囲内のIPアドレスを入力してください"
+
+msgid "Cannot use any other IPv4 address format"
+msgstr "IPv4アドレス形式以外は使用できません"
+
+msgid "If both Keyword and Pool IP address are empty, all settings are displayed"
+msgstr "キーワード、貸出IPアドレスがどちらも空の場合、すべての設定を表示します"
+
+msgid "Export outputs data matching the search criteria to a CSV file"
+msgstr "エクスポートは、検索条件に一致したデータをCSVファイルに出力します"
+
+msgid "Export"
+msgstr "エクスポート"
+
+msgid "Payout conditions"
+msgstr "払い出し条件"
+
+msgid "Are you sure you want to delete this option82 setting?"
+msgstr "本当にoption82の設定を削除してもよろしいですか？"
+
+msgid "Remote-ID"
+msgstr "リモートID"
+
+msgid "MAC address"
+msgstr "MACアドレス"
+
+msgid "Client class for option82 does not exist."
+msgstr "option82用のクライアントクラスが存在しません。"
+
+msgid "Class name does not exist in config."
+msgstr "クラス名が設定に存在しません。"
+
+msgid "No pool exists on the subnet."
+msgstr "サブネットにプールが存在しません。"
+
+msgid "No pool of option82 exists in the subnet."
+msgstr "サブネットにoption82のプールが存在しません。"
+
+msgid "Failed to get Circuit-ID."
+msgstr "サーキットIDの取得に失敗しました。"
+
+msgid "Failed to get Remote-ID."
+msgstr "リモートIDの取得に失敗しました。"
+
+msgid "Failed to get MAC address."
+msgstr "MACアドレスの取得に失敗しました。"
+
+msgid "Invalid Pool IP address format."
+msgstr "貸出IPアドレスが不正な形式です。"
+
+msgid "Pool IP address is outside the subnet range."
+msgstr "貸出IPアドレスがサブネットの範囲外です。"
+
+msgid "Option82 setting deleted successfully."
+msgstr "option82設定の削除に成功しました。"
+
+msgid "Failed to create temporary file placement directory.(%s)"
+msgstr "一時ファイル配置ディレクトリの作成に失敗しました。(%s)"
+
+msgid "Failed to create CSV file.(%s)"
+msgstr "CSVファイルの作成に失敗しました。(%s)"
+
+msgid "Export of search results failed."
+msgstr "検索結果のエクスポートに失敗しました。"
+
+msgid "Advanced setting"
+msgstr "アドバンス設定"
+
+msgid "Free-text entry"
+msgstr "自由記述"
+
+msgid "Use input values as they are"
+msgstr "入力値をそのまま使用する"
+
+msgid "Pool IP address range(start)"
+msgstr "貸出IPアドレスの範囲（開始）"
+
+msgid "Pool IP address range(end)"
+msgstr "貸出IPアドレスの範囲（終了）"
+
+msgid "You can configure DHCPv4 to pay out IP addresses based on DHCPv4 Option82 (Circuit-ID/Remote-ID) and MAC address information."
+msgstr "DHCPv4のOption82(サーキットID/リモートID)とMACアドレスの情報を条件にして、IPアドレスを払い出す設定ができます。"
+
+msgid "Please enter within the subnet range."
+msgstr "サブネットの範囲内で入力してください。"
+
+msgid "Other than IPv4 address format cannot be used."
+msgstr "IPv4アドレス形式以外は使用できません。"
+
+msgid "Single quotes, double quotes, backslashes, and commas are not allowed in the Circuit-ID and Remote-ID."
+msgstr "サーキットID・リモートIDに、シングルクウォート、ダブルクォート、バックスラッシュ、カンマは利用することができません。"
+
+msgid "If Advanced Settings is not checked, one of Circuit-ID, Remote-ID, or MAC Address must be entered."
+msgstr "アドバンス設定にチェックをしない場合、サーキットID、リモートID、MACアドレスはいずれか1つは入力が必要です。"
+
+msgid "Circuit-ID and Remote-ID are internally converted to hexadecimal notation and registered. (Example below)"
+msgstr "サーキットID・リモートIDは、内部的に16進数表記に変換されて登録されます。（下記の例）"
+
+msgid "If you want to register them as input values, check \"Use input values as they are\"."
+msgstr "入力値のまま登録したい場合は、「入力値をそのまま使用する」にチェックを入れてください。"
+
+msgid "If \"Use input values as they are\" is not checked"
+msgstr "「入力値をそのまま使用する」にチェックをしない場合"
+
+msgid "If \"Use input values as they are\" is checked"
+msgstr "「入力値をそのまま使用する」にチェックをした場合"
+
+msgid "(Example)"
+msgstr "（例）"
+
+msgid "Input value"
+msgstr "入力値"
+
+msgid "Registered value"
+msgstr "登録される値"
+
+msgid "Use or not use the input values as they are, depending on your relay agent."
+msgstr "入力値をそのまま使用する・使用しないは、お使いのリレーエージェントに合わせてください。"
+
+msgid "If you check the Advanced Settings checkbox, a free description field will appear."
+msgstr "アドバンス設定にチェックを入れると、自由記述欄が表示されます。"
+
+msgid "Enter the conditions to be used for the disbursement."
+msgstr "払い出しに使用する条件を記入してください。"
+
+msgid "Invalid Pool IP address range(start)."
+msgstr "貸出IPアドレスの範囲 (開始)が不正な形式です。"
+
+msgid "Please enter Pool IP address range(start)."
+msgstr "貸出IPアドレスの範囲 (開始)を入力してください。"
+
+msgid "Pool IP address range(start) is outside the range of the subnet."
+msgstr "貸出IPアドレスの範囲（開始）がサブネットの範囲外です。"
+
+msgid "Pool IP address range(start) already exists."
+msgstr "貸出IPアドレスの範囲(開始)が既に使われています。"
+
+msgid "Invalid Pool IP address range(end)."
+msgstr "貸出IPアドレスの範囲 (終了)が不正な形式です。"
+
+msgid "Please enter Pool IP address range(end)."
+msgstr "貸出IPアドレスの範囲 (終了)を入力してください。"
+
+msgid "Pool IP address range(end) is outside the range of the subnet."
+msgstr "貸出IPアドレスの範囲（終了）がサブネットの範囲外です。"
+
+msgid "Pool IP address range(end) already exists."
+msgstr "貸出IPアドレスの範囲(終了)が既に使われています。"
+
+msgid "Pool IP address range(start) greater then Pool IP address range(end)."
+msgstr "貸出IPアドレスの範囲(開始)が貸出IPアドレスの範囲(終了)よりも大きくなっています。"
+
+msgid "Pool IP address range includes used pools."
+msgstr "貸出IPアドレスの範囲内に使用済みのプールが含まれています。"
+
+msgid "Circuit-ID contains characters that cannot be used."
+msgstr "サーキットIDに使用できない文字が含まれています。"
+
+msgid "Remote-ID contains characters that cannot be used."
+msgstr "リモートIDに使用できない文字が含まれています。"
+
+msgid "MAC address format is incorrect."
+msgstr "MACアドレスの形式が不正です。"
+
+msgid "MAC address already exists."
+msgstr "MACアドレスが既に使われています。"
+
+msgid "Same condition is already exists."
+msgstr "同じ条件が既に使われています。"
+
+msgid "Option82 setting was successfully added."
+msgstr "option82設定の追加に成功しました。"
+
+msgid "This payout condition cannot be used."
+msgstr "この払い出し条件は使用することができません。"
+
+msgid "Leased IP addresses exist within the Pool IP address range.To continue the process, click the Add button."
+msgstr "貸出IPアドレスの範囲内に、リース済みIPアドレスが存在します。処理を続けるには、追加ボタンをクリックしてください。"
+
+msgid "If the advance setting is enabled, please describe the payout conditions in the free description."
+msgstr "アドバンス設定が有効の場合は、自由記述に払い出し条件を記載してください。"
+
+msgid "Configuration type"
+msgstr "設定種別"
+
+msgid "Host"
+msgstr "ホスト"
+
+msgid "Allow use of leased IP addresses"
+msgstr "リース済みIPアドレスの使用を許可する"
+
+msgid "You can configure the MAC address to pay out an IP address."
+msgstr "MACアドレスを使用して、IPアドレスを払い出す設定ができます。"
+
+msgid "If you want to add IP addresses while lease information is still available, check the \"Allow use of leased IP addresses\" checkbox."
+msgstr "リース情報が残っている状態でも追加を行いたい場合は、「リース済みIPアドレスの使用を許可する」にチェックをしてください。"
+
+msgid "One of Circuit ID, Remote ID, or MAC address must be entered."
+msgstr "サーキットID、リモートID、MACアドレスはいずれか1つは入力が必要です。"
+
+msgid "Leased IP addresses exist within the Pool IP address range."
+msgstr "貸出IPアドレスの範囲内に、リース済みIPアドレスが存在します。"
+
+msgid "Class name must begin with opt82_."
+msgstr "クラス名は「opt82_」で始まっている必要があります。"
+
+msgid "Please enter circuit_id_not_hex."
+msgstr "circuit_id_not_hexを入力してください。"
+
+msgid "Please enter remote_id_not_hex."
+msgstr "remote_id_not_hexを入力してください。"
+
+msgid "circuit_id_not_hex is in bad format."
+msgstr "circuit_id_not_hexが不正な形式です。"
+
+msgid "remote_id_not_hex is in bad format."
+msgstr "remote_id_not_hexが不正な形式です。"
+
+msgid "In routers, specify the IP address of the default gateway to be distributed to the subnet."
+msgstr "\"routers\"には、サブネットに配布するデフォルトゲートウェイのIPアドレスを指定します。"
+
+msgid "For domain-name-servers, specify the IP addresses of the DNS servers to be assigned to the subnet."
+msgstr "\"domain-name-servers\"には、サブネットに割り当てるDNSサーバのIPアドレスを指定します。"
+
+msgid "API execution failed."
+msgstr "APIの実行に失敗しました。"
+
+msgid "Please enter routers or domain-name-servers."
+msgstr "routersまたはdomain-name-serversを入力してください。"
+
+msgid "Configuration file backup created at (%s)."
+msgstr "設定ファイルのバックアップは、(%s)に作成されました。"
+
+msgid "Notation actually set"
+msgstr "実際に設定されている表記"

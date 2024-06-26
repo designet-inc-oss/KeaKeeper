@@ -107,10 +107,9 @@ class Syslog {
     * Method        : log
     * Description   : Make and output log messages.
     * args          : $format    Format containing log message.
-    *               : $arr       String to replace
     * return        : None
     **************************************************************************/
-    public function log($format, $arr)
+    public function log($format)
     {
         $ipaddr = "";
         $user   = "";
@@ -145,10 +144,7 @@ class Syslog {
         $pre = $ipaddr . $user . $file;
 
         /* make log message */
-        $msg = vsprintf($format, $arr);
-
-        /* make log message */
-        $msg = $pre . $msg;
+        $msg = $pre . $format;
 
         /* output log message */
         $this->output_log($msg);
@@ -175,7 +171,7 @@ class Syslog {
     {
         foreach ($log_array as $value) {
             /* output log */
-            $this->log($value, NULL);
+            $this->log($value);
         }
     }
     /*************************************************************************

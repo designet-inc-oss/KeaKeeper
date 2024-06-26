@@ -1,4 +1,4 @@
-{$title = "{t}List range{/t}"}
+{$title = "{t}List Pool IP address range{/t}"}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -79,7 +79,7 @@
             <div class="col-sm-12">
                 <form class="form-horizontal" action="editrange6.php?subnet={$subnet}&range={$pools.poolstart}-{$pools.poolend}&edit=edit" method="post">
                   <div class="form-group">
-                    <label class="col-sm-2 control-label text-nowrap" for="Subnet">{t}Pool IP addresses{/t}</label>
+                    <label class="col-sm-2 control-label text-nowrap" for="Subnet">{t}Pool IP address range{/t}</label>
                     <div class="col-sm-4">
                       {if isset($pre.poolstart)}
                         <input type="text" class="form-control" id="poolstart" name="poolstart" placeholder="Pool start" value="{$pre.poolstart}">

@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="css/bootstrap/js/bootstrap.min.js"></script>
   <script src="js/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+  <script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
   {include file='./functions/br.tmpl' scope="root"}
   {include file='./configs/menu.tmpl' scope="root"}
   {include file='./configs/breadcrumb.tmpl' scope="root"}
@@ -60,37 +62,91 @@
               {$success}
             </div>
 
+            <!-- description -->
+            <div class="col-sm-6 col-md-push-6">
+              <div class="table-bordered">
+                <ul>
+                  <li>
+                    <dl>
+                      <dt>{t}Host{/t}</dt>
+                      <dd>{t}You can configure the MAC address to pay out an IP address.{/t}</dd>
+                    </dl>
+                  </li>
+                  <li>
+                    <dl>
+                      <dt>{t}Option82{/t}</dt>
+                      <dd>{t}You can configure DHCPv4 to pay out IP addresses based on DHCPv4 Option82 (Circuit-ID/Remote-ID) and MAC address information.{/t}</dd>
+                      <dd>{t}If you want to add IP addresses while lease information is still available, check the "Allow use of leased IP addresses" checkbox.{/t}</dd>
+                    </dl>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
             <form class="form-horizontal" action="bulkhost4.php" method="post" enctype="multipart/form-data">
               <fieldset>
                 <!-- Reserve IP -->
-                <div class="col-sm-12">
+                <div class="col-sm-12 col-md-pull-12">
                   <div class="form-group">
-                    <label class="col-sm-2 control-label text-nowrap" for="type">{t}mode{/t}</label>
+                    <label class="col-sm-4 control-label text-nowrap" for="type">{t}Configuration type{/t}</label>
                     <div class="col-sm-4">
-                      <select class="form-control" id="mode" name="mode">
-                        <option value="0">{t}Add{/t}
-                        <option value="1">{t}Delete{/t}
+                      <select class="form-control" id="Config_type" name="config_type">
+                      {if $config_type === 'host'}
+                        <option value="host" selected>{t}Host{/t}
+                        <option value="option82">{t}Option82{/t}
+                      {else}
+                        <option value="host">{t}Host{/t}
+                        <option value="option82" selected>{t}Option82{/t}
+                      {/if}
                       </select>
                     </div>
                   </div>
 
                   <div class="form-group">
-                    <label class="col-sm-2 control-label text-nowrap" for="csvfile">{t}CSV file{/t}</label>
-                    <div class="col-sm-10">
+                    <label class="col-sm-4 control-label text-nowrap" for="type">{t}mode{/t}</label>
+                    <div class="col-sm-4">
+                      <select class="form-control" id="mode" name="mode">
+                      {if $mode === '0'}
+                        <option value="0" selected>{t}Add{/t}
+                        <option value="1">{t}Delete{/t}
+                      {else}
+                        <option value="0">{t}Add{/t}
+                        <option value="1" selected>{t}Delete{/t}
+                      {/if}
+                      </select>
+                    </div>
+                  </div>
+
+                  {if $config_type === 'host'}
+                    <div id='leased_check' class="form-group ui-helper-hidden">
+                  {else}
+                    <div id='leased_check' class="form-group">
+                  {/if}
+                      <label class="col-sm-4 control-label text-wrap" for="allow_leased">{t}Allow use of leased IP addresses{/t}</label>
+                      <div class="col-sm-4">
+                      {if $allowleased === 'true'}
+                        <input type="checkbox" id="allow_leased" name="allow_leased" value='true' checked>
+                      {else}
+                        <input type="checkbox" id="allow_leased" name="allow_leased" value='true'>
+                      {/if}
+                      </div>
+                    </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label text-nowrap" for="csvfile">{t}CSV file{/t}</label>
+                    <div class="col-sm-4">
                       <input type="file" name="csvfile">
                     </div>
                   </div>
+                  <div class="col-sm-6 text-center">
+                    {if $is_show_warn_msg == 1}
+                      <button type="submit" name="apply" onClick="javascript:return confirm('{t}Unapplied settings remain.Will you continue the process?{/t}');">{t}apply{/t}</button>               
+                    {else}
+                      <button type="submit" name="apply">{t}apply{/t}</button>               
+                    {/if}
+                  </div>
                 </div>
               </fieldset>
-
-              <div class="col-sm-7">
-                {if $is_show_warn_msg == 1}
-                  <button type="submit" name="apply" onClick="javascript:return confirm('{t}Unapplied settings remain.Will you continue the process?{/t}');">{t}apply{/t}</button>               
-                {else}
-                  <button type="submit" name="apply">{t}apply{/t}</button>               
-                {/if}
-              </div>
-
             </form>
           </div>
         </div>
@@ -113,6 +169,32 @@
       <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
     </nav>
 </footer>
+
+<script>
+    const config_type_div = document.querySelector('#Config_type');
+    const checkbox_div = document.querySelector('#leased_check');
+    const mode = document.querySelector('#mode');
+
+<!-- Detects Config_type changes -->
+    config_type_div.addEventListener('change', handleChange);
+    function handleChange(event) {
+        if (config_type_div.value === 'option82' && mode.value === '0') {
+            checkbox_div.classList.remove('ui-helper-hidden');
+        } else {
+            checkbox_div.classList.add('ui-helper-hidden');
+        }
+    }
+
+<!-- Detect mode changes  -->
+    mode.addEventListener('change', handleChange);
+    function handleChange(event) {
+        if (mode.value === '0' && config_type_div.value === 'option82') {
+            checkbox_div.classList.remove('ui-helper-hidden');
+        } else {
+            checkbox_div.classList.add('ui-helper-hidden');
+        }
+    }
+</script>
 
 </body>
 

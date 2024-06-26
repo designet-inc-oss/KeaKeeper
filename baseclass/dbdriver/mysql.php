@@ -302,6 +302,36 @@ class Mysql {
     }
 
     /*************************************************************************
+    * Method        : inet6_ntoa
+    * Description   : Make strings for inet6_ntoa.
+    * args          : $ipaddr_str
+    *               : $quote - flag for using quotation (default is false)
+    * return        : $ret_str
+    **************************************************************************/
+    public function inet6_ntoa($ipaddr_binary, $quote = false)
+    {
+        if ($quote === true) {
+            return "INET6_NTOA('" . $ipaddr_binary . "')";
+        }
+        return "INET6_NTOA(" . $ipaddr_binary . ")";
+    }
+
+    /*************************************************************************
+    * Method        : inet6_aton
+    * Description   : Make strings for inet6_aton.
+    * args          : $ipaddr_str
+    *               : $quote - flag for using quotation (default is false)
+    * return        : $ret_str
+    **************************************************************************/
+    public function inet6_aton($ipaddr, $quote = false)
+    {
+        if ($quote === true) {
+            return "INET6_ATON('" . $ipaddr . "')";
+        }
+        return "INET6_ATON(" . $ipaddr . ")";
+    }
+
+    /*************************************************************************
     * Method        : hex
     * Description   : Make strings for hex.
     * args          : $hex_str

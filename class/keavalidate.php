@@ -116,7 +116,7 @@ class checkexistipv6Validate extends AbstractValidate {
     {
         /* make query for check duplicate */
         $dbutil = new dbutils($this->allval['store']->db);
-        $dbutil->select('address,prefix_len,type');
+        $dbutil->select($this->allval['store']->db->inet6_ntoa('address') . 'AS address,prefix_len,type');
         $dbutil->from('ipv6_reservations');
 
         /* fetch COUNT query's result */
@@ -154,18 +154,18 @@ class checkexistipv6Validate extends AbstractValidate {
 }
 
 /*****************************************************************************
-* Class          : duplicate_delegate6Validate
+* Class          : checkexistprefreserveValidate
 * Description    : Validation class that check duplication
 * args           : $val
 *                : $options - method options
 * return         : true or false
 *****************************************************************************/
-class checkexistdelegateValidate extends AbstractValidate {
+class checkexistprefreserveValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
         /* make query for check duplicate */
         $dbutil = new dbutils($this->allval['store']->db);
-        $dbutil->select('address, prefix_len, type');
+        $dbutil->select($this->allval['store']->db->inet6_ntoa('address') . 'AS address, prefix_len, type');
         $dbutil->from('ipv6_reservations');
 
         /* fetch COUNT query's result */
@@ -243,7 +243,7 @@ class outpoolValidate extends AbstractValidate {
         $subnet = $option[0];
 
         $conf = new KeaConf(DHCPV4);
-        $pools = $conf->get_pools($subnet);
+        [$ret, $pools] = $conf->get_pools($subnet);
 
         /* Returns true if there is no pool */
         if (is_array($pools) === false) {
@@ -266,13 +266,13 @@ class outpoolValidate extends AbstractValidate {
 }
 
 /*****************************************************************************
-* Class          : outpool_delegate6Validate
+* Class          : outpool_prefreserveValidate
 * Description    : Validation class that ip address in subnet pool
 * args           : $val
 *                : $options - method options
 * return         : true or false
 *****************************************************************************/
-class outpool_delegate6Validate extends AbstractValidate {
+class outpool_prefreserveValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
         /* make str for subnet and prefix */
@@ -280,7 +280,11 @@ class outpool_delegate6Validate extends AbstractValidate {
         $subnet = implode(":", $option);
 
         $conf = new KeaConf(DHCPV6);
-        $pools = $conf->get_pools6($subnet);
+        [$ret, $pools] = $conf->get_pools6($subnet);
+
+        if ($ret === false) {
+            return false;
+        }
 
         /* Returns true if there is no pool */
         if (is_array($pools) === false) {
@@ -332,7 +336,10 @@ class outpool6Validate extends AbstractValidate {
     {
         $conf = new KeaConf(DHCPV6);
         $subnet = implode(":", $option);
-        $pools = $conf->get_pools6($subnet);
+        [$ret, $pools] = $conf->get_pools6($subnet);
+        if ($ret === false) {
+            return false;
+        }
 
         /* Convert hexadecimal number to binary number */
         $val = inet_pton($val);
@@ -369,13 +376,13 @@ class outpool6Validate extends AbstractValidate {
 }
 
 /*************************************************************************
-* Class          : ipv6_delegateValidate
+* Class          : ipv6_prefreserveValidate
 * Description    : Validation class that ipv6 address
 * args           : $val     - validate values
 *                : $options - method options
 * return         : true or false
 *************************************************************************/
-class ipv6_delegateValidate extends AbstractValidate {
+class ipv6_prefreserveValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
         $ret = filter_var($val, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
@@ -406,13 +413,13 @@ class ipv6_delegateValidate extends AbstractValidate {
 }
 
 /*****************************************************************************
-* Class          : insubnet_delegate6Validate
+* Class          : insubnet_prefreserveValidate
 * Description    : Validation class that ip address in subnet
 * args           : $val
 *                : $options - method options
 * return         : true or false
 *****************************************************************************/
-class insubnet_delegate6Validate extends AbstractValidate {
+class insubnet_prefreserveValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
         /* make str for subnet and prefix */
@@ -465,8 +472,9 @@ class ipaddrs4Validate extends AbstractValidate {
             $separated[] = $val;
         }
 
+	$ipv4_validater = new ipv4Validate();
         foreach ($separated as $host) {
-            $ipaddr = ipv4Validate::run($host);
+            $ipaddr = $ipv4_validater->run($host);
 
             if ($ipaddr === false) {
                 return false;
@@ -497,9 +505,11 @@ class serversValidate extends AbstractValidate {
             $separated[] = $val;
         }
 
+	$ipv4_validater = new ipv4Validate();
+	$domain_validater = new domainValidate();
         foreach ($separated as $host) {
-            $ipaddr = ipv4Validate::run($host);
-            $host   = domainValidate::run($host);
+            $ipaddr = $ipv4_validater->run($host);
+            $host   = $domain_validater->run($host);
 
             if ($ipaddr === false && $host === false) {
                 return false;
@@ -530,8 +540,9 @@ class ipaddrs6Validate extends AbstractValidate {
             $separated[] = $val;
         }
 
+	$ipv6_validater = new ipv6Validate();
         foreach ($separated as $host) {
-            $ipaddr = ipv6Validate::run($host);
+            $ipaddr = $ipv6_validater->run($host);
 
             if ($ipaddr === false) {
                 return false;
@@ -562,9 +573,11 @@ class servers6Validate extends AbstractValidate {
             $separated[] = $val;
         }
 
+	$ipv6_validater = new ipv6Validate();
+	$domain_validater = new domainValidate();
         foreach ($separated as $host) {
-            $ipaddr = ipv6Validate::run($host);
-            $host   = domainValidate::run($host);
+            $ipaddr = $ipv6_validater->run($host);
+            $host   = $domain_validater->run($host);
 
             if ($ipaddr === false && $host === false) {
                 return false;
@@ -584,12 +597,12 @@ class servers6Validate extends AbstractValidate {
 class duplicateValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
-        if (count($option) > 1) {
+        if (count_array($option) > 1) {
             $val = $option[1]($val);
         }
 
         /* make query for check duplicate */
-        if (count($option) > 2) {
+        if (count_array($option) > 2) {
             $cond = [$option[0] => $val, 'dhcp_identifier_type' => $option[2]];
         } else {
             $cond = [$option[0] => $val];
@@ -607,6 +620,8 @@ class duplicateValidate extends AbstractValidate {
         if (max($ret[0]) > 0) {
             return false;
         }
+
+        /* Inspect for the same MAC address in the configuration file */
         return true;
     }
 }
@@ -623,7 +638,7 @@ class duplicate6Validate extends AbstractValidate {
     {
         /* make query for check duplicate */
         $dbutil = new dbutils($this->allval['store']->db);
-        $dbutil->select('address,prefix_len,type');
+        $dbutil->select($this->allval['store']->db->inet6_ntoa('address') . ' AS address,prefix_len,type');
         $dbutil->from('ipv6_reservations');
 
         /* fetch COUNT query's result */
@@ -661,18 +676,18 @@ class duplicate6Validate extends AbstractValidate {
 }
 
 /*****************************************************************************
-* Class          : duplicate_delegate6Validate
+* Class          : duplicate_prefreserveValidate
 * Description    : Validation class that check duplication
 * args           : $val
 *                : $options - method options
 * return         : true or false
 *****************************************************************************/
-class duplicate_delegate6Validate extends AbstractValidate {
+class duplicate_prefreserveValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
         /* make query for check duplicate */
         $dbutil = new dbutils($this->allval['store']->db);
-        $dbutil->select('address, prefix_len, type');
+        $dbutil->select($this->allval['store']->db->inet6_ntoa('address') . ' AS address,prefix_len,type');
         $dbutil->from('ipv6_reservations');
 
         /* fetch COUNT query's result */
@@ -727,7 +742,7 @@ class subnet4formatValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
         $arr_item = explode('/', $val);
-        if (count($arr_item) !=  2) {
+        if (count_array($arr_item) !=  2) {
             return false;
         }
 
@@ -761,7 +776,7 @@ class subnet6formatValidate extends AbstractValidate {
     public function run($val, $option = array())
     {
         $arr_item = explode('/', $val);
-        if (count($arr_item) !=  2) {
+        if (count_array($arr_item) !=  2) {
             return false;
         }
 
@@ -1182,5 +1197,788 @@ class shared6existValidate extends AbstractValidate {
         } else {
             return !$exist_flg;
         }
+    }
+}
+
+/*****************************************************************************
+* Class          : interfaceValidate
+* Description    : check interface in config
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class interfaceValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        /* create config */
+        $conf = new Keaconf(DHCPV6);
+        [$ret, $interfaces] = $conf->get_interfaces();
+        if ($ret === false) {
+            return false;
+        }
+
+        if (!in_array($val, $interfaces)) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : interfaceidValidate
+* Description    : check interfaceid format
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class interfaceidValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        $ret = preg_match('/[^a-zA-Z0-9!#\$%&\'\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~]/', $val);
+        if ($ret === 1 || $ret === false) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : duplicateifidValidate
+* Description    : check only exist interface or interfaceid
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class duplicateifidValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        if (!empty($val) && !empty($option[0] )) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : existinterfaceValidate
+* Description    : check exist interface in shared-subnets
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class existinterfaceValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        if(empty($val)) {
+            return true;
+        }
+        $this->errmsg = [];
+        $this->errlog = [];
+        $allow_add = true;
+        $conf = new KeaConf(DHCPV6);
+        foreach ($val as $add_subnet) {
+            foreach ($conf->all[STR_DHCP6][STR_SUBNET6] as $new_conf ) {
+                if ($new_conf[STR_SUBNET] === $add_subnet) {
+                    if (!empty($new_conf[STR_INTERFACE])) {
+                        $this->errmsg[] = sprintf(_('Subnet has Interface setting.(%s)'), $add_subnet); 
+                        $this->errlog[] = sprintf('Subnet has Interface setting.(%s)', $add_subnet);
+                        $allow_add = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if ($allow_add === false) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : existinterfaceidValidate
+* Description    : check exist interface-id in shared-subnets
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class existinterfaceidValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        if(empty($val)) {
+            return true;
+        }
+
+        $this->errmsg = [];
+        $this->errlog = [];
+        $allow_add = true;
+        $conf = new KeaConf(DHCPV6);
+        foreach ($val as $add_subnet) {
+            foreach ($conf->all[STR_DHCP6][STR_SUBNET6] as $new_conf ) {
+                if ($new_conf[STR_SUBNET] === $add_subnet) {
+                    if (!empty($new_conf[STR_INTERFACEID])) {
+                        $this->errmsg[] = sprintf(_('Subnet has Interface-ID setting.(%s)'), $add_subnet);
+                        $this->errlog[] = sprintf('Subnet has Interface0ID setting.(%s)', $add_subnet);
+                        $allow_add = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if ($allow_add === false) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : existrelayValidate
+* Description    : check exist interface in shared-subnets
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class existrelayValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        if(empty($val)) {
+            return true;
+        }
+        $this->errmsg = [];
+        $this->errlog = [];
+        $allow_add = true;
+        $conf = new KeaConf(DHCPV6);
+        foreach ($val as $add_subnet) {
+            foreach ($conf->all[STR_DHCP6][STR_SUBNET6] as $new_conf ) {
+                if ($new_conf[STR_SUBNET] === $add_subnet) {
+                    if (!empty($new_conf[STR_RELAY][STR_AGENT])) {
+                        $this->errmsg[] = sprintf(_('Subnet has RelayAgent setting.(%s)'), $add_subnet);
+                        $this->errlog[] = sprintf('Subnet has RelayAgent setting.(%s)', $add_subnet);
+                        $allow_add = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if ($allow_add === false) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : existrelayValidate
+* Description    : check exist interface in shared-subnets
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class belongshared6Validate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        $errmsg = "";
+        $errlog = "";
+        $conf = new KeaConf(DHCPV6);
+    
+        /* check subnet belong to subnet part or shared-network part */
+        $ret = $conf->check_subnet_belongto($val, $pos_subnet, $pos_shnet);
+
+        /* subnet do not exist in config */
+        if ($ret === RET_NOTFOUND) {
+            $this->errmsg = sprintf(_("Subnet does not exist(%s)."), $val);
+            $this->errlog = sprintf('Subnet does not exist(%s).', $val);
+            return false;
+        }
+
+        /* subnet in shared-networks */
+        if ($ret === RET_SHNET) {
+            $this->errmsg = sprintf(_("Subnet belongs to a shared network.(%s)"), $val);
+            $this->errlog = sprintf('Subnet belongs to a shared network.(%s)', $val);
+            return false;
+        }
+
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : existprefixValidate
+* Description    : check exist prefix in config
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class existprefixValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        $this->errmsg = "";
+        $this->errlog = "";
+        $conf = new KeaConf(DHCPV6);
+
+        $flg_found = false;
+
+        /* Undo Temporary Replace */
+        $subnet = str_replace(';', ':', $option[0]);
+
+        /* get subnet part only */
+        [$ret, $subnetdata] = $conf->get_one_subnet($subnet);
+
+        if ($ret === false) {
+            return false;
+        }
+        if (empty($subnetdata['pd-pools'])) {
+            $this->errmsg = _('Prefix delegation setting does not exist.');
+            $this->errlog = 'Prefix delegation setting does not exist.';
+            return false;
+        }
+
+        foreach ($subnetdata['pd-pools'] as $value) {
+            if ($value['prefix'] === $val) {
+                $flg_found = true;
+            }
+        }
+
+        /* deletion target do not exist in config */
+        if (!$flg_found) {
+            $this->errmsg = sprintf(_('Prefix delegation target does not exist in config(%s).'), $val);
+            $this->errlog = sprintf("Prefix delegation target does not exist in config(%s).", $val);
+            return false;
+        }
+
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : check_other_subnetValidate
+* Description    : check exist prefix in config
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class check_other_subnetValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+
+        $flg_found = false;
+        $conf = new KeaConf(DHCPV6);
+
+        /* Undo Temporary Replace */
+        $belong_subnet = str_replace(';', ':', $option[0]);
+
+        $conf_all_subnet = $conf->mk_arr_all_subnet($conf->dhcp6);
+        foreach ($conf_all_subnet as $shname => $conf_subnet) {
+            foreach ($conf_subnet as $one_subnet) {
+                /* Allow overlap with the subnet to which you belong. */
+                if ($one_subnet['subnet'] === $belong_subnet) {
+                    continue;
+                }
+                $subnet = explode('/', $one_subnet['subnet'])[0];
+                if ($val === $subnet) {
+                    $flg_found = true;
+                }
+            }
+        }
+
+        if ($flg_found === true) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : check_other_pd_poolsValidate
+* Description    : check exist pd-pools in config
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class check_other_pd_poolsValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+
+        $flg_found = false;
+        $conf = new KeaConf(DHCPV6);
+
+        $conf_all_subnet = $conf->mk_arr_all_subnet($conf->dhcp6);
+        foreach ($conf_all_subnet as $shname => $conf_subnet) {
+            foreach ($conf_subnet as $one_subnet) {
+                foreach ($one_subnet['pd-pools'] as $pd_pools) {
+                    if ($pd_pools['prefix'] === $val) {
+                        $flg_found = true;
+                    }
+                }
+            }
+        }
+
+        if ($flg_found === true) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : comparisonValidate
+* Description    : compare val > option
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class comparisonValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+
+        if ($val < $option[0]) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : duplicate_poolsValidate
+* Description    : Check for duplicate pd-pools and pools
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class duplicate_poolsValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+
+        /* get pools */
+        $all_pools = [];
+        $conf = new KeaConf(DHCPV6);
+
+        $conf_all_subnet = $conf->mk_arr_all_subnet($conf->dhcp6);
+        foreach ($conf_all_subnet as $shname => $conf_subnet) {
+            foreach ($conf_subnet as $one_subnet) {
+                foreach ($one_subnet['pools'] as $pools) {
+                    $all_pools[] = $pools['pool'];
+                }
+            }
+        }
+
+        if (empty($all_pools)) {
+            return true;
+        }
+
+        /* Compare prefix/prefix-len with existing pools */
+        foreach ($all_pools as $pool) {
+            list($min, $max) = explode('-', $pool);
+
+            $binPrefix = $this->masktobyte($option[0]);
+            $pool_min = inet_pton($min);
+            $pool_max = inet_pton($max);
+            $prefix_min = inet_pton($val);
+            $prefix_max = inet_pton($val)  | ~$binPrefix;
+
+            /* Compare addresses */
+            if ($prefix_min <= $pool_max && $prefix_max >= $pool_min) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : duplicate_pd_poolsValidate
+* Description    : Check pd-pools range for duplicates
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class duplicate_pd_poolsValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+
+        $flg_exist = false;
+
+        /* get pd-pools */
+        $all_pd_pools = [];
+        $conf = new KeaConf(DHCPV6);
+
+        $conf_all_subnet = $conf->mk_arr_all_subnet($conf->dhcp6);
+        foreach ($conf_all_subnet as $shname => $conf_subnet) {
+            foreach ($conf_subnet as $one_subnet) {
+                foreach ($one_subnet['pd-pools'] as $pd_pools) {
+                    $all_pd_pools[] = [$pd_pools['prefix'], $pd_pools['prefix-len']];
+                }
+            }
+        }
+
+        if (empty($all_pd_pools)) {
+            return true;
+        }
+
+        /* Compare prefix/prefix-len with existing pools */
+        foreach ($all_pd_pools as $pd_pool) {
+            list($prefix, $length) = $pd_pool;
+
+            /* Check if it is within the scope of existing pd-pools */
+            $exist_binprefix = $this->masktobyte($length);
+            $exist_min = inet_pton($prefix);
+            $exist_max = $exist_min | ~$exist_binprefix;
+
+            $add_binprefix = $this->masktobyte($option[0]);
+            $add_min = inet_pton($val);
+            $add_max = $add_min | ~$add_binprefix;
+
+            /* Compare addresses */
+            /* Within existing pd-pools */
+            if ($add_min >= $exist_min && $add_min <= $exist_max) {
+                $flg_exist = true;
+                break;
+            }
+            if ($add_max >= $exist_min && $add_max <= $exist_max) {
+                $flg_exist = true;
+                break;
+            }
+
+            /* Include existing pd-pools */
+            if ($exist_min >= $add_min && $exist_min <= $add_max) {
+                $flg_exist = true;
+                break;
+            }
+
+            if ($exist_max >= $add_min && $exist_max <= $add_max) {
+                $flg_exist = true;
+                break;
+            }
+        }
+
+        if ($flg_exist === true) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : equalprefixValidate
+* Description    : compare prefix old_prefix
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class equalprefixValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+
+        /* Undo Temporary Replace */
+        $old_prefix = str_replace(';', ':', $option[0]);
+
+        if ($val !== $old_prefix) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : option82formatValidate
+* Description    : Check if the class name begins with opt82_.
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class option82formatValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        if (preg_match('/^opt82_/', $val) === 1) {
+            return true;
+        }
+        return false;
+    }
+}
+
+/*****************************************************************************
+* Class          : classexistValidate
+* Description    : Check if the class name begins with opt82_.
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class classexistValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        $flg_exist = false;
+
+        if ($option[0] === 'dhcp4') {
+            $conf = new KeaConf(DHCPV4);
+        } else if ($option[0] === 'dhcp6') {
+            $conf = new KeaConf(DHCPV6);
+        } else {
+            return false;
+        }
+
+        [$ret, $classdata] = $conf->get_client_class('all');
+        if ($ret === false) {
+            return false;
+        }
+
+        foreach ($classdata as $class) {
+            if($class['name'] === $val) {
+                $flg_exist = true;
+            }
+        }
+
+        if ($flg_exist === true) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
+/*****************************************************************************
+* Class          : invalid_charsValidate
+* Description    : Check for the inclusion of characters that cannot be used
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class invalid_charsValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        if (strpos($val, '"') !== false || strpos($val, "'") !== false || strpos($val, ',') !== false || strpos($val, '\\') !== false) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : duplicate_payout_conditionValidate
+* Description    : Inspect for duplicate payout conditions
+* args           : $val
+*                : $options - method options
+                    0 - dhcp4 or dhcp6
+                    1 - String to be inspected (If no, inspect $val)
+* return         : true or false
+*****************************************************************************/
+class duplicate_payout_conditionValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        if (isset($option[1])){
+            $val = $option[1];
+        }
+
+        $flg_found = false;
+        if ($option[0] === 'dhcp4') {
+            $conf = new KeaConf(DHCPV4);
+        } else if ($option[0] === 'dhcp6') {
+            $conf = new KeaConf(DHCPV6);
+        }
+
+        [$ret, $classdata] = $conf->get_client_class('all');
+        if ($ret === false) {
+            return true;
+        }
+
+        foreach ($classdata as $class) {
+            if ($class[STR_TEST] === "$val") {
+                $flg_found = true;
+                break;
+            }
+        }
+
+        if ($flg_found === true) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : alreadyleased4Validate
+* Description    : Check whether the IPv4 address to be leased is already leased.
+* args           : $val
+*                : $options - method options
+                    0 - pool_start
+                    1 - pool_end
+                    2 - allowleased (true or false)
+                    3 - subnet
+* return         : true or false
+*****************************************************************************/
+class alreadyleased4Validate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        $flg_found = false;
+        /* If flg_pass is true, do not check */
+        if ($option[2] === "true") {
+            return true;
+        }
+
+        /* get subnet id */
+        $conf = new KeaConf(DHCPV4);
+        $subnet_id = $conf->get_subnet_id($option[3]);
+
+        /* make query for check duplicate */
+        $dbutil = new dbutils($this->allval['store']->db);
+        $dbutil->select('INET_NTOA(address) as address');
+        $dbutil->from('lease4');
+        $dbutil->where("subnet_id = " . $subnet_id . " AND address BETWEEN INET_ATON('" . $option[0] . "') AND INET_ATON('" . $option[1] . "')");
+
+        /* fetch COUNT query's result */
+        $ret = $dbutil->get();
+        if ($ret === false) {
+            return false;
+        }
+        if (!empty($ret)) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : duplicate_option82_mac_Validate
+* Description    : Inspect for duplicate MAC addresses used in option82 setting.
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class duplicate_option82_macValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        $flg_found = false;
+        $conf = new KeaConf(DHCPV4);
+
+        [$ret, $classdata] = $conf->get_client_class('option82');
+        if ($ret === false) {
+            return true;
+        }
+
+        foreach ($classdata as $class) {
+            [$ret, $exists_mac] = $conf->format_test_value($class[STR_TEST], 'mac_address');
+            if (strtolower($val) === strtolower($exists_mac)) {
+                $flg_found = true;
+                break;
+            } 
+        }
+
+        if ($flg_found === true) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+/*****************************************************************************
+* Class          : includepoolValidate
+* Description    : Inspect for existing pools within range
+* args           : $val
+*                : $options - method options
+                   0 - pool_start
+                   1 - subnet
+                   2 - ignore_pool_start
+                   3 - ignore_pool_end
+* return         : true or false
+*****************************************************************************/
+class includepoolValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        $start_long  = ip2long($option[0]);
+        $end_long = ip2long($val);
+        $subnet = $option[1];
+
+        $conf = new KeaConf(DHCPV4);
+        [$ret, $pools] = $conf->get_pools($subnet, 'all');
+
+        /* Returns true if there is no pool */
+        if (is_array($pools) === false) {
+            return true;
+        }
+        foreach ($pools as $pool) {
+            list($min, $max) = explode('-', $pool['pool']);
+            if (!empty($option[2]) && $option[2] === $min) {
+                continue;
+            }
+
+            if (!empty($option[3]) && $option[3] === $max) {
+                continue;
+            }
+
+            $min_long = ip2long($min);
+            $max_long = ip2long($max);
+
+            if ($start_long >= $min_long && $start_long <= $max_long) {
+                return false;
+            }
+            if ($end_long >= $min_long && $end_long <= $max_long) {
+                return false;
+            }
+            if ($min_long >= $start_long && $min_long <= $end_long) {
+                return false;
+            }
+            if ($max_long >= $start_long && $max_long <= $end_long) {
+                return false;
+            }
+        }
+        return true;        
+    }
+}
+
+/*****************************************************************************
+* Class          : true_or_falseValidate
+* Description    : Judge true or false
+* args           : $val
+*                : $options - method options
+* return         : true or false
+*****************************************************************************/
+class true_or_falseValidate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        if ($val === "") {
+            return true;
+        }
+        if ($val === 'true' || $val === 'false') {
+            return true;
+        }
+        return false;
+    }
+}
+
+/*****************************************************************************
+* Class          : includepool6Validate
+* Description    : Inspect for existing pools within range (DHCPv6)
+* args           : $val
+*                : $options - method options
+                   0 - pool_start
+                   1 - subnet
+                   2 - ignore_pool_start
+                   3 - ignore_pool_end
+* return         : true or false
+*****************************************************************************/
+class includepool6Validate extends AbstractValidate {
+    function run ($val, $option = array()) {
+        $start_long  = inet_pton($option[0]);
+        $end_long = inet_pton($val);
+        $subnet = $option[1];
+
+        $conf = new KeaConf(DHCPV6);
+        [$ret, $pools] = $conf->get_pools6($subnet);
+
+        /* Returns true if there is no pool */
+        if (is_array($pools) === false) {
+            return true;
+        }
+        foreach ($pools as $pool) {
+            list($min, $max) = explode('-', $pool['pool']);
+            if (!empty($option[2]) && $option[2] === $min) {
+                continue;
+            }
+
+            if (!empty($option[3]) && $option[3] === $max) {
+                continue;
+            }
+
+            $min_long = inet_pton($min);
+            $max_long = inet_pton($max);
+
+            if ($start_long >= $min_long && $start_long <= $max_long) {
+                return false;
+            }
+            if ($end_long >= $min_long && $end_long <= $max_long) {
+                return false;
+            }
+            if ($min_long >= $start_long && $min_long <= $end_long) {
+                return false;
+            }
+            if ($max_long >= $start_long && $max_long <= $end_long) {
+                return false;
+            }
+        }
+        return true;
     }
 }

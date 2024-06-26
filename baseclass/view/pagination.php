@@ -213,7 +213,7 @@ class Pagination {
         }
 
         /* Count array data */
-        $this->totaldata = count($this->source);
+        $this->totaldata = count_array($this->source);
 
         /* Get total page number */
         $this->totalpage = ceil($this->totaldata / $this->dataperpage);

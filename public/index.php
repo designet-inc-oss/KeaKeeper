@@ -82,22 +82,22 @@ class Login {
             $store->auth->end_session();
             $this->msg_tag["e_auth"] = _("logged out.");
             $log_msg = "logged out.";
-            $store->log->log($log_msg, NULL);
+            $store->log->log($log_msg);
 
             /* delete lock file */
             $ret = delete_lockfile($login_id, $errmsg); 
             if ($errmsg !== NULL) {
-                $store->log->log($errmsg, NULL);
+                $store->log->log($errmsg);
             }
         } else if ($ctrl === "sesstimeout") {
             $store->auth->end_session();
             $this->msg_tag["e_auth"] = _("Session timed out.");
             $log_msg = "Session timed out.";
-            $store->log->log($log_msg, NULL);
+            $store->log->log($log_msg);
         } else if ($ctrl === "invalidsess") {
             $this->msg_tag["e_auth"] = _("Invalid session.");
             $log_msg = "Invalid session.";
-            $store->log->log($log_msg, NULL);
+            $store->log->log($log_msg);
         }
         $this->display($store);
     }
@@ -151,14 +151,14 @@ class Login {
             /* occur system error */
             if ($ret === RET_LOGIN_ERR) {
                 $store->auth->end_session();
-                $store->log->log($errmsg, NULL);
+                $store->log->log($errmsg);
                 $store->view->render("syserror.tmpl", NULL);
                 exit(1);
 
             /* double login */
             } else if ($ret === RET_LOGIN_NG) {
                 $store->auth->end_session();
-                $store->log->log($errmsg, NULL);
+                $store->log->log($errmsg);
                 $this->msg_tag["e_auth"] = _("Double login.");
 
             /* authentication success */

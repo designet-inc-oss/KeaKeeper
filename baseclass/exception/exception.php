@@ -35,7 +35,7 @@ class SyserrException extends Exception {
 function syserr_exception_handler($e)
 {
     $log = new Syslog();
-    $log->log($e->getMessage(), NULL);
+    $log->log($e->getMessage());
 
     /* check syserr_tmpl */
     if (is_readable(SYSERR_TMPL) === false) {

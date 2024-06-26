@@ -68,12 +68,22 @@ class Searchlease4 {
     *************************************************************************/
     public function __construct($store)
     {
-        $this->msg_tag = ['e_ldate1'  => null,
-                          'e_ldate2'  => null,
-                          'e_edate1'  => null,
-                          'e_edate2'  => null,
-                          'e_all'     => null,
-                          'no_result' => null];
+        $this->msg_tag = ['e_ipaddr'        => '',
+                          'e_identifier'    => '',
+                          'e_ldate1'        => '',
+                          'e_ldate2'        => '',
+                          'e_edate1'        => '',
+                          'e_edate2'        => '',
+                          'e_all'           => '',
+                          'no_result'       => ''];
+
+        $this->pre = ['ipaddr'     => '',
+                      'identifier' => '',
+                      'ldate1'     => '',
+                      'ldate2'     => '',
+                      'edate1'     => '',
+                      'edate2'     => '',
+                      'all'        => ''];
 
         $this->result = null;
         $this->store  = $store;
@@ -90,15 +100,19 @@ class Searchlease4 {
     {
         global $appini;
         $rules['ipaddr'] = [
-                            'method' => 'exist',
-                            'msg' => [''],
-                            'log' => [''],
+                            'method' => 'exist|decimal',
+                            'msg' => ['',
+                                      _('IPv4 address contains characters that cannot be used.')],
+                            'log' => ['',
+                                      'IPv4 address contains characters that cannot be used.'],
                             'option' => ['allowempty']
                         ];
         $rules['identifier'] = [
-                                'method' => 'exist',
-                                'msg' => [''],
-                                'log' => [''],
+                                'method' => 'exist|hexadecimal',
+                                'msg' => ['',
+                                          _('Identifier contains characters that cannot be used.')],
+                                'log' => ['',
+                                          'Identifier contains characters that cannot be used.'],
                                 'option' => ['allowempty']
                         ];
         $rules['ldate1'] = [

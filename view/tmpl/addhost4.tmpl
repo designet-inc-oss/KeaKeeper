@@ -120,50 +120,7 @@
                     <label class="col-sm-2 control-label text-nowrap" for="type">{t}type{/t}</label>
                     <div class="col-sm-10">
                       <select class="form-control" id="type" name="type">
-                        {if isset($exist.dhcp_identifier_type)}
-                          {if $exist.dhcp_identifier_type eq 0}
-                            <option value="0" selected>{t}MAC{/t}
-                          {else}
                             <option value="0">{t}MAC{/t}
-                          {/if}
-  
-                          {if $exist.dhcp_identifier_type eq 1}
-                            <option value="1" selected>{t}DUID{/t}
-                          {else}
-                            <option value="1">{t}DUID{/t}
-                          {/if}
-  
-                          {if $exist.dhcp_identifier_type eq 2}
-                            <option value="2" selected>{t}Circuit-ID{/t}
-                          {else}
-                            <option value="2">{t}Circuit-ID{/t}
-                          {/if}
-                        {/if}
-
-                        {if isset($pre.dhcp_identifier_type)}
-                          {if $pre.dhcp_identifier_type eq 0}
-                            <option value="0" selected>{t}MAC{/t}
-                          {else}
-                            <option value="0">{t}MAC{/t}
-                          {/if}
-  
-                          {if $pre.dhcp_identifier_type eq 1}
-                            <option value="1" selected>{t}DUID{/t}
-                          {else}
-                            <option value="1">{t}DUID{/t}
-                          {/if}
-  
-                          {if $pre.dhcp_identifier_type eq 2}
-                            <option value="2" selected>{t}Circuit-ID{/t}
-                          {else}
-                            <option value="2">{t}Circuit-ID{/t}
-                          {/if}
-
-                        {else}
-                          <option value="0">{t}MAC{/t}
-                          <option value="1">{t}DUID{/t}
-                          <option value="2">{t}Circuit-ID{/t}
-                        {/if}
                       </select>
                     </div>
                   </div>
@@ -266,7 +223,7 @@
                       {/if}
                     </div>
                   </div>
-                  
+
                   <div class="form-group">
                     <label class="col-sm-4 control-label text-nowrap" for="bootp-boot-file">{t}boot-file-name{/t}</label>
                     <div class="col-sm-8">
@@ -277,7 +234,7 @@
                       {/if}
                     </div>
                   </div>
-
+                  
                 </div>
                 <!-- 検索ボタン -->
                 <div class="form-group">

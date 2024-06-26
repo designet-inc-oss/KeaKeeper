@@ -76,6 +76,8 @@
               {$e_subnet_id}{call br var=$e_subnet_id}
               {$e_subnet}{call br var=$e_subnet}
               {$e_pool}{call br var=$e_pool}
+              {$e_ipaddr}{call br var=$e_ipaddr}
+              {$e_identifier}{call br var=$e_identifier}
               {$disp_msg}{call br var=$disp_msg}
 
               {if isset($no_result)}
@@ -109,7 +111,7 @@
                 <div class="form-group">
                   <label class="col-sm-2 control-label text-nowrap" for="Identifier">{t}Identifier{/t}</label>
                   <div class="col-sm-10">
-                    <input type="text" class="form-control" id="Identifier" name="identifier" placeholder="08:00:27:c1:02:08" value="{$pre.identifier}">
+                    <input type="text" class="form-control" id="Identifier" name="identifier" placeholder="00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd:ee:ff:00:00" value="{$pre.identifier}">
                   </div>
                 </div>
               

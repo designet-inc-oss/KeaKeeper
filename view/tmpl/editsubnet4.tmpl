@@ -1,4 +1,4 @@
-{$title = "{t}List range{/t}"}
+{$title = "{t}List Pool IP address range{/t}"}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -100,8 +100,8 @@
             <div class="col-sm-6 col-md-push-6">
               <div class="table-bordered"> 
                 <ul>
-                  <li>"routerss"には、サブネットに配布するデフォルトゲートウェイのIPアドレスを指定します。</li>
-                  <li>"domain-name-servers"には、サブネットに割り当てるDNSサーバのIPアドレスを指定します。</li>
+                  <li>{t}In routers, specify the IP address of the default gateway to be distributed to the subnet.{/t}</li>
+                  <li>{t}For domain-name-servers, specify the IP addresses of the DNS servers to be assigned to the subnet.{/t}</li>
                 </ul>
               </div>
             </div>
@@ -110,8 +110,8 @@
             <div class="col-sm-6 col-md-pull-6">
               <form class="form-horizontal" action="editsubnet4.php?subnet={$subnet|escape:"url"}" method="post">
                 <div class="form-group">
-                  <label class="col-sm-3 control-label text-nowrap" for="IPaddr">ルータ </label>
-                  <div class="col-sm-9">
+                  <label class="col-sm-4 control-label text-nowrap" for="IPaddr">{t}routers{/t}</label>
+                  <div class="col-sm-8">
                     {if isset($pre.routers)}
                       <input class="form-control" id="routers" name="routers" placeholder="192.0.2.11" value="{$pre.routers}" type="text">
                     {else}
@@ -120,8 +120,8 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-sm-3 control-label text-nowrap" for="Identifier">DNSサーバアドレス</label>
-                  <div class="col-sm-9">
+                  <label class="col-sm-4 control-label text-nowrap" for="Identifier">{t}domain-name-servers{/t}</label>
+                  <div class="col-sm-8">
                     {if isset($pre.dnsserveraddr)}
                       <input class="form-control" id="dnsserveraddr" name="dnsserveraddr" placeholder="192.0.2.12" value="{$pre.dnsserveraddr}" type="text">
                     {else}
@@ -130,9 +130,9 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <div class="col-sm-3">
+                  <div class="col-sm-4">
                   </div>
-                  <div class="col-sm-9">
+                  <div class="col-sm-8">
                     <input type="hidden" value="{$subnet}" name="subnet">
                     <button type="submit" name="edit">{t}Update{/t}</button>
                     <button type="button" name="back" onClick="delOption('{$subnet}')">{t}Delete{/t}</button>
@@ -173,8 +173,8 @@
               <div class="table-bordered"> 
                 <ul>
                   <li>オプション名とオプション値は以下のリンクに参考してください。<br><br>
-                    <a target="_blank" href="https://ftp.isc.org/isc/kea/1.4.0/doc/kea-guide.html#dhcp4-std-options-list">
-                     https://ftp.isc.org/isc/kea/1.4.0/doc/kea-guide.html#dhcp4-std-options-list</a>
+                    <a target="_blank" href="https://ftp.isc.org/isc/kea/2.4.1/doc/html/arm/dhcp4-srv.html#id2">
+                     https://ftp.isc.org/isc/kea/2.4.1/doc/html/arm/dhcp4-srv.html#id2</a>
                   </li>
                 </ul>
               </div>
@@ -230,10 +230,10 @@
                         <td data-title="delete">
                             <p><a href="editsubnet4.php?subnet={$subnet|escape:"url"}&name={$option.name|escape:"url"}&delete=delopt" onClick="javascript:return confirm('{t}Are you sure you want to delete this option?{/t}')"><span class="glyphicon glyphicon-trash"></span></i></a></p>
                           </td>
-                        <td data-title="Pool IP addresses">
+                        <td data-title="Pool IP address range">
                         {$option.name}
                         </td>
-                      <td data-title="Pool IP addresses">
+                      <td data-title="Pool IP address range">
                         {$option.data}
                         </td>
                      </tr>

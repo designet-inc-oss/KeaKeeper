@@ -104,6 +104,18 @@ class EditHost4
                           'is_show_warn_msg'       => 0,
                           'success'                => null];
 
+        $this->pre = ['domain_name_servers'  => "",
+                      'routers'              => '',
+                      'tftp_server_name'     => '',
+                      'boot_file_name'       => '',
+                      'hostname'             => '',
+                      'dhcp_identifier_type' => '',
+                      'dhcp4_boot_file_name' => '',
+                      'dhcp_identifier'      => '',
+                      'dhcp4_next_server'    => '',
+                      'ipv4_address'         => '',
+                     ];
+
         $this->err_tag = ['disp_msg'    => null,
                           'e_msg'       => null,
                           'e_subnet_id' => null,
@@ -116,7 +128,7 @@ class EditHost4
         $this->conf = new KeaConf(DHCPV4);
         if ($this->conf->result === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
             return;
         }
@@ -134,7 +146,7 @@ class EditHost4
 
         if ($exist === false) {
             $this->err_tag['e_msg'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
             return;
         }
@@ -177,10 +189,10 @@ class EditHost4
             return false;
         }
 
-        $pools_arr = $this->conf->get_pools($this->subnet_val['subnet']);
-        if ($pools_arr === false) {
+        [$ret, $pools_arr] = $this->conf->get_pools($this->subnet_val['subnet']);
+        if ($ret === false) {
             $this->msg_tag['e_pool'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -224,32 +236,32 @@ class EditHost4
           ];
 
         switch ($values['dhcp_identifier_type']) {
-            case 0:
-                $id_format = 'macaddr';
+            case MAC_TYPE:
+                $method = 'exist|macaddr|max:64|duplicate_hostid_notin:HEX(dhcp_identifier):remove_both|duplicate_option82_mac';
                 break;
-            case 1:
-                $id_format = 'duid';
-                break;
-            case 2:
-                $id_format = 'circuitid';
+        /* Discontinued in version 1.05 due to migration of functionality to the option82 management screen */
+            case CIRCUITID_TYPE:
+                $method = 'exist|circuitid|max:129|duplicate_hostid_notin:dhcp_identifier';
                 break;
         }
 
         $rules['dhcp_identifier'] =
           [
-           'method' =>
-                  "exist|$id_format|max:64|duplicate_hostid_notin:HEX(dhcp_identifier):remove_both",
+           'method' => $method,
            'msg'    => [_('Please enter Identifier.'),
                         _('Invalid identifier.'),
                         _('Invalid identifier.'),
+                        _('Identifier already exists.'),
                         _('Identifier already exists.')],
            'log'    => ['Empty identifier.',
                         'Invalid identifier('
                         . $values['dhcp_identifier'] . ').',
                         'Invalid identifier('
                         . $values['dhcp_identifier'] . ').',
-                    'Identifier already exists('
-                    . $values['dhcp_identifier'] . ').']
+                        'Identifier already exists('
+                        . $values['dhcp_identifier'] . ').',
+                        'Identifier already exists('
+                        . $values['dhcp_identifier'] . ').']
           ];
 
         $sub = $this->subnet_val['subnet'];
@@ -257,11 +269,11 @@ class EditHost4
           [
            'method' =>
            "exist|ipv4|insubnet4:$sub|outpool:$sub|duplicate_hostid_notin:INET_NTOA(ipv4_address)",
-           'msg'    => [_('Please enter IPv4 address.'),
-                        _('Invalid IPv4 address.'),
-                        _('IPv4 address out of subnet range.'),
-                        _('IPv4 address is within subnet pool range.'),
-                        _('IPv4 address already exists.')],
+           'msg'    => [_('Please enter IP address.'),
+                        _('Invalid IP address.'),
+                        _('IP address out of subnet range.'),
+                        _('IP address is within subnet pool range.'),
+                        _('IP address already exists.')],
            'log'    => ['Empty IPv4 address.',
                        'Invalid IPv4 address(' . $values['ipv4_address'] . ').',
            'IPv4 address out of subnet range(' . $values['ipv4_address'] . ').',
@@ -409,7 +421,7 @@ class EditHost4
             $msg = _("There is no data concerning the host ID(%s).");
             $this->err_tag['disp_msg'] = sprintf($msg, $host_id);
             $this->store->log->log('There is no data concerning the host ID('
-                                   . $host_id .').', null);
+                                   . $host_id .').');
             return null;
         }
 
@@ -421,34 +433,38 @@ class EditHost4
         if ($hosts_data[0]['dhcp_identifier'] === "" ||
             $hosts_data[0]['dhcp_identifier'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find dhcp_identifier.");
-            $this->store->log->log('Cannot find dhcp_identifier.', null);
+            $this->store->log->log('Cannot find dhcp_identifier.');
             return null;
         }
         if ($hosts_data[0]['dhcp_identifier_type'] === "" ||
             $hosts_data[0]['dhcp_identifier_type'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find dhcp_identifier_type.");
-            $this->store->log->log('Cannot find dhcp_identifier_type.', null);
+            $this->store->log->log('Cannot find dhcp_identifier_type.');
             return null;
 
         }
         if ($hosts_data[0]['dhcp4_subnet_id'] === "" ||
             $hosts_data[0]['dhcp4_subnet_id'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find dhcp4_subnet_id.");
-            $this->store->log->log('Cannot find dhcp4_subnet_id.', null);
+            $this->store->log->log('Cannot find dhcp4_subnet_id.');
             return null;
 
         }
         if ($hosts_data[0]['ipv4_address'] === "" ||
             $hosts_data[0]['ipv4_address'] === NULL) {
             $this->err_tag['disp_msg'] = _("Cannot find ipv4_address.");
-            $this->store->log->log('Cannot find ipv4_address.', null);
+            $this->store->log->log('Cannot find ipv4_address.');
             return null;
         }
 
         /* add colon to Identifier */
         $data = [];
         foreach ($hosts_data as $item) {
-            $item['dhcp_identifier'] = add_colon($item['dhcp_identifier']);
+            if ($item['dhcp_identifier_type'] === CIRCUITID_TYPE) {
+                $item['dhcp_identifier'] = hex2bin($item['dhcp_identifier']);
+            } else {
+                $item['dhcp_identifier'] = add_colon($item['dhcp_identifier']);
+            }
             $data[] = $item;
         }
 
@@ -607,6 +623,10 @@ class EditHost4
                     break;
                 case 'dhcp_identifier':
                     $data = $this->store->db->dbh->quote($data);
+                    if (strval($hosts_val['dhcp_identifier_type']) === CIRCUITID_TYPE) {
+                        $hosts_val[$col] = $data;
+                        break;
+                    }
                     $removed = remove_both($data);
                     $unhexed_id = $this->store->db->unhex($removed);
                     $hosts_val[$col] = $unhexed_id;
@@ -674,7 +694,7 @@ class EditHost4
         $dbutil->from('dhcp4_options');
 
         /* count result */
-        $count_ret = count($dbutil->get());
+        $count_ret = count_array($dbutil->get());
 
         /* Cannot get data from database */
         if ($count_ret === 0) {
@@ -693,6 +713,7 @@ class EditHost4
     private function _options_query($options_val)
     {
         global $options;
+        global $scope_id;
 
         foreach ($options as $key => $value) {
             $arr[6] = post('code_6');
@@ -736,6 +757,7 @@ class EditHost4
                 $insert_data['code'] = $options[$col];
                 $insert_data['formatted_value'] = $data;
                 $insert_data['host_id'] = $this->subnet_val['host_id'];
+                $insert_data['scope_id'] = $scope_id['host'];
 
                 try {
                     $dbutil->into($insert_data);
@@ -836,7 +858,7 @@ class EditHost4
         $success_log = sprintf($log_format, $forhosts['ipv4_address'],
                                             $forhosts['dhcp_identifier']);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $this->msg_tag['success'] = _('Edit successful!');
     }
 

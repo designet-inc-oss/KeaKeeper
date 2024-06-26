@@ -84,7 +84,7 @@ class Password {
     public function validate($post)
     {
         /* validation rules*/
-        $rules["passwd"] = ["method"=>"exist|min:4|max:128|regex:/^[0-9a-zA-Z!#$%&()=~{}\[\]@*:+?.><,]*$/",
+        $rules["passwd"] = ["method"=>"exist|min:4|max:128|regex:/^[0-9a-zA-Z!#$%&()=~{}\[\]@*:+;\/?.><,]*$/",
                             "msg"=>[
                                       _("Please enter Password."),
                                       _("Password too short."),

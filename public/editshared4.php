@@ -62,7 +62,7 @@ class EditShared4 {
         /* check config error */
         if ($this->conf->result === false) {
             $this->msg_tag = array_merge($this->msg_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
         }
     }
 
@@ -121,8 +121,9 @@ class EditShared4 {
         $old_name = $values['old_shared_name'];
 
         /*  define rules */
-         $rules['shared_name'] =
-           [                                                                                'method' => "exist|sharedname|shared4exist:$new_name:$old_name",
+        $rules['shared_name'] =
+           [
+            'method' => "exist|sharedname|shared4exist:$new_name:$old_name",
             'msg'    => [
                           _('Please enter shared-network name.'),
                           _('Invalid shared-network validate.'),
@@ -137,9 +138,9 @@ class EditShared4 {
                         ],
            ];
 
-	$rules['old_shared_name'] =
-          [
-           'method' => 'shared4exist:exist_true',
+        $rules['old_shared_name'] =
+           [
+            'method' => 'shared4exist:exist_true',
             "msg"=>[
                      _('Shared-network does not exists.'),
                    ],
@@ -147,7 +148,7 @@ class EditShared4 {
                      sprintf('Shared-network does not exists.(%s)',
                                                     $values["old_shared_name"]),
                    ],
-          ];
+           ];
 
         /* input store into values */
         $values['store'] = $this->store;
@@ -184,7 +185,7 @@ class EditShared4 {
         $new_config = $this->conf->delete_shared_network($delete_shared);
         if ($new_config === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -197,7 +198,7 @@ class EditShared4 {
         /* save log to session history */
         $this->conf->save_hist_to_sess($log_msg);
 
-        $this->store->log->log($log_msg, null);
+        $this->store->log->log($log_msg);
 
         return true;
     }
@@ -221,7 +222,7 @@ class EditShared4 {
             $this->msg_tag['e_msg'] = _("Subnet exists in shared-network.");
 
             $log_msg = "Subnet exists in shared-network.";
-            $this->store->log->log(sprintf($log_msg), null);
+            $this->store->log->log(sprintf($log_msg));
             return false;
         }
         return true;
@@ -287,7 +288,7 @@ class EditShared4 {
         $new_config = $this->conf->edit_shared_network($postdata);
         if ($new_config === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -300,7 +301,7 @@ class EditShared4 {
         /* save log to session history */
         $this->conf->save_hist_to_sess($log_msg);
 
-        $this->store->log->log($log_msg, null);
+        $this->store->log->log($log_msg);
 
         return true;
     }
@@ -319,7 +320,7 @@ class EditShared4 {
         /* failed to fetch other subnet*/
         if ($subnet_data === false) {
             if ($this->log !== "") {
-                $this->store->log->log($this->log, null);
+                $this->store->log->log($this->log);
             }
             return false;
         }

@@ -49,6 +49,18 @@ class AddHost4
                              'subnet'    => get('subnet')];
         $this->pools = null;
 
+        $this->pre = ['domain_name_servers'  => "",
+                      'routers'              => '',
+                      'tftp_server_name'     => '',
+                      'boot_file_name'       => '',
+                      'hostname'             => '',
+                      'dhcp_identifier_type' => '',
+                      'dhcp4_boot_file_name' => '',
+                      'dhcp_identifier'      => '',
+                      'dhcp4_next_server'    => '',
+                      'ipv4_address'         => '',
+                     ];
+
         $this->msg_tag = ['e_hostname'             => null,
                           'e_dhcp_identifier_type' => null,
                           'e_dhcp_identifier'      => null,
@@ -73,7 +85,7 @@ class AddHost4
         $this->conf = new KeaConf(DHCPV4);
         if ($this->conf->result === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
             return;
         }
@@ -91,7 +103,7 @@ class AddHost4
 
         if ($exist === false) {
             $this->err_tag['e_msg'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             $this->check_subnet = false;
         }
 
@@ -129,10 +141,10 @@ class AddHost4
             return false;
         }
 
-        $pools_arr = $this->conf->get_pools($this->subnet_val['subnet']);
-        if ($pools_arr === false) {
+        [$ret, $pools_arr] = $this->conf->get_pools($this->subnet_val['subnet']);
+        if ($ret === false) {
             $this->msg_tag['e_pool'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -177,35 +189,32 @@ class AddHost4
           ];
 
         switch ($values['dhcp_identifier_type']) {
-            case 0:
-                $id_format = 'macaddr';
-                $id_num = 0;
+            case MAC_TYPE:
+		$method = "exist|macaddr|max:64|duplicate:HEX(dhcp_identifier):remove_both:0|duplicate_option82_mac";
                 break;
-            case 1:
-                $id_format = 'duid';
-                $id_num = 1;
-                break;
-            case 2:
-                $id_format = 'circuitid';
-                $id_num = 2;
+        /* Discontinued in version 1.05 due to migration of functionality to the option82 management screen */
+            case CIRCUITID_TYPE:
+		$method = "exist|circuitid|max:129|duplicate:dhcp_identifier";
                 break;
         }
 
         $rules['dhcp_identifier'] =
           [
-           'method' =>
-           "exist|$id_format|max:64|duplicate:HEX(dhcp_identifier):remove_both:$id_num",
+           'method' => $method,
            'msg'    => [_('Please enter Identifier.'),
                         _('Invalid identifier.'),
                         _('Invalid identifier.'),
+                        _('Identifier already exists.'),
                         _('Identifier already exists.')],
            'log'    => ['Empty identifier.',
                         'Invalid identifier('
                         . $values['dhcp_identifier'] . ').',
                         'Invalid identifier('
                         . $values['dhcp_identifier'] . ').',
-                    'Identifier already exists('
-                    . $values['dhcp_identifier'] . ').']
+                        'Identifier already exists('
+                        . $values['dhcp_identifier'] . ').',
+                        'Identifier already exists('
+                        . $values['dhcp_identifier'] . ').']
           ];
 
         $sub = $this->subnet_val['subnet'];
@@ -277,7 +286,6 @@ class AddHost4
                         $values['boot_file_name']. ').'],
            'option' => ['allowempty']
           ];
-
 
         /* input store into values */
         $values['store'] = $this->store;
@@ -361,12 +369,15 @@ class AddHost4
         }
 
         /* add colon to Identifier */
-        $data = [];
+	    $data = [];
         foreach ($hosts_data as $item) {
-            $item['dhcp_identifier'] = add_colon($item['dhcp_identifier']);
+            if ($item['dhcp_identifier_type'] === CIRCUITID_TYPE) {
+                $item['dhcp_identifier'] = hex2bin($item['dhcp_identifier']);
+            } else {
+                $item['dhcp_identifier'] = add_colon($item['dhcp_identifier']);
+	        }
             $data[] = $item;
         }
-
         return $data[0];
     }
 
@@ -417,6 +428,11 @@ class AddHost4
                     break;
                 case 'dhcp_identifier':
                     $data = $this->store->db->dbh->quote($data);
+                    if (strval($hosts_val['dhcp_identifier_type']) === CIRCUITID_TYPE )
+                    {
+                        $hosts_val[$col] = $data;
+                        break;
+                    }
                     $removed = remove_both($data);
                     $unhexed_id = $this->store->db->unhex($removed);
                     $hosts_val[$col] = $unhexed_id;
@@ -463,13 +479,16 @@ class AddHost4
     private function _options_query($options_val)
     {
         global $options;
+        global $scope_id;
 
         $dbutil = new dbutils($this->store->db);
 
         /* define insert column */
         $lastid = $this->store->db->last_insertid();
         $insert_data = ['host_id' => $lastid,
-                        'code' => '', 'formatted_value' => ''];
+		'code' => '', 'formatted_value' => '',
+	        'scope_id' => $scope_id['host'],
+	        ];
 
         /* input value into array */
         foreach ($options_val as $col => $data) {
@@ -557,7 +576,7 @@ class AddHost4
         $success_log = sprintf($log_format, $forhosts['ipv4_address'],
                                             $forhosts['dhcp_identifier']);
 
-        $this->store->log->log($success_log, null);
+        $this->store->log->log($success_log);
         $this->msg_tag['success'] = _('Add successful!');
     }
 

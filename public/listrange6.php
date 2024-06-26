@@ -93,11 +93,11 @@ class ListRange6 {
             "method"=>"exist|subnet6exist:exist_true",
             "msg"=>[
                 _('Can not find a subnet.'),
-               _('Subnet do not exit in config.'),
+               _('Subnet does not exist in config.'),
             ],
             "log"=>[
                 'Can not find a subnet in GET parameters.',
-                sprintf('Subnet do not exist in config.(%s)', $params["subnet"]),
+                sprintf('Subnet does not exist in config.(%s)', $params["subnet"]),
             ],
         ];
 
@@ -127,10 +127,10 @@ class ListRange6 {
     public function get_all_pools($params)
     {
         /* get all pools of this subnet */
-        $pools_arr = $this->conf->get_pools6($params['subnet']);
-        if ($pools_arr === false) {
+        [$ret, $pools_arr] = $this->conf->get_pools6($params['subnet']);
+        if ($ret === false) {
             $this->msg_tag['e_pool'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
@@ -156,7 +156,7 @@ class ListRange6 {
         $rules["pool"] = [
             "method"=>"exist",
             "msg"=>[
-                 _('Delete target of range does not exist.'),
+                 _('Delete target of Pool IP address range does not exist.'),
              ],
              "log"=>[
                  'Can not find a pool in GET parameters.',
@@ -179,14 +179,14 @@ class ListRange6 {
         $ret = $this->get_all_pools($postdata);
         if ($ret === false) {
             $this->err_tag['e_msg'] = $this->conf->err['e_msg'];
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
         /* check deleting pool exist in array pools */
         if (!in_array($postdata['pool'], $this->pools)) {
-            $this->err_tag['e_msg'] = _('Deleting pool do not exist.');
-            $this->store->log->output_log(sprintf('Deleting pool do not exist.(%s)', 
+            $this->err_tag['e_msg'] = _('Deleting Pool IP address range do not exist.');
+            $this->store->log->output_log(sprintf('Deleting Pool IP address range do not exist.(%s)', 
                                           $postdata['pool']));
             return false;
         }
@@ -204,24 +204,24 @@ class ListRange6 {
     public function delete_range($subnet, $pool)
     {
         /* delete pool in this subnet */
-        $new_config = $this->conf->del_range($subnet, $pool);
-        if ($new_config === false) {
+        [$ret, $new_config] = $this->conf->del_range($subnet, $pool);
+        if ($ret === false) {
             $this->err_tag = array_merge($this->err_tag, $this->conf->err);
-            $this->store->log->log($this->conf->err['e_log'], null);
+            $this->store->log->log($this->conf->err['e_log']);
             return false;
         }
 
         /* save new config to session */
         $this->conf->save_conf_to_sess($new_config);
 
-        $log_msg = "Range deleted(%s)(%s).";
+        $log_msg = "Pool IP address range deleted(%s)(%s).";
         $log_msg = sprintf($log_msg, $subnet, $pool);
 
         /* save log to session history */
         $this->conf->save_hist_to_sess($log_msg);
 
         $this->store->log->output_log($log_msg);
-        $this->msg_tag['disp_msg'] = sprintf(_("Range deleted(%s)."), $pool);
+        $this->msg_tag['disp_msg'] = sprintf(_("Pool IP address range deleted(%s)."), $pool);
 
         return true;
     }
