@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{t}Subnet{/t}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+  <script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+   {include file='./functions/br.tmpl' scope="root"}
+   {include file='./configs/menu.tmpl' scope="root"}
+   {include file='./configs/breadcrumb.tmpl' scope="root"}
+   {include file='./functions/menumaker.tmpl' scope="root"}
+   {include file='./functions/breadmaker.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv4" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- 左グリッド  -->
+  <div class="row">
+    <!-- 左ナビゲーションバー -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand4 id="searchsubnet" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+      {if isset($subnet)}
+        <div class="panel panel-default">
+          {call menumaker list=$side_listoption82 id="addoption82" mode="ul" class="nav nav-pills nav-stacked abc"}
+        </div>
+      {/if}
+    </nav>
+
+    <!-- 右グリッド  -->
+    <div class="col-sm-10">
+      <nav class="">
+        {call breadmaker list=$add_option82 id="addoption82"}
+      </nav>
+      <!-- subnet -->
+      <div class="Subnet">
+        {t}Subnet{/t}: {$subnet}
+      </div>
+
+      <div class="panel panel-default">
+        <!-- メインコンテンツ -->
+        <div class="container-fluid panel-body">
+          <div class="row">
+            <!-- エラーメッセージ -->
+            <div class="ErrorMessage">
+              {$e_msg}{call br var=$e_msg}
+              {$e_subnet}{call br var=$e_subnet}
+              {$e_pool_start}{call br var=$e_pool_start}
+              {$e_pool_end}{call br var=$e_pool_end}
+              {$e_circuit_id}{call br var=$e_circuit_id}
+              {$e_remote_id}{call br var=$e_remote_id}
+              {$e_mac_address}{call br var=$e_mac_address}
+              {$e_advanced_setting}{call br var=$e_advanced_setting}
+              {$e_alreadyleased}{call br var=$e_alreadyleased}
+              {$success}
+            </div>
+
+        <form class="form-horizontal" action="addoption82.php?subnet={$subnet}" method="post">
+        {if $pre.alreadyleased === true}
+          <input type="hidden" name="allowleased" value="true">
+        {/if}
+          <fieldset>
+            <legend>{t}Pool IP address{/t}</legend>
+            <!-- 説明文 -->
+            <div class="col-sm-6 col-md-push-6">
+              <div class="table-bordered">
+                <ul>
+                  <li>{t}You can configure DHCPv4 to pay out IP addresses based on DHCPv4 Option82 (Circuit-ID/Remote-ID) and MAC address information.{/t}</li>
+                  <li>{t}Please enter within the subnet range.{/t}</li>
+                  <li>{t}Other than IPv4 address format cannot be used.{/t}</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- 入力フォーム -->
+            <div class="col-sm-6 col-md-pull-6">
+              <div class="form-group">
+                <label class="col-sm-5 control-label text-nowrap" for="poolstart">{t}Pool IP address range(start){/t}</label>
+                <div class="col-sm-7">
+                  {if isset($pre.pool_start)}
+                    <input type="text" class="form-control" id="pool_start" name="pool_start" placeholder="xxx.xxx.xxx.xxx" value="{$pre.pool_start}">
+                  {else}
+                    <input type="text" class="form-control" id="pool_start" name="pool_start" placeholder="xxx.xxx.xxx.xxx">
+                  {/if}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-5 control-label text-nowrap" for="poolend">{t}Pool IP address range(end){/t}</label>
+                <div class="col-sm-7">
+                  {if isset($pre.pool_end)}
+                    <input type="text" class="form-control" id="pool_end" name="pool_end" placeholder="xxx.xxx.xxx.xxx" value="{$pre.pool_end}">
+                  {else}
+                    <input type="text" class="form-control" id="pool_end" name="pool_end" placeholder="xxx.xxx.xxx.xxx">
+                  {/if}
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>{t}Payout conditions{/t}</legend>
+              <!-- 説明文 -->
+              <div class="col-sm-6 col-md-push-6">
+                <div class="table-bordered">
+                  <ul>
+                    <li>{t}Single quotes, double quotes, backslashes, and commas are not allowed in the Circuit-ID and Remote-ID.{/t}</li>
+                    <li>{t}If Advanced Settings is not checked, one of Circuit-ID, Remote-ID, or MAC Address must be entered.{/t}</li>
+                    <li>{t}Circuit-ID and Remote-ID are internally converted to hexadecimal notation and registered. (Example below){/t}</li>
+                    <li>{t}If you want to register them as input values, check "Use input values as they are".{/t}</li>
+                    <dl>
+                      <dt>{t}(Example){/t}{t}Input value{/t}: VLAN-100</dt>
+                      <dd>{t}If "Use input values as they are" is not checked{/t} </dd>
+                      <dd>&rarr; {t}Registered value{/t}: 0x564c414e2d313030</dd>
+                      <dd>{t}If "Use input values as they are" is checked{/t} </dd>
+                      <dd>&rarr; {t}Registered value{/t}: VLAN-100</dd>
+                    </dl>
+                    <li>{t}Use or not use the input values as they are, depending on your relay agent.{/t}</li>
+                    <li>{t}If you check the Advanced Settings checkbox, a free description field will appear.{/t}</li>
+                    <li>{t}Enter the conditions to be used for the disbursement.{/t}</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- 入力フォーム -->
+              <div class="col-sm-6 col-md-pull-6">
+                <div class="form-group">
+                  <label class="col-sm-5 control-label text-nowrap" for="is_advanced">{t}Advanced setting{/t}</label>
+                  <div class="col-sm-7">
+                    {if $pre.is_advanced === 'true'}
+                      <input type="checkbox" id="is_advanced" name="is_advanced" value='true' checked="checked">
+                    {else}
+                      <input type="checkbox" id="is_advanced" name="is_advanced" value='true'>
+                    {/if}
+                  </div>
+                </div>
+                {if $pre.is_advanced === 'true'}
+                  <div id="basic" class="ui-helper-hidden">
+                {else}
+                  <div id="basic">
+                {/if}
+                  <div class="form-group">
+                    <label class="col-sm-5 control-label text-nowrap" for="circuit_id">{t}Circuit-ID{/t}</label>
+                    <div class="col-sm-7">
+                      <input type="text" class="form-control" id="circuit_id" name="circuit_id" value="{$pre.circuit_id}" placeholder="VLAN-100">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-5 control-label text-wrap" for="no_hex_circuit">{t}Use input values as they are{/t}({t}Circuit-ID{/t})</label>
+                    <div class="col-sm-7">
+                      {if $pre.no_hex_circuit === 'true'}
+                        <input type="checkbox" id="no_hex_circuit" name="no_hex_circuit" value='true' checked="checked">
+                      {else}
+                        <input type="checkbox" id="no_hex_circuit" name="no_hex_circuit" value='true'>
+                      {/if}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-5 control-label text-nowrap" for="remote_id">{t}Remote-ID{/t}</label>
+                    <div class="col-sm-7">
+                      <input type="text" class="form-control" id="remote_id" name="remote_id" value="{$pre.remote_id}" placeholder="MAC-xx:xx:xx:xx:xx:xx">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-5 control-label text-wrap" for="no_hex_remote">{t}Use input values as they are{/t}({t}Remote-ID{/t})</label>
+                    <div class="col-sm-7">
+                      {if $pre.no_hex_remote === 'true'}
+                        <input type="checkbox" id="no_hex_remote" name="no_hex_remote" value='true' checked="checked">
+                      {else}
+                        <input type="checkbox" id="no_hex_remote" name="no_hex_remote" value='true'>
+                      {/if}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-5 control-label text-nowrap" for="mac_address">{t}MAC address{/t}</label>
+                    <div class="col-sm-7">
+                      <input type="text" class="form-control" id="mac_address" name="mac_address" value="{$pre.mac_address}" placeholder="xx:xx:xx:xx:xx:xx">
+                    </div>
+                  </div>
+                </div>
+                {if $pre.is_advanced === 'false'}
+                  <div id="advanced" class="ui-helper-hidden">
+                {else}
+                  <div id="advanced">
+                {/if}
+                  <div class="form-group advanced-setting">
+                    <label class="col-sm-5 control-label text-nowrap" for="advanced_setting">{t}Free-text entry{/t}</label>
+                    <div class="col-sm-7">
+                      <textarea type="text" class="form-control" id="advanced_setting" name="advanced_setting" rows="10" placeholder="relay[1].exists and pkt4.mac == 0x112233445566">{$pre.advanced_setting}</textarea>
+                    </div>
+                  </div>
+                </div>
+                <!-- 追加ボタン -->
+                <div class="form-group" style='text-align: center'>
+                  <div class="col-sm-5"></div>
+                  <div class="col-sm-7">
+                    <button type="submit" name="add" value="Add">{t}Add{/t}</button>
+                    <button onclick="location.href = 'listoption82.php?subnet={$subnet}';" type="button" name="search">{t}Back{/t}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+<script>
+  document.getElementById('is_advanced').addEventListener('change', function() {
+    if (this.checked) {
+      document.getElementById('basic').classList.add('ui-helper-hidden');
+      document.getElementById('advanced').classList.remove('ui-helper-hidden');
+    } else {
+      document.getElementById('basic').classList.remove('ui-helper-hidden');
+      document.getElementById('advanced').classList.add('ui-helper-hidden');
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{t}Subnet{/t}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+  <script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+   {include file='./functions/br.tmpl' scope="root"}
+   {include file='./configs/menu.tmpl' scope="root"}
+   {include file='./configs/breadcrumb.tmpl' scope="root"}
+   {include file='./functions/menumaker.tmpl' scope="root"}
+   {include file='./functions/breadmaker.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv4" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- 左グリッド  -->
+  <div class="row">
+    <!-- 左ナビゲーションバー -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand4 id="searchsubnet" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+      {if isset($subnet)}
+        <div class="panel panel-default">
+          {call menumaker list=$side_listoption82 id="listoption82" mode="ul" class="nav nav-pills nav-stacked abc"}
+        </div>
+      {/if}
+    </nav>
+
+    <!-- 右グリッド  -->
+    <div class="col-sm-10">
+      <nav class="">
+        {call breadmaker list=$list_option82 id="listoption82"}
+      </nav>
+      <!-- subnet -->
+      <div class="Subnet">
+        {t}Subnet{/t}: {$subnet}
+      </div>
+
+      <div class="panel panel-default">
+        <!-- メインコンテンツ -->
+        <div class="container-fluid panel-body">
+          <div class="row">
+            <!-- エラーメッセージ -->
+            <div class="ErrorMessage">
+              {$e_msg}{call br var=$e_msg}
+              {$e_subnet}{call br var=$e_subnet}
+              {$e_class_name}{call br var=$e_class_name}
+              {$e_keyword}{call br var=$e_keyword}
+              {$e_ipaddr}{call br var=$e_ipaddr}
+              {$success}
+            </div>
+
+            <!-- 説明文 -->
+            <div class="col-sm-6 col-md-push-6">
+              <div class="table-bordered">
+                <ul>
+                  <li>
+                    <dl>
+                      <dt>{t}Keyword{/t}</dt>
+                      <dd>- {t}Partial match search for Circuit-ID, Remote-ID, and MAC Address, respectively{/t}</dd>
+                      <dd>- {t}Performs a partial match search for payout conditions using items other than the above three{/t}</dd>
+                    </dl>
+                  </li>
+                  <li>
+                    <dl>
+                      <dt>{t}Pool IP address{/t}</dt>
+                      <dd>- {t}Performs an exact match search for the beginning or end of Pool IP address range{/t}</dd>
+                      <dd>- {t}Exists within the Pool IP address range{/t}</dd>
+                      <dd>- {t}For Pool IP address, enter an IP address within the subnet range{/t}</dd>
+                      <dd>- {t}Cannot use any other IPv4 address format{/t}</dd>
+                  </li>
+                  <li>{t}If both Keyword and Pool IP address are empty, all settings are displayed{/t}</li>
+                  <li>{t}Export outputs data matching the search criteria to a CSV file{/t}</li>
+                </ul>
+              </div>
+            </div>
+
+
+            <!-- 検索フォーム -->
+              <div class="col-sm-6 col-md-pull-6">
+                <form class="form-horizontal" action="listoption82.php" method="get">
+                <input type="hidden" name="subnet" value="{$subnet}">
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label text-nowrap" for="Keyword">{t}Keyword{/t}</label>
+                    <div class="col-sm-9">
+                      {if isset($pre.keyword)}
+                        <input type="text" class="form-control" id="Keyword" name="keyword" placeholder="circuit-id, remote-id, mac address, etc..." value="{$pre.keyword}">
+                      {else}
+                        <input type="text" class="form-control" id="Keyword" name="keyword" placeholder="circuit-id, remote-id, mac address, etc...">
+                      {/if}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label text-nowrap" for="ipaddr">{t}Pool IP address{/t}</label>
+                    <div class="col-sm-9">
+                      {if isset($pre.ipaddr)}
+                        <input type="text" class="form-control" id="IPaddr" name="ipaddr" placeholder="xxx.xxx.xxx.xxx" value="{$pre.ipaddr}">
+                      {else}
+                        <input type="text" class="form-control" id="IPaddr" name="ipaddr" placeholder="xxx.xxx.xxx.xxx">
+                      {/if}
+                    </div>
+                  </div>
+                
+  
+                  <!-- 検索ボタン -->
+                  <div class="form-group">
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-9">
+                      <button type="submit" name="search" value="Search">{t}Search{/t}</button>
+                      <button type="submit" name="export" value="Export">{t}Export{/t}</button>
+                      <button onclick='location.href = "addoption82.php?subnet={$subnet}";' type="button">{t}Add{/t}</button>
+                      <button onclick='location.href = "searchsubnet4.php";' type="button" name="search">{t}Back{/t}</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+          </div>
+
+          <hr style="margin:0px;">
+
+          <!-- 検索件数 -->
+          <div class="row">
+            <div class="col-sm-12">
+              <p>{t}Result{/t}: {$result|default:'0'}</p>
+            </div>
+          </div>
+
+          <!-- 検索結果 -->
+          {if $result gt 0}
+            <div class="row">
+              <div class="col-sm-12">
+                <table class="table table-striped table-bordered responsive" style="table-layout:fixed;width:100%;">
+                  <thead class="thead-default thead-default-extend">
+                    <tr>
+                      <th class="col-xs-1">
+                        {t}Delete{/t}
+                      </th>
+                      <th class="col-xs-5">
+                        {t}Payout conditions{/t}<br>
+                        <font color="green">({t}Notation actually set{/t})</font>
+                      </th>
+                      <th class="col-xs-2">
+                        {t}Pool IP address range{/t}
+                      </th>
+                    </tr>
+                  </thead>
+                     
+                  <tbody>
+                    {foreach from=$item item=info}
+                      <tr>
+                        <td data-title="delete">
+                          <p><a href="listoption82.php?subnet={$subnet|escape:"url"}&delete=Delete&class_name={$info.class_name}" onClick="javascript:return confirm('{t}Are you sure you want to delete this option82 setting?{/t}')"><span class="glyphicon glyphicon-trash"></span></i></a></p>
+                        </td>
+                        {if $info.advanced_setting ne ''}
+                        <td data-title="Advanced setting">
+                          {t}Advanced setting{/t}: <br>
+                          {$info.advanced_setting}
+                        </td>
+                        {else}
+                        <td data-title="Basic setting" style="word-wrap:break-word">
+                          {t}Circuit-ID{/t}: {$info.circuit_id}<br>
+                          {if $info.org_circuit_id !== ''}<font color="green">({$info.org_circuit_id})</font><br>{/if}<br>
+                          {t}Remote-ID{/t}: {$info.remote_id}<br>
+                          {if $info.org_remote_id !== ''}<font color="green">{$info.org_remote_id}</font><br>{/if}<br>
+                          {t}MAC address{/t}: {$info.mac_address}<br>
+                          {if $info.org_mac_address !== ''}<font color="green">{$info.org_mac_address}</font>{/if}
+                        </td>
+                        {/if}
+                        <td data-title="Pool IP address range">
+                          {$info.pool_start} - {$info.pool_end}
+                        </td>
+                     </tr>
+                    {/foreach}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- データの表示が2ページ以上にわたるときにページリンクを表示 -->
+            {if $paging->totaldata gt $paging->dataperpage}
+              <div class="Pagenator">
+                <!-- 1ページ前と最初のページ戻る矢印を表示させるか制御するif文。現在ページ
+(currentpage 1ページ目でない場合に表示させる -->
+                {if $paging->currentpage ne 1}
+                  <a href="listoption82.php?page=1&subnet={$subnet}&keyword={$pre.keyword}&ipaddr={$pre.ipaddr}">&laquo;</a>
+                  <a href="listoption82.php?page={$paging->currentpage - 1}&subnet={$subnet}&keyword={$pre.keyword}&ipaddr={$pre.ipaddr}">&lt;</a>
+                {/if}
+
+                <!-- publicのコードでページネーションクラスの変数に表示させるページ番号の配列を割り当てておき、それを表示させる。-->
+                {section name=i loop=$paging->disppage}
+                  <!-- 現在ページをリンクにさせない -->
+                  {if $paging->currentpage eq $paging->disppage[i]}
+                    {$paging->disppage[i]}
+                  <!-- 現在ページ以外はリンクにさせる -->
+                  {else}
+                    <a href="listoption82.php?page={$paging->disppage[i]}&subnet={$subnet}&keyword={$pre.keyword}&ipaddr={$pre.ipaddr}">{$paging->disppage[i]}</a>
+                  {/if}
+                {/section}
+
+                <!-- 1ページ後と最後のページ戻る矢印を表示させるか制御するif文。現在ページ(currentpage)が最後のページでない場合に表示させる -->
+                {if $paging->totalpage ne $paging->currentpage}
+                  <a href="listoption82.php?page={$paging->currentpage + 1}&subnet={$subnet}&keyword={$pre.keyword}&ipaddr={$pre.ipaddr}">&gt;</a>
+                  <a href="listoption82.php?page={$paging->totalpage}&subnet={$subnet}&keyword={$pre.keyword}&ipaddr={$pre.ipaddr}">&raquo;</a>
+                {/if}
+              </div>
+            {/if}
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+</html>

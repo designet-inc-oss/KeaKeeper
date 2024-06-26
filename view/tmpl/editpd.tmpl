@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>{t}Subnet{/t}</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css" type="text/css" media="all">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="css/bootstrap/js/bootstrap.min.js"></script>
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="js/jquery-ui-1.12.1.custom/jquery-ui.min.css">
+  <script src="js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+   {include file='./functions/br.tmpl' scope="root"}
+   {include file='./configs/menu.tmpl' scope="root"}
+   {include file='./configs/breadcrumb.tmpl' scope="root"}
+   {include file='./functions/menumaker.tmpl' scope="root"}
+   {include file='./functions/breadmaker.tmpl' scope="root"}
+</head>
+
+<body>
+<header class="">
+    <nav class="navbar navbar-default navbar-default-extend">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#patern07">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand">KeaKeeper</div>
+      </div>
+
+      <div id="patern07" class="collapse navbar-collapse">
+        {call menumaker list=$global id="dhcpv6" mode="ul" class="nav navbar-nav navbar-right"}
+      </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+  <!-- 左グリッド  -->
+  <div class="row">
+    <!-- 左ナビゲーションバー -->
+    <nav class="aside col-sm-2">
+      <div class="panel panel-default">
+        {call menumaker list=$side_noexpand6 id="searchsubnet" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+      <div class="panel panel-default">
+        {call menumaker list=$side_listpd id="listpd" mode="ul" class="nav nav-pills nav-stacked abc"}
+      </div>
+    </nav>
+
+    <!-- 右グリッド  -->
+    <div class="col-sm-10">
+      <nav class="">
+        {call breadmaker list=$edit_pd id="editpd"}
+      </nav>
+      <!-- subnet -->
+      <div class="Subnet">
+        {t}Subnet{/t}: {$subnet_val.subnet}
+      </div>
+
+      <div class="panel panel-default">
+        <!-- メインコンテンツ -->
+        <div class="container-fluid panel-body">
+          <div class="row">
+            <!-- エラーメッセージ -->
+            <div class="ErrorMessage">
+              {if isset($e_subnet)}
+                {$e_subnet}{call br var=$e_subnet}
+              {/if}
+              {if isset($e_old_prefix)}
+                {$e_old_prefix}{call br var=$e_old_prefix}
+              {/if}
+              {if isset($e_prefix)}
+                {$e_prefix}{call br var=$e_prefix}
+              {/if}
+              {if isset($e_prefix_len)}
+                {$e_prefix_len}{call br var=$e_prefix_len}
+              {/if}
+              {if isset($e_delegated_len)}
+                {$e_delegated_len}{call br var=$e_delegated_len}
+              {/if}
+              {if isset($e_msg)}
+                {$e_msg}{call br var=$e_msg}
+              {/if}
+              {if isset($success)}
+                {$success}
+              {/if}
+            </div>
+
+            <!-- 説明文 -->
+            <div class="col-sm-6 col-md-push-6">
+              <div class="table-bordered"> 
+                <ul>
+                    <li>{t}Delegated-len must be greater than or equal to Prefix-len.{/t}</li>
+                    <li>{t}Changing Prefix/Prefix-len during operation is not allowed because it may cause trouble that affects a wide area.{/t}</li>
+                    <li>{t}If changes are necessary, delete once and then add again.{/t}</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- 編集フォーム -->
+              <div class="col-sm-6 col-md-pull-6">
+                <form class="form-horizontal" action="editpd.php?subnet={$subnet_val.subnet}&prefix={$subnet_val.old_prefix}" method="post">
+                  <div class="form-group">
+                    <label class="col-sm-6 control-label text-nowrap" for="Prefix">{t}Prefix{/t}</label>
+                    <div class="col-sm-6">
+                      {if isset($pre.prefix)}
+                        <input type="text" class="form-control" id="Prefix" name="prefix" placeholder="2001:db8:1::" value="{$pre.prefix}" readonly>
+                      {else}
+                        <input type="text" class="form-control" id="Prefix" name="prefix" placeholder="2001:db8:1::" readonly>
+                      {/if}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                     <label class="col-sm-6 control-label text-nowrap" for="Prefix_len">{t}Prefix-len{/t}</label>
+                     <div class="col-sm-3">
+                       {if isset($pre.prefix_len)}
+                       <input type="text" class="form-control" id="Prefix_len" name ="prefix_len" placeholder="64" value="{$pre.prefix_len}" readonly>
+                       {else}
+                       <input type="text" class="form-control" id="Prefix_len" name ="prefix_len" placeholder="64" readonly>
+                       {/if}
+                     </div>
+                   </div>
+                   <div class="form-group">
+                     <label class="col-sm-6 control-label text-nowrap" for="Delegated_len">{t}Delegated-len{/t}</label>
+                     <div class="col-sm-3">
+                       {if isset($pre.delegated_len)}
+                       <input type="text" class="form-control" id="Delegated_len" name ="delegated_len" placeholder="80" value="{$pre.delegated_len}">
+                       {else}
+                       <input type="text" class="form-control" id="Delegated_len" name ="delegated_len" placeholder="80">
+                       {/if}
+                     </div>
+                   </div>
+
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label text-nowrap" for="Subnet"></label>
+                    <div class="col-sm-9">
+                      <button type="submit" name="edit">{t}Edit{/t}</button>
+                      <button onclick='location.href = "listpd.php?subnet={$subnet_val.subnet}";' type="button" name="back">{t}Back{/t}</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer  navbar navbar-default navbar-default-extend">
+    <nav class="pull-right">
+      <a href="https://www.designet.co.jp/" class="navbar-brand">Contributed by DesigNET</a>
+    </nav>
+</footer>
+
+</body>
+</html>
