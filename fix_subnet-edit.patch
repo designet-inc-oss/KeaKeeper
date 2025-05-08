@@ -1,0 +1,20 @@
+--- /var/www/keakeeper/public/editsubnet4.php.org	2025-04-17 11:02:09.971767285 +0900
++++ /var/www/keakeeper/public/editsubnet4.php	2025-04-17 11:03:15.367963933 +0900
+@@ -198,16 +198,14 @@
+ 
+             $data_check['dnsserveraddr'] = $dnsserver;
+ 
+-            $rules["dnsserveraddr"] = ["method"=>"exist|ipv4|insubnet4:$subnet",
++            $rules["dnsserveraddr"] = ["method"=>"exist|ipv4:$subnet",
+                                          "msg"=>[
+                                          _('Please enter DNS Server Address.'),
+                                          _('Invalid DNS Server Address.'),
+-                                         _('DNS Server Address out of subnet range.'),
+                                       ],
+                                         "log"=>[
+                                           'Empty DNS Server Address.',
+                                           'Invalid DNS Server Address.(' . $dnsserver_str . ')', 
+-                                          'DNS Server Address. out of subnet range(' . $dnsserver_str . ').',
+                                          ],
+                                         "option"=>['allowempty'],
+                                      ];
