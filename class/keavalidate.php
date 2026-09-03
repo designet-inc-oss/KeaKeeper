@@ -911,10 +911,13 @@ class subnetoverldap4Validate extends AbstractValidate {
                     $conf_max_long = ip2long($conf_max_str);
 
                     /* subnet overlap with other subnet */
-                    if ((($val_min_long >= $conf_min_long) &&
-                         ($conf_max_long <= $conf_max_str)) ||
-                        (($val_max_long >= $conf_min_long) &&
-                         ($val_max_long <= $conf_max_long))) {
+                    if ((($conf_min_long <= $val_min_long) &&
+                         ($val_min_long <= $conf_max_long)) ||
+                        (($conf_min_long <= $val_max_long) &&
+                         ($val_max_long <= $conf_max_long)) ||
+                        (($val_min_long <= $conf_min_long) &&
+                         ($conf_min_long <= $val_max_long))
+                       ) {
                         return false;
                     }
                 }

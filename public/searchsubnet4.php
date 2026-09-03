@@ -340,7 +340,19 @@ class SearchSubnet4 {
                 foreach ($subnets[$i][STR_POOLS] as $pool) {
                     /* Exclude pool for option82 */
                     if (isset($pool[STR_CLIENT_CLASS]) && preg_match('/^opt82_/', $pool[STR_CLIENT_CLASS]) == 1) {
+                        // old format like "client-class": "opt82_bas_XXXX"
                         continue;
+                    } else if (!empty($pool[STR_CLIENT_CLASSES])) {
+                        // new format like "client-classes": [ "opt82_bas_XXXX" ]
+                        $clflg = false;
+                        foreach ($pool[STR_CLIENT_CLASSES] as $cl) {
+                            if (preg_match('/^opt82_/', $cl) == 1) {
+                                $clflg = true;
+                            }
+                        }
+                        if ($clflg === true) {
+                            continue;
+                        }
                     }
                     if (isset($pool[STR_POOL])) {
                         list($pool_min, $pool_max) = get_kea_pool_v4($pool[STR_POOL]); 

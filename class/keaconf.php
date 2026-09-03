@@ -2250,6 +2250,7 @@ class KeaConf {
 
         foreach ($pools as $index => $one_pool) {
             if (isset($one_pool[STR_CLIENT_CLASS])) {
+                /* old format like "client-class": "opt82_bas_XXXX" */
                 if (preg_match('/^opt82_/', $one_pool[STR_CLIENT_CLASS]) === 1) {
                     switch ($mode) {
                         case 'include':
@@ -2261,6 +2262,26 @@ class KeaConf {
                 } else {
                     if ($mode === 'exclude') {
                         $result_pools[$index] = $one_pool;
+                    }
+                }
+            } else if (!empty($one_pool[STR_CLIENT_CLASSES])) {
+                /* new format like "client-classes": [ "opt82_bas_XXXX" ] */
+                foreach ($one_pool[STR_CLIENT_CLASSES] as $cl) {
+                    if (preg_match('/^opt82_/', $cl) === 1) {
+                        switch ($mode) {
+                            case 'include':
+                                $result_pools[$cl] = $one_pool;
+                            case 'search':
+                                $opt82_found = true;
+                                break;
+                        }
+                        if ($opt82_found === true) {
+                            break;
+                        }
+                    } else {
+                        if ($mode === 'exclude') {
+                            $result_pools[$index] = $one_pool;
+                        }
                     }
                 }
             } else {
@@ -2470,9 +2491,22 @@ class KeaConf {
                             if ($sh_pools[STR_CLIENT_CLASS] === STR_NO_MEMBER) {
                                 unset($new_conf[$this->k_dhcp][STR_SHARED][$sh_pos][$this->k_subnet][$sh_subpos][STR_POOLS][$sh_poolpos][STR_CLIENT_CLASS]);
                             }
+                            if (!empty($sh_pools[STR_CLIENT_CLASSES])) {
+                                if (($key = array_search(STR_NO_MEMBER, $sh_pools[STR_CLIENT_CLASSES])) !== false) {
+                                    unset($new_conf[$this->k_dhcp][STR_SHARED][$sh_pos][$this->k_subnet][$sh_subpos][STR_POOLS][$sh_poolpos][STR_CLIENT_CLASSES][$key]);
+                                    if (empty($new_conf[$this->k_dhcp][STR_SHARED][$sh_pos][$this->k_subnet][$sh_subpos][STR_POOLS][$sh_poolpos][STR_CLIENT_CLASSES])) {
+                                        unset($new_conf[$this->k_dhcp][STR_SHARED][$sh_pos][$this->k_subnet][$sh_subpos][STR_POOLS][$sh_poolpos][STR_CLIENT_CLASSES]);
+                                    }
+                                }
+                            }
                         }
                         if ($sh_pools[STR_CLIENT_CLASS] === $class_name) {
                             unset($new_conf[$this->k_dhcp][STR_SHARED][$sh_pos][$this->k_subnet][$sh_subpos][STR_POOLS][$sh_poolpos]);
+                        }
+                        if (!empty($sh_pools[STR_CLIENT_CLASSES])) {
+                            if (($key = array_search($class_name, $sh_pools[STR_CLIENT_CLASSES])) !== false) {
+                                unset($new_conf[$this->k_dhcp][STR_SHARED][$sh_pos][$this->k_subnet][$sh_subpos][STR_POOLS][$sh_poolpos]);
+                            }
                         }
                         $new_conf[$this->k_dhcp][STR_SHARED]
                                                 [$sh_pos]
@@ -2492,9 +2526,22 @@ class KeaConf {
                         if ($gl_pools[STR_CLIENT_CLASS] === STR_NO_MEMBER) {
                             unset($new_conf[$this->k_dhcp][$this->k_subnet][$subpos][STR_POOLS][$poolpos][STR_CLIENT_CLASS]);
                         }
+                        if (!empty($gl_pools[STR_CLIENT_CLASSES])) {
+                            if (($key = array_search(STR_NO_MEMBER, $gl_pools[STR_CLIENT_CLASSES])) !== false) {
+                                unset($new_conf[$this->k_dhcp][$this->k_subnet][$subpos][STR_POOLS][$poolpos][STR_CLIENT_CLASSES][$key]);
+                                if (empty($new_conf[$this->k_dhcp][$this->k_subnet][$subpos][STR_POOLS][$poolpos][STR_CLIENT_CLASSES])) {
+                                    unset($new_conf[$this->k_dhcp][$this->k_subnet][$subpos][STR_POOLS][$poolpos][STR_CLIENT_CLASSES]);
+                                }
+                            }
+                        }
                     }
                     if ($gl_pools[STR_CLIENT_CLASS] === $class_name) {
                         unset($new_conf[$this->k_dhcp][$this->k_subnet][$subpos][STR_POOLS][$poolpos]);
+                    }
+                    if (!empty($gl_pools[STR_CLIENT_CLASSES])) {
+                        if (($key = array_search($class_name, $gl_pools[STR_CLIENT_CLASSES])) !== false) {
+                            unset($new_conf[$this->k_dhcp][$this->k_subnet][$subpos][STR_POOLS][$poolpos]);
+                        }
                     }
                     $new_conf[$this->k_dhcp][$this->k_subnet]
                                             [$subpos]
@@ -2603,7 +2650,7 @@ class KeaConf {
         /* pool data */
         $pool_data = [
             STR_POOL         => $params['pool_start'] . '-' . $params['pool_end'],
-            STR_CLIENT_CLASS => $class_data[STR_NAME],
+            STR_CLIENT_CLASSES => [ $class_data[STR_NAME] ],
         ];
 
         /* current config */
@@ -2667,14 +2714,15 @@ class KeaConf {
         foreach ($conf[$this->k_dhcp][STR_SHARED] as $sh_pos => $shared) {
             foreach ($shared[$this->k_subnet] as $sub_pos => $subnet) {
                 foreach($subnet[STR_POOLS] as $pool_pos => $pools) {
-                    if (!isset($pools[STR_CLIENT_CLASS])) {
+                    if (!isset($pools[STR_CLIENT_CLASS])
+                          && empty($pools[STR_CLIENT_CLASSES])) {
                         $new_conf[$this->k_dhcp][STR_SHARED]
                                                 [$sh_pos]
                                                 [$this->k_subnet]
                                                 [$sub_pos]
                                                 [STR_POOLS]
                                                 [$pool_pos]
-                                                [STR_CLIENT_CLASS] = STR_NO_MEMBER;
+                                                [STR_CLIENT_CLASSES] =  [ STR_NO_MEMBER ];
                     }
                 }
             }
@@ -2683,12 +2731,13 @@ class KeaConf {
         /* Examine a pool within a subnet */
         foreach ($conf[$this->k_dhcp][$this->k_subnet] as $sub_pos => $subnet) {
             foreach ($subnet[STR_POOLS] as $pool_pos => $pools) {
-                if (!isset($pools[STR_CLIENT_CLASS])) {
+                if (!isset($pools[STR_CLIENT_CLASS])
+                      && empty($pools[STR_CLIENT_CLASSES])) {
                     $new_conf[$this->k_dhcp][$this->k_subnet]
                                             [$sub_pos]
                                             [STR_POOLS]
                                             [$pool_pos]
-                                            [STR_CLIENT_CLASS] = STR_NO_MEMBER;
+                                            [STR_CLIENT_CLASSES] = [ STR_NO_MEMBER ];
                 }
             }
         }
